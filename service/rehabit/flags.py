@@ -18,7 +18,16 @@ from .ledger import Settings, _d, reference_key, set_doses
 
 @dataclass(frozen=True)
 class Thresholds:
-    spike_ratio: float = 1.5           # week against the mean of the previous four
+    # Percentile rules. A value is unusual when it is beyond this share of the same
+    # person's own values over the trailing year, not when it crosses a fixed line.
+    # A fixed line (a week 1.5 times the last four, HRV under 0.92 of baseline)
+    # fired in most ordinary fortnights of a real record.
+    unusual_percentile: float = 0.95   # top (or bottom) 5 percent of own history
+    history_days: int = 365            # how far back "own history" reaches
+    history_min: int = 30              # values needed before a rule may fire
+    history_lag_days: int = 14         # the last fortnight is left out, so a bad stretch
+                                       # is not judged against its own first days
+    spike_ratio: float = 1.2           # floor: a spike must also be this far above the prior weeks
     spike_min_prior_days: int = 2      # loaded days needed in those four weeks
     re_entry_days: int = 21            # unloaded this long, then loaded
     re_entry_period_days: int = 42     # how long after a re-entry the load still counts as new
@@ -34,11 +43,11 @@ class Thresholds:
     # Recovery and steps: the last 7 days against the 28 days before them.
     baseline_min_days: int = 14        # values needed in those 28 days
     recent_min_days: int = 4           # values needed in the last 7
-    hrv_suppressed: float = 0.92       # 7-day mean HRV as a share of the baseline
-    rhr_elevated_bpm: float = 3.0      # 7-day mean resting heart rate above the baseline
+    hrv_suppressed: float = 0.95       # floor: HRV must also be this far under the baseline
+    rhr_elevated_bpm: float = 1.0      # floor: resting heart rate at least this far above it
     short_sleep_minutes: float = 390   # a short night (6.5 hours) ...
     short_sleep_nights: int = 3        # ... this many times in 7
-    step_spike: float = 1.5            # 7-day mean steps against the baseline
+    step_spike: float = 1.2            # floor: 7-day mean steps against the baseline
     step_day_jump: float = 1.5         # one day's steps against the 28-day highest
 
 
@@ -52,6 +61,30 @@ def _insert(con, day, kind, scope_type, scope, detail, side=None, value=None,
     )
 
 
+class _Own:
+    """A person's own trailing history of one quantity, for percentile rules."""
+
+    def __init__(self, t: Thresholds, high: bool = True):
+        self.t, self.high, self.values = t, high, []      # values: (day, value), in day order
+
+    def cutoff(self, d: date) -> float | None:
+        """The value that only the most extreme 5 percent of earlier days went beyond."""
+        past = sorted(v for day, v in self.values
+                      if self.t.history_lag_days <= (d - day).days <= self.t.history_days)
+        if len(past) < self.t.history_min:
+            return None
+        share = self.t.unusual_percentile if self.high else 1 - self.t.unusual_percentile
+        return past[min(len(past) - 1, int(share * len(past)))]
+
+    def unusual(self, d: date, value: float) -> float | None:
+        """The cutoff if value is beyond it, else None. Then value joins the history."""
+        cut = self.cutoff(d)
+        self.values.append((d, value))
+        if cut is None:
+            return None
+        return cut if (value > cut if self.high else value < cut) else None
+
+
 def _tissue_flags(con, t: Thresholds) -> None:
     series: dict[tuple[str, str], dict[date, float]] = defaultdict(dict)
     for r in con.execute("SELECT day, tissue_id, side, dose FROM tissue_load_day"):
@@ -63,6 +96,7 @@ def _tissue_flags(con, t: Thresholds) -> None:
         any_load = [d for d in days if by_day[d] > 0]
         first_load = any_load[0] if any_load else None
         last_loaded = re_entered = None
+        own = _Own(t)
         for d in any_load:
             dose = by_day[d]
             # Re-entry: nothing for three weeks, then load. The weeks after it are
@@ -87,10 +121,12 @@ def _tissue_flags(con, t: Thresholds) -> None:
             if (first_load and (d - first_load).days >= 34
                     and prior_loaded >= t.spike_min_prior_days and prior_total > 0):
                 ratio = week / (prior_total / 4)
-                if ratio > t.spike_ratio:
+                cut = own.unusual(d, ratio)
+                if cut is not None and ratio > t.spike_ratio:
                     _insert(con, d, "spike", "tissue", tissue, side=side, value=ratio,
-                            threshold=t.spike_ratio,
-                            detail=f"{tissue} ({side}) week is {ratio:.2f} times the mean of the previous four")
+                            threshold=round(cut, 2),
+                            detail=f"{tissue} ({side}) week is {ratio:.2f} times the mean of the previous four;"
+                                   f" its own usual ceiling is {cut:.2f}")
             # Density: loaded on consecutive days, or many days in a short window.
             if dose >= t.density_min_dose:
                 if (d - timedelta(days=1)) in loaded_set:
@@ -164,6 +200,7 @@ def _activity_flags(con, t: Thresholds) -> None:
     data_start = _d(span) if span else None
     for activity, sessions in by_type.items():
         re_entered = None
+        own = _Own(t)
         for i, (d, minutes) in enumerate(sessions):
             earlier = sessions[:i]
             last = earlier[-1][0] if earlier else None
@@ -179,10 +216,12 @@ def _activity_flags(con, t: Thresholds) -> None:
                         detail=f"{activity} is {(d - re_entered).days} days into a return from a layoff")
             week = sum(m for x, m in sessions[: i + 1] if 0 <= (d - x).days < 7)
             prior = sum(m for x, m in earlier if 7 <= (d - x).days < 35)
-            if prior > 0 and week / (prior / 4) > t.spike_ratio:
-                ratio = week / (prior / 4)
-                _insert(con, d, "spike", "activity", activity, value=ratio, threshold=t.spike_ratio,
-                        detail=f"{activity} week of {week:.0f} min is {ratio:.2f} times the mean of the previous four")
+            ratio = week / (prior / 4) if prior > 0 else None
+            cut = own.unusual(d, ratio) if ratio is not None else None
+            if cut is not None and ratio > t.spike_ratio:
+                _insert(con, d, "spike", "activity", activity, value=ratio, threshold=round(cut, 2),
+                        detail=f"{activity} week of {week:.0f} min is {ratio:.2f} times the mean of the previous four;"
+                               f" its own usual ceiling is {cut:.2f}")
             longest = max((m for x, m in earlier if 0 < (d - x).days <= 28), default=0.0)
             if longest > 0 and minutes > longest * t.session_jump:
                 _insert(con, d, "session_jump", "activity", activity, value=minutes / longest,
@@ -234,19 +273,31 @@ def _recent_and_baseline(series: dict[date, float], d: date, t: Thresholds):
 def _recovery_flags(con, t: Thresholds) -> None:
     hrv, rhr, sleep = _metric(con, "hrv_ms"), _metric(con, "resting_hr"), _metric(con, "sleep_minutes")
     low_days: dict[date, str] = {}
+    own = _Own(t, high=False)
     for d in sorted(hrv):
         got = _recent_and_baseline(hrv, d, t)
-        if got and got[0] / got[1] < t.hrv_suppressed:
-            detail = f"7-day HRV of {got[0]:.0f} ms is {got[0] / got[1]:.2f} of the previous four weeks ({got[1]:.0f} ms)"
+        if not got:
+            continue
+        ratio = got[0] / got[1]
+        cut = own.unusual(d, ratio)
+        if cut is not None and ratio < t.hrv_suppressed:
+            detail = (f"7-day HRV of {got[0]:.0f} ms is {ratio:.2f} of the previous four weeks"
+                      f" ({got[1]:.0f} ms); its own usual floor is {cut:.2f}")
             _insert(con, d, "hrv_suppressed", "recovery", "hrv_ms", detail,
-                    value=got[0] / got[1], threshold=t.hrv_suppressed)
+                    value=ratio, threshold=round(cut, 2))
             low_days[d] = detail
+    own = _Own(t)
     for d in sorted(rhr):
         got = _recent_and_baseline(rhr, d, t)
-        if got and got[0] - got[1] >= t.rhr_elevated_bpm:
-            detail = f"7-day resting heart rate of {got[0]:.0f} is {got[0] - got[1]:.1f} above the previous four weeks ({got[1]:.0f})"
+        if not got:
+            continue
+        diff = got[0] - got[1]
+        cut = own.unusual(d, diff)
+        if cut is not None and diff >= t.rhr_elevated_bpm:
+            detail = (f"7-day resting heart rate of {got[0]:.0f} is {diff:.1f} above the previous"
+                      f" four weeks ({got[1]:.0f}); its own usual ceiling is +{cut:.1f}")
             _insert(con, d, "rhr_elevated", "recovery", "resting_hr", detail,
-                    value=got[0] - got[1], threshold=t.rhr_elevated_bpm)
+                    value=diff, threshold=round(cut, 1))
             low_days.setdefault(d, detail)
     for d in sorted(sleep):
         nights = [sleep[x] for i in range(7) if (x := d - timedelta(days=i)) in sleep]
@@ -266,14 +317,17 @@ def _recovery_flags(con, t: Thresholds) -> None:
 
 def _step_flags(con, t: Thresholds) -> None:
     steps = _metric(con, "steps")
+    own = _Own(t)
     for d in sorted(steps):
         got = _recent_and_baseline(steps, d, t)
         if not got:
             continue
         recent, base, prior = got
-        if recent / base > t.step_spike:
-            _insert(con, d, "step_spike", "steps", "steps", value=recent / base, threshold=t.step_spike,
-                    detail=f"7-day steps of {recent:.0f} a day are {recent / base:.2f} times the previous four weeks ({base:.0f})")
+        cut = own.unusual(d, recent / base)
+        if cut is not None and recent / base > t.step_spike:
+            _insert(con, d, "step_spike", "steps", "steps", value=recent / base, threshold=round(cut, 2),
+                    detail=f"7-day steps of {recent:.0f} a day are {recent / base:.2f} times the previous"
+                           f" four weeks ({base:.0f}); their own usual ceiling is {cut:.2f}")
         highest = max(prior + [steps[x] for i in range(1, 7) if (x := d - timedelta(days=i)) in steps])
         if steps[d] > highest * t.step_day_jump:
             _insert(con, d, "step_day_jump", "steps", "steps", value=steps[d] / highest,

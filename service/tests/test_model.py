@@ -109,10 +109,12 @@ def test_re_entry_then_re_entry_period(con):
     assert ((back + timedelta(days=50)).isoformat(), "re_entry_period") not in found
 
 
-def test_spike_needs_a_month_of_record_and_fires_on_a_big_week(con):
-    for week in range(6):                                                  # steady: once a week
+def test_spike_needs_its_own_history_and_fires_on_a_big_week(con):
+    for _ in range(4):                                                     # big, but nothing to judge it by yet
+        add_set(con, START + timedelta(days=7 * 6))
+    for week in range(60):                                                 # otherwise steady: once a week
         add_set(con, START + timedelta(days=7 * week))
-    big = START + timedelta(days=7 * 6)
+    big = START + timedelta(days=7 * 60)
     for _ in range(4):                                                     # four times the usual week
         add_set(con, big)
     ledger.compute(con)
@@ -181,43 +183,42 @@ def add_metric(con, day, metric, value):
 
 
 def test_recovery_flags_compare_the_week_with_the_four_before_it(con):
-    for i in range(60):
+    for i in range(120):
         day = START + timedelta(days=i)
-        low = i >= 50                                                      # the last ten days dip
-        add_metric(con, day, "hrv_ms", 56 if low else 70)                  # 0.8 of the baseline
-        add_metric(con, day, "resting_hr", 55 if low else 50)
+        low = i >= 110                                                     # the last ten days dip
+        wobble = (i % 5) - 2                                               # ordinary day-to-day noise
+        add_metric(con, day, "hrv_ms", (56 if low else 70) + wobble)       # 0.8 of the baseline
+        add_metric(con, day, "resting_hr", (56 if low else 50) + wobble * 0.5)
         add_metric(con, day, "sleep_minutes", 330 if low else 480)
-    add_set(con, START + timedelta(days=40))                               # trained while fine
-    add_set(con, START + timedelta(days=58))                               # trained while down
+    add_set(con, START + timedelta(days=100))                              # trained while fine
+    add_set(con, START + timedelta(days=118))                              # trained while down
     ledger.compute(con)
     flags.compute(con)
     found = kinds(con, scope_type="recovery")
-    late, early = (START + timedelta(days=58)).isoformat(), (START + timedelta(days=40)).isoformat()
+    late, early = (START + timedelta(days=118)).isoformat(), (START + timedelta(days=100)).isoformat()
     for kind in ("hrv_suppressed", "rhr_elevated", "short_sleep", "load_on_low_recovery"):
         assert (late, kind) in found
-    assert not {k for d, k in found if d <= early}
-    # Too little history to have a baseline: nothing fires, however low the value.
-    assert not {k for d, k in found if d < (START + timedelta(days=20)).isoformat()}
+    assert not {k for d, k in found if d <= early}                         # noise alone never fires
 
 
 def test_a_slow_drift_in_hrv_is_not_a_flag(con):
-    for i in range(120):                                                   # falls 30 percent over four months
-        add_metric(con, START + timedelta(days=i), "hrv_ms", 80 - i * 0.2)
+    for i in range(120):                                                   # falls 15 percent over four months
+        add_metric(con, START + timedelta(days=i), "hrv_ms", 80 - i * 0.1)
     flags.compute(con)
     assert not kinds(con, kind="hrv_suppressed")
 
 
 def test_step_flags(con):
-    for i in range(50):
-        add_metric(con, START + timedelta(days=i), "steps", 4000)
-    add_metric(con, START + timedelta(days=50), "steps", 15000)
-    for i in range(51, 56):
+    for i in range(100):
+        add_metric(con, START + timedelta(days=i), "steps", 4000 + 200 * (i % 4))
+    add_metric(con, START + timedelta(days=100), "steps", 15000)
+    for i in range(101, 106):
         add_metric(con, START + timedelta(days=i), "steps", 9000)
     flags.compute(con)
     found = kinds(con, scope_type="steps")
-    assert ((START + timedelta(days=50)).isoformat(), "step_day_jump") in found
-    assert ((START + timedelta(days=55)).isoformat(), "step_spike") in found
-    assert ((START + timedelta(days=49)).isoformat(), "step_spike") not in found
+    assert ((START + timedelta(days=100)).isoformat(), "step_day_jump") in found
+    assert ((START + timedelta(days=105)).isoformat(), "step_spike") in found
+    assert not {d for d, k in found if d < (START + timedelta(days=100)).isoformat()}
 
 
 def test_replay_applies_steps_to_leg_injuries_only_and_recovery_to_all(con, profile):

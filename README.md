@@ -23,16 +23,20 @@ Nothing here is clinical advice. The numbers are starting values, labelled as se
    heaviest load for that exercise and side in the previous 28 days. `k` is 2, so a
    heavier load costs more than the same percentage of extra reps. At the usual weight a
    dose reads as "effective reps".
-4. **Named flags** (`flags.py`). Plain rules with a visible reason: a week 1.5 times the
-   mean of the previous four, load after 21 days with none, a load 10 percent over the
-   28-day heaviest, back-to-back days, five loaded days in nine, a load frozen for six
-   sessions, a session 1.5 times the 28-day longest, and so on.
+4. **Named flags** (`flags.py`). Plain rules with a visible reason: load after 21 days
+   with none, a load 10 percent over the 28-day heaviest, back-to-back days, five loaded
+   days in nine, a load frozen for six sessions, a session 1.5 times the 28-day longest,
+   and so on. The weekly spike (this week against the mean of the previous four) is a
+   percentile rule: it fires when the ratio is in the top 5 percent of that tissue's own
+   ratios over the trailing year, leaving out the latest fortnight. A fixed 1.5 line
+   fired in up to two thirds of ordinary fortnights.
 5. **Recovery and steps** (`importers/garmin_daily.py`, `flags.py`). Overnight heart rate
    variability, resting heart rate, sleep and daily steps are stored per day, and missing
    days stay missing. Each is judged as the last 7 days against the 28 days before them,
    so the baseline is the person's own and moves with season or medication. Flags: HRV
-   below 0.92 of baseline, resting heart rate 3 beats above it, three short nights in
-   seven, training while either of the first two holds, and steps 1.5 times baseline.
+   ratio in its own bottom 5 percent, resting heart rate rise or step ratio in its own
+   top 5 percent, three short nights in seven, and training while HRV or heart rate is
+   flagged. Percentile rules stay silent until there are 30 earlier values.
    Recovery flags apply to every injury; step flags only to hip, thigh, knee and lower leg.
    Steps are a separate channel and are not yet converted into tissue dose.
 6. **Replay** (`replay.py`). For each injury with a known onset, lists the flags that
@@ -73,8 +77,9 @@ fixtures.
   Those rows are kept but carry no tissue load.
 - Tissue shares are estimates, stored with `estimate_source = 'default'`.
 - Sides for older rehab sessions are inferred from notes and the profile's rules.
-- Recovery does not yet change the dose. On the first replay the recovery flags at these
-  thresholds fired in most ordinary windows, so they are reported, not acted on.
+- Recovery does not yet change the dose. In the replay it did not separate the run-up to
+  an injury from an ordinary fortnight, so it is reported, not acted on.
+- A percentile rule cannot fire for a tissue that is loaded too rarely to build a history.
 - Step counts include steps taken during runs, so steps and run minutes overlap.
 - The replay checks rules against a handful of injuries. That is enough to reject a rule
   that fires all the time, and not enough to tune thresholds without fitting noise.
