@@ -5,6 +5,7 @@ import SwiftUI
 struct InjuriesView: View {
     @Environment(AppModel.self) private var model
     @State private var adding = false
+    @State private var deleting: Injury?
 
     var body: some View {
         NavigationStack {
@@ -24,7 +25,7 @@ struct InjuriesView: View {
                     }
                 }
                 .onDelete { offsets in
-                    for injury in offsets.map({ model.injuries[$0] }) { model.deleteInjury(id: injury.id) }
+                    deleting = offsets.first.map { model.injuries[$0] }
                 }
             }
             .navigationTitle("Injuries")
@@ -34,6 +35,16 @@ struct InjuriesView: View {
             .sheet(isPresented: $adding) {
                 InjuryEditorView(injury: nil)
             }
+            .confirmationDialog("Delete \(deleting?.label ?? "this injury") and all of its pain readings?",
+                                isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+                                titleVisibility: .visible) {
+                Button("Delete injury", role: .destructive) {
+                    if let deleting { model.deleteInjury(id: deleting.id) }
+                    deleting = nil
+                }
+            } message: {
+                Text("To keep the history, edit the injury and mark it resolved instead.")
+            }
         }
     }
 }
@@ -42,7 +53,7 @@ struct InjuryDetailView: View {
     @Environment(AppModel.self) private var model
     let injuryID: String
     @State private var editing = false
-    @State private var baseline = 0.0
+    @State private var baseline: Double?
 
     var body: some View {
         if let injury = model.injuries.first(where: { $0.id == injuryID }) {
@@ -63,11 +74,12 @@ struct InjuryDetailView: View {
                     }
                 }
                 Section("Baseline today") {
-                    HStack {
-                        Slider(value: $baseline, in: 0...10, step: 0.5)
-                        Text(Format.number(baseline)).monospacedDigit().frame(width: 36)
+                    PainSlider(pain: $baseline)
+                    Button("Save baseline") {
+                        if let baseline { model.logBaseline(injury: injury, pain: baseline) }
+                        baseline = nil          // the new point appears on the chart above
                     }
-                    Button("Save baseline") { model.logBaseline(injury: injury, pain: baseline) }
+                    .disabled(baseline == nil)
                 }
                 Section("Details") {
                     LabeledContent("Side", value: Format.side(injury.side))

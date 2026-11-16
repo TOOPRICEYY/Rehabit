@@ -31,23 +31,22 @@ struct CheckRow: View {
     @Environment(AppModel.self) private var model
     let check: PainCheck
     let injury: Injury?
-    @State private var pain = 0.0
+    @State private var pain: Double?
     @State private var type: PainType?
     @State private var notes = ""
 
     var body: some View {
         Section {
-            HStack {
-                Text("Pain")
-                Slider(value: $pain, in: 0...10, step: 0.5)
-                Text(Format.number(pain)).monospacedDigit().frame(width: 36)
-            }
+            PainSlider(pain: $pain)
             Picker("Feels", selection: $type) {
                 Text("Not recorded").tag(PainType?.none)
                 ForEach(PainType.allCases, id: \.self) { Text($0.rawValue.capitalized).tag(PainType?.some($0)) }
             }
             TextField("Notes", text: $notes, axis: .vertical)
-            Button("Save") { model.answer(check, pain: pain, type: type, notes: notes) }
+            Button("Save") {
+                if let pain { model.answer(check, pain: pain, type: type, notes: notes) }
+            }
+            .disabled(pain == nil)
         } header: {
             Text("\(injury?.label ?? "Injury") · \(Format.moment(check.moment))")
         } footer: {

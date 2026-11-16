@@ -12,14 +12,18 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("Unit", selection: $unit) {
+                    Picker("Unit", selection: Binding(get: { unit }, set: { new in
+                        // The weight is the same weight in the new unit, not the same number.
+                        bodyweight = bodyweight.map { ($0 * unit.kilograms / new.kilograms * 10).rounded() / 10 }
+                        unit = new
+                        store()
+                    })) {
                         ForEach(WeightUnit.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                     }
                     HStack {
                         Text("Body weight")
                         Spacer()
-                        TextField(unit.rawValue, value: $bodyweight, format: .number)
-                            .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(width: 90)
+                        NumberField(title: unit.rawValue, value: $bodyweight, width: 90)
                     }
                 } footer: {
                     Text("Body weight is used for push-ups, pull-ups and other exercises where you are the load.")
@@ -28,10 +32,17 @@ struct SettingsView: View {
                     Button("Read from Apple Health") {
                         Task {
                             healthStatus = "Reading…"
-                            await model.importHealth(from: HealthKitSource())
-                            let nights = model.dailyMetrics(MetricName.sleepMinutes).count
-                            let steps = model.dailyMetrics(MetricName.steps).count
-                            healthStatus = model.lastError ?? "\(nights) nights of sleep and \(steps) days of steps stored."
+                            let count = await model.importHealth(from: HealthKitSource())
+                            if let error = model.lastError {
+                                healthStatus = error
+                            } else if let count, count > 0 {
+                                healthStatus = "\(count) daily values read from the last 60 days."
+                            } else if count == 0 {
+                                // Apple does not tell an app whether reading was refused; refused and empty look the same.
+                                healthStatus = "Nothing was returned. If you expected data, allow Rehabit to read it in the Health app under Sharing, then Apps."
+                            } else {
+                                healthStatus = "Health data is not available on this device."
+                            }
                         }
                     }
                     if !healthStatus.isEmpty { Text(healthStatus).font(.caption) }
@@ -50,6 +61,12 @@ struct SettingsView: View {
                 } footer: {
                     Text("One JSON file with every workout, set, injury and pain reading.")
                 }
+                if model.unreadableCount > 0 {
+                    Section {
+                        Text("\(model.unreadableCount) records were written by a newer version of Rehabit. They are kept and included in exports, but this version cannot show them.")
+                            .font(.footnote)
+                    }
+                }
                 Section {
                 } footer: {
                     Text("Rehabit describes training load and pain. It is not medical advice.")
@@ -58,14 +75,23 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .onAppear {
                 unit = model.profile.unit
-                bodyweight = model.profile.bodyweightKg.map { ($0 / unit.kilograms * 10).rounded() / 10 }
+                bodyweight = shown(model.profile)
             }
-            .onChange(of: unit) { _, _ in store() }
+            .keyboardDoneButton()
+            .scrollDismissesKeyboard(.interactively)
+
             .onChange(of: bodyweight) { _, _ in store() }
         }
     }
 
+    /// Body weight as the field shows it: in the chosen unit, to one decimal.
+    private func shown(_ profile: Profile) -> Double? {
+        profile.bodyweightKg.map { ($0 / profile.unit.kilograms * 10).rounded() / 10 }
+    }
+
     private func store() {
+        // Opening this screen must not rewrite the stored weight with a rounded copy of itself.
+        if unit == model.profile.unit && bodyweight == shown(model.profile) { return }
         model.profile = Profile(bodyweightKg: bodyweight.map { $0 * unit.kilograms }, unit: unit)
     }
 

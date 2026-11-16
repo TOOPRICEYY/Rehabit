@@ -15,3 +15,5 @@ DerivedData/
 app/Rehabit/Info.plist
 app/Rehabit/Rehabit.entitlements
 .claude/
+app/Rehabit/Config/Local.xcconfig
+app/Rehabit/build/

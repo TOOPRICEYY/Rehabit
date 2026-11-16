@@ -50,9 +50,24 @@ struct HealthKitSource: HealthSource {
         let sleepQuery = HKSampleQueryDescriptor(
             predicates: [.categorySample(type: HKCategoryType(.sleepAnalysis), predicate: range)],
             sortDescriptors: [SortDescriptor(\.endDate)])
-        var minutes: [Day: Double] = [:]
+        // A watch and a sleep app can both record the same night. Overlapping
+        // stretches are merged first so that night is counted once.
+        var stretches: [(start: Date, end: Date)] = []
         for sample in try await sleepQuery.result(for: store) where asleep.contains(sample.value) {
-            minutes[Day(sample.endDate), default: 0] += sample.endDate.timeIntervalSince(sample.startDate) / 60
+            stretches.append((sample.startDate, sample.endDate))
+        }
+        stretches.sort { $0.start < $1.start }
+        var merged: [(start: Date, end: Date)] = []
+        for stretch in stretches {
+            if let last = merged.last, stretch.start <= last.end {
+                merged[merged.count - 1].end = max(last.end, stretch.end)
+            } else {
+                merged.append(stretch)
+            }
+        }
+        var minutes: [Day: Double] = [:]
+        for stretch in merged {
+            minutes[Day(stretch.end), default: 0] += stretch.end.timeIntervalSince(stretch.start) / 60
         }
         for (day, total) in minutes where total > 0 {
             out.append(DailyMetric(day: day, metric: MetricName.sleepMinutes, value: total.rounded(), source: name))

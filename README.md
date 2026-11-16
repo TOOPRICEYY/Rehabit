@@ -18,10 +18,14 @@ the tissue ledger, the notes shown while logging a set, and the pain follow-up s
 stays missing; it is never stored as zero. The ledger is a port of `service/rehabit/
 ledger.py`, and a fixture written by the service holds the two to the same numbers.
 
-    cd app/RehabitCore && swift test          # macOS or Linux (needs libsqlite3-dev)
+    cd app/RehabitCore && swift test          # 88 tests; macOS or Linux (needs libsqlite3-dev)
 
     brew install xcodegen                     # the app itself needs a Mac with Xcode 15+
     cd app/Rehabit && xcodegen && open Rehabit.xcodeproj
+
+To send a build to TestFlight from a Mac: copy `app/Rehabit/Config/Local.example.xcconfig`
+to `Local.xcconfig`, fill in the team and bundle identifier (that file is not committed),
+then run `app/Rehabit/scripts/testflight.sh`.
 
 After changing the exercise library or the ledger in the service, run
 `python3 -m rehabit.cli export-shared` from `service/` to rewrite the app's copy.

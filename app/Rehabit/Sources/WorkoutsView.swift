@@ -5,6 +5,7 @@ struct WorkoutsView: View {
     @Environment(AppModel.self) private var model
     @State private var showingActive = false
     @State private var showingChecks = false
+    @State private var checksWaiting = false
 
     var body: some View {
         NavigationStack {
@@ -40,11 +41,16 @@ struct WorkoutsView: View {
                 }
             }
             .navigationTitle("Workouts")
-            .fullScreenCover(isPresented: $showingActive) {
+            // The pain questions are shown once the workout screen has finished
+            // closing; asking for a second screen while the first is still on its
+            // way out is ignored by the system.
+            .fullScreenCover(isPresented: $showingActive, onDismiss: {
+                showingChecks = checksWaiting
+                checksWaiting = false
+            }) {
                 ActiveWorkoutView { dueNow in
+                    checksWaiting = !dueNow.isEmpty
                     showingActive = false
-                    Reminders.schedule(model.upcomingChecks, injuries: model.injuries)
-                    showingChecks = !dueNow.isEmpty
                 }
             }
             .sheet(isPresented: $showingChecks) {
