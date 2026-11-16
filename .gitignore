@@ -12,3 +12,5 @@ __pycache__/
 *.xcodeproj/
 xcuserdata/
 DerivedData/
+app/Rehabit/Info.plist
+app/Rehabit/Rehabit.entitlements
