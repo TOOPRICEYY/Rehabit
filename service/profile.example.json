@@ -1,0 +1,22 @@
+{
+  "bodyweight_lb": 160,
+  "rehab_session_titles": ["Rehab"],
+  "rehab_side_rules": {
+    "press_horizontal": "left",
+    "leg_extension": "right"
+  },
+  "injuries": [
+    {
+      "id": "example-left-pec",
+      "label": "Left pec strain",
+      "side": "left",
+      "onset": "2025-01-15",
+      "onset_precision": "day",
+      "onset_recalled": true,
+      "mechanism": "Row at full retraction",
+      "stage": "build_capacity",
+      "tissues": ["pec_major"],
+      "activity_types": []
+    }
+  ]
+}

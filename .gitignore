@@ -1,0 +1,8 @@
+# Personal health data never goes in this repository's history.
+data/
+*.db
+*.db-journal
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
