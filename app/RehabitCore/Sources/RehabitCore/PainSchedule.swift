@@ -34,13 +34,18 @@ public struct PainSchedule: Sendable {
                       updatedAt: end)
         }
         var out = [check(.afterSession, end)]
+        // A session that ends after midnight but before the morning hour belongs
+        // to the night before: "the next morning" is the morning now coming, and
+        // there is no evening left to ask about.
+        let endsInSmallHours = calendar.component(.hour, from: end) < morningHour
         let evening = end.addingTimeInterval(eveningHoursAfter * 3600)
-        let sameDay = calendar.isDate(evening, inSameDayAs: end)
-        if sameDay && calendar.component(.hour, from: evening) < latestEveningHour {
+        if !endsInSmallHours, calendar.isDate(evening, inSameDayAs: end),
+           calendar.component(.hour, from: evening) < latestEveningHour {
             out.append(check(.evening, evening))
         }
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: end))!
-        if let morning = calendar.date(bySettingHour: morningHour, minute: 0, second: 0, of: tomorrow) {
+        let morningDay = endsInSmallHours ? calendar.startOfDay(for: end)
+            : calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: end))!
+        if let morning = calendar.date(bySettingHour: morningHour, minute: 0, second: 0, of: morningDay) {
             out.append(check(.nextMorning, morning))
         }
         out.append(check(.hours24, end.addingTimeInterval(24 * 3600)))

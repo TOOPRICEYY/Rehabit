@@ -59,20 +59,43 @@ public struct Advisor: Sendable {
 
         let links = (library.pattern(candidate.pattern)?.links ?? []).filter { $0.share >= t.minShare }
         guard !links.isEmpty else { return out }
-        let days = ledger.tissueDays(earlier, through: candidate.day.adding(-1))
+
+        // When each tissue and side last carried any load, from the whole history.
+        struct Key: Hashable { let tissue: String; let side: Side }
+        var lastLoaded: [Key: Day] = [:]
+        for set in earlier where ledger.effectiveReps(set) > 0 {
+            for link in library.pattern(set.pattern)?.links ?? [] {
+                for side in set.side.bodySides {
+                    let key = Key(tissue: link.tissue, side: side)
+                    if let known = lastLoaded[key], known >= set.day { continue }
+                    lastLoaded[key] = set.day
+                }
+            }
+        }
+        // Yesterday's dose only needs the sets inside one reference window.
+        let yesterday = candidate.day.adding(-1)
+        let windowStart = yesterday.adding(-ledger.settings.referenceWindowDays)
+        var yesterdayDose: [Key: Double] = [:]
+        for record in ledger.setDoses(earlier.filter { $0.day >= windowStart }) where record.set.day == yesterday {
+            for link in library.pattern(record.set.pattern)?.links ?? [] {
+                for side in record.set.side.bodySides {
+                    yesterdayDose[Key(tissue: link.tissue, side: side), default: 0] += link.share * record.dose
+                }
+            }
+        }
+
         for side in candidate.side.bodySides {
             for link in links {
+                let key = Key(tissue: link.tissue, side: side)
                 let name = library.tissue(link.tissue)?.name ?? link.tissue
                 let where_ = "\(name) (\(side.rawValue))"
-                let loaded = days.filter { $0.tissue == link.tissue && $0.side == side && $0.dose > 0 }
-                if let last = loaded.map(\.day).max() {
+                if let last = lastLoaded[key] {
                     let gap = candidate.day.days(since: last)
                     if gap >= t.reEntryDays {
                         out.append(Advice(kind: .reEntry, detail: "\(where_) has had no load for \(gap) days"))
                     }
                 }
-                if link.role == "prime",
-                   loaded.contains(where: { $0.day == candidate.day.adding(-1) && $0.dose >= t.densityMinDose }) {
+                if link.role == "prime", (yesterdayDose[key] ?? 0) >= t.densityMinDose {
                     out.append(Advice(kind: .density, detail: "\(where_) was also loaded yesterday"))
                 }
                 for injury in injuries where injury.isActive && injury.tissues.contains(link.tissue)

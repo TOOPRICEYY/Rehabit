@@ -41,7 +41,7 @@ public struct LedgerSet: Sendable {
     }
 
     /// Loads are compared within one exercise name on one side.
-    var referenceKey: String { exercise.trimmingCharacters(in: .whitespaces).lowercased() + "|" + side.rawValue }
+    var referenceKey: String { exercise.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() + "|" + side.rawValue }
 }
 
 public struct SetDose: Sendable {
@@ -83,7 +83,9 @@ public struct Ledger: Sendable {
         case .bodyweight:
             return profile.bodyweightKg.map { $0 * share }
         case .bodyweightPlus:
-            guard let body = profile.bodyweightKg else { return entered }
+            // Unknown body weight stays unknown. Counting it as zero would make
+            // 10 added then 15 added look like a 50 percent jump.
+            guard let body = profile.bodyweightKg else { return nil }
             return body * share + (entered ?? 0)
         }
     }
@@ -95,7 +97,8 @@ public struct Ledger: Sendable {
     }
 
     func effectiveReps(_ set: LedgerSet) -> Double {
-        set.kind == .hold ? (set.holdSeconds ?? 0) / settings.holdSecondsPerRep : (set.reps ?? 0)
+        // A mistyped negative number must not subtract load.
+        max(0, set.kind == .hold ? (set.holdSeconds ?? 0) / settings.holdSecondsPerRep : (set.reps ?? 0))
     }
 
     /// One record per mapped set, in day order. Sets with no pattern are left out.
@@ -121,13 +124,13 @@ public struct Ledger: Sendable {
             let reference = history[key]?.filter { $0.day >= windowStart && $0.day < set.day }
                 .map(\.load).max()
             var ratio = 1.0
-            if let load = set.loadKg, load != 0, let reference, reference != 0 {
+            if let load = set.loadKg, load > 0, let reference, reference > 0 {
                 ratio = min(settings.maxRatio, max(settings.minRatio, load / reference))
             }
             let n = effectiveReps(set)
             out.append(SetDose(set: set, referenceKg: reference, ratio: ratio, effectiveReps: n,
                                dose: n * pow(ratio, settings.intensityExponent)))
-            if let load = set.loadKg, load != 0 { pending.append((key, set.day, load)) }
+            if let load = set.loadKg, load > 0 { pending.append((key, set.day, load)) }
         }
         return out
     }

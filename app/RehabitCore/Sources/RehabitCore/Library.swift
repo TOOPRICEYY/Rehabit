@@ -40,6 +40,23 @@ public struct Library: Codable, Sendable {
     public let tissues: [Tissue]
     public let patterns: [Pattern]
     public let catalogue: [CatalogueExercise]
+    private let patternIndex: [String: Pattern]
+    private let tissueIndex: [String: Tissue]
+
+    private enum CodingKeys: String, CodingKey { case tissues, patterns, catalogue }
+
+    public init(tissues: [Tissue], patterns: [Pattern], catalogue: [CatalogueExercise]) {
+        self.tissues = tissues; self.patterns = patterns; self.catalogue = catalogue
+        patternIndex = Dictionary(patterns.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        tissueIndex = Dictionary(tissues.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(tissues: try c.decode([Tissue].self, forKey: .tissues),
+                  patterns: try c.decode([Pattern].self, forKey: .patterns),
+                  catalogue: try c.decode([CatalogueExercise].self, forKey: .catalogue))
+    }
 
     public static let standard: Library = {
         guard let url = Bundle.module.url(forResource: "library", withExtension: "json"),
@@ -51,10 +68,10 @@ public struct Library: Codable, Sendable {
 
     public func pattern(_ id: String?) -> Pattern? {
         guard let id else { return nil }
-        return patterns.first { $0.id == id }
+        return patternIndex[id]
     }
 
-    public func tissue(_ id: String) -> Tissue? { tissues.first { $0.id == id } }
+    public func tissue(_ id: String) -> Tissue? { tissueIndex[id] }
 
     public func search(_ text: String) -> [CatalogueExercise] {
         let words = text.lowercased().split(separator: " ")

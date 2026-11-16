@@ -45,9 +45,10 @@ def reference_key(row: sqlite3.Row | dict) -> tuple[str, str]:
 
 
 def effective_reps(row: sqlite3.Row | dict, settings: Settings) -> float:
+    # A mistyped negative number must not subtract load.
     if row["kind"] == "hold":
-        return (row["hold_seconds"] or 0) * (row["set_count"] or 1) / settings.hold_seconds_per_rep
-    return row["reps"] or 0
+        return max(0.0, (row["hold_seconds"] or 0) * (row["set_count"] or 1) / settings.hold_seconds_per_rep)
+    return max(0.0, row["reps"] or 0)
 
 
 def set_doses(con: sqlite3.Connection, settings: Settings = Settings()) -> list[dict]:
@@ -73,7 +74,7 @@ def set_doses(con: sqlite3.Connection, settings: Settings = Settings()) -> list[
         reference = max(prior) if prior else None
         load = row["load_kg"]
         ratio = 1.0
-        if load and reference:
+        if load and load > 0 and reference:
             ratio = min(settings.max_ratio, max(settings.min_ratio, load / reference))
         n = effective_reps(row, settings)
         out.append({
@@ -81,7 +82,7 @@ def set_doses(con: sqlite3.Connection, settings: Settings = Settings()) -> list[
             "effective_reps": n, "dose": n * ratio ** settings.intensity_exponent,
         })
         top = row["load_max_kg"] or load
-        if top:
+        if top and top > 0:      # a negative or zero load never becomes the reference
             pending.append((key, day, top))
     return out
 

@@ -28,7 +28,17 @@ public final class AppModel {
     public private(set) var active: Workout?
     public private(set) var activeSets: [WorkoutSet] = []
     public private(set) var lastError: String?
-    public var profile: Profile { didSet { if profile != oldValue { attempt { try store.setProfile(profile, at: now()) } } } }
+    /// Records in the database that this version cannot read. They are kept and exported.
+    public private(set) var unreadableCount = 0
+    /// Bumped when the clock should be read again; see `refreshClock()`.
+    public private(set) var tick = 0
+    public var profile: Profile {
+        didSet {
+            guard profile != oldValue else { return }
+            attempt { try store.setProfile(profile, at: now()) }
+            history = nil
+        }
+    }
 
     public let library: Library
     private let store: Store
@@ -37,6 +47,14 @@ public final class AppModel {
     private let now: () -> Date
     private let zone: TimeZone
     private var allSets: [WorkoutSet] = []
+    /// Every set of a workout that still exists, in the form the ledger reads.
+    /// Built when first needed and thrown away when a set or the profile changes.
+    private var history: [(id: String, set: LedgerSet)]?
+
+    /// How long each kind of question stays on the list before it counts as missed.
+    /// "Right after the session" answered the next day would be a different reading.
+    static let afterSessionWindow: TimeInterval = 3 * 3600
+    static let delayedWindow: TimeInterval = 3 * 86_400
 
     public init(store: Store, library: Library = .standard, zone: TimeZone = .current,
                 now: @escaping () -> Date = Date.init) {
@@ -62,8 +80,15 @@ public final class AppModel {
             activeSets = active.map { a in allSets.filter { $0.workoutID == a.id }.sorted { $0.position < $1.position } } ?? []
             injuries = try store.all(Injury.self).sorted { $0.onset > $1.onset }
             checks = try store.all(PainCheck.self).sorted { $0.dueAt < $1.dueAt }
+            unreadableCount = try store.unreadable().count
+            history = nil
         }
     }
+
+    /// Call when time has passed without any change to the data (the app came
+    /// back to the front, or a minute went by), so lists that depend on the
+    /// time of day are worked out again.
+    public func refreshClock() { tick += 1 }
 
     // MARK: Workouts
 
@@ -77,59 +102,93 @@ public final class AppModel {
 
     public func renameActive(_ title: String) {
         guard var workout = active else { return }
-        workout.title = title
+        let name = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard (name.isEmpty ? "Workout" : name) != workout.title else { return }
+        workout.title = name.isEmpty ? "Workout" : name
         workout.updatedAt = now()
         attempt { try store.save(workout) }
-        reload()
+        active = workout
     }
 
-    /// Adds a set to the workout in progress. A repeat of an exercise copies the
-    /// set before it; a first set copies the first set of the last session.
+    /// The side a one-sided exercise most likely means: the side of an active
+    /// injury in a tissue this exercise actually loads. Left if there is none.
+    public func likelySide(for exercise: CatalogueExercise) -> Side {
+        let loaded = Set((library.pattern(exercise.pattern)?.links ?? []).filter { $0.share >= 0.25 }.map(\.tissue))
+        let match = injuries.first { $0.isActive && $0.side != .both && !loaded.isDisjoint(with: $0.tissues) }
+        return match?.side ?? .left
+    }
+
+    /// Adds a set to the workout in progress. A repeat of an exercise on the
+    /// same side copies the set before it (never its pain); a first set is
+    /// prefilled from the last finished session. With no side given, a
+    /// two-sided exercise is logged as both and a one-sided one on `likelySide`.
     @discardableResult
     public func addSet(_ exercise: CatalogueExercise, side: Side? = nil) -> WorkoutSet? {
         guard let workout = active else { return nil }
+        let chosen = side ?? (exercise.unilateral ? likelySide(for: exercise) : .both)
         let position = (activeSets.map(\.position).max() ?? -1) + 1
         var set: WorkoutSet
-        if let last = activeSets.last(where: { $0.exercise == exercise.name && (side == nil || $0.side == side) }) {
+        if let last = activeSets.last(where: { $0.exercise == exercise.name && $0.side == chosen }) {
             set = last
             set.id = UUID().uuidString
             set.position = position
             set.pain = nil; set.painType = nil; set.repsInReserve = nil; set.notes = ""
         } else {
-            let chosen = side ?? (exercise.unilateral ? (injuries.first { $0.isActive }?.side ?? .left) : .both)
             set = WorkoutSet(workout: workout, position: position, exercise: exercise.name,
-                             pattern: exercise.pattern.isEmpty ? nil : exercise.pattern, side: chosen == .both && exercise.unilateral ? .left : chosen,
+                             pattern: exercise.pattern.isEmpty ? nil : exercise.pattern, side: chosen,
                              loadUnit: profile.unit, convention: exercise.convention)
-            if let previous = previousSets(exercise: exercise.name, side: set.side).first {
-                set.kind = previous.kind; set.reps = previous.reps; set.holdSeconds = previous.holdSeconds
-                set.loadValue = previous.loadValue; set.loadUnit = previous.loadUnit
-                set.convention = previous.convention
+            // Prefill from the first working set of last time, not a warm-up.
+            let previous = previousSets(exercise: exercise.name, side: chosen)
+            if let first = previous.first(where: { !$0.isWarmup }) ?? previous.first {
+                set.kind = first.kind; set.reps = first.reps; set.holdSeconds = first.holdSeconds
+                set.loadValue = first.loadValue; set.loadUnit = first.loadUnit
+                set.convention = first.convention
             }
         }
         set.updatedAt = now()
         attempt { try store.save(set) }
-        reload()
+        allSets.append(set)
+        activeSets.append(set)
+        history = nil
         return set
     }
 
+    /// Saves a change to a set. A set that has been removed, or whose workout is
+    /// gone, is not brought back by a late write from a field that still held it.
     public func update(_ set: WorkoutSet) {
+        guard let index = allSets.firstIndex(where: { $0.id == set.id }),
+              set.workoutID == active?.id || workouts.contains(where: { $0.id == set.workoutID }) else { return }
         var set = set
+        if let pain = set.pain { set.pain = AppModel.cleanPain(pain) }
+        guard set != allSets[index] else { return }
         set.updatedAt = now()
         attempt { try store.save(set) }
-        reload()
+        // Patched in place: this runs on every keystroke, and reading the whole
+        // database back each time is what made typing lag on a long history.
+        allSets[index] = set
+        if let i = activeSets.firstIndex(where: { $0.id == set.id }) { activeSets[i] = set }
+        history = nil
     }
 
     public func removeSet(id: String) {
         attempt { try store.delete(WorkoutSet.self, id: id, at: now()) }
-        reload()
+        allSets.removeAll { $0.id == id }
+        activeSets.removeAll { $0.id == id }
+        history = nil
     }
 
     /// The sets of the most recent finished session of this exercise on this side.
     public func previousSets(exercise: String, side: Side) -> [WorkoutSet] {
-        let finished = Set(workouts.map(\.id))
-        let earlier = allSets.filter { $0.exercise == exercise && $0.side == side && finished.contains($0.workoutID) }
-        guard let lastDay = earlier.map(\.workoutDay).max() else { return [] }
-        return earlier.filter { $0.workoutDay == lastDay }.sorted { $0.position < $1.position }
+        let name = AppModel.normal(exercise)
+        let finished = Dictionary(workouts.map { ($0.id, $0.start) }, uniquingKeysWith: { a, _ in a })
+        let earlier = allSets.filter { AppModel.normal($0.exercise) == name && $0.side == side && finished[$0.workoutID] != nil }
+        guard let last = earlier.max(by: { finished[$0.workoutID]! < finished[$1.workoutID]! }) else { return [] }
+        return earlier.filter { $0.workoutID == last.workoutID }.sorted { $0.position < $1.position }
+    }
+
+    /// Names are compared the way the ledger compares them: case and outer spaces do not matter.
+    private static func normal(_ name: String) -> String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 
     /// The picker entry for a set already logged, so "add set" can repeat it.
@@ -139,15 +198,37 @@ public final class AppModel {
                                  unilateral: set.side != .both)
     }
 
+    /// Exercises the person has added themselves, newest first, for the picker.
+    public var customExercises: [CatalogueExercise] {
+        let known = Set(library.catalogue.map { AppModel.normal($0.name) })
+        var seen = Set<String>(), out: [CatalogueExercise] = []
+        for set in allSets.reversed() {
+            let key = AppModel.normal(set.exercise)
+            if known.contains(key) || !seen.insert(key).inserted { continue }
+            out.append(catalogueEntry(for: set))
+        }
+        return out
+    }
+
     public func sets(of workout: Workout) -> [WorkoutSet] {
         allSets.filter { $0.workoutID == workout.id }.sorted { $0.position < $1.position }
+    }
+
+    private func ledgerHistory() -> [(id: String, set: LedgerSet)] {
+        if let history { return history }
+        var existing = Set(workouts.map(\.id))
+        if let active { existing.insert(active.id) }
+        let built = allSets.filter { existing.contains($0.workoutID) }
+            .map { (id: $0.id, set: ledger.ledgerSet($0, profile: profile)) }
+        history = built
+        return built
     }
 
     /// Statements about this set against the history: load jump, layoff, a tissue
     /// coming back from weeks of nothing, an injured tissue being loaded.
     public func advice(for set: WorkoutSet) -> [Advice] {
-        let history = allSets.filter { $0.id != set.id }.map { ledger.ledgerSet($0, profile: profile) }
-        return advisor.advice(for: ledger.ledgerSet(set, profile: profile), history: history, injuries: injuries)
+        let others = ledgerHistory().filter { $0.id != set.id }.map(\.set)
+        return advisor.advice(for: ledger.ledgerSet(set, profile: profile), history: others, injuries: injuries)
     }
 
     /// Ends the workout and schedules pain checks for each injury it loaded.
@@ -179,12 +260,18 @@ public final class AppModel {
 
     public func discardWorkout() {
         guard let workout = active else { return }
-        attempt { try store.deleteWorkout(id: workout.id, at: now()) }
-        reload()
+        deleteWorkout(workout)
     }
 
+    /// Deletes a workout, its sets, and the pain questions that were still to
+    /// be asked about it. Answers already given stay: the pain was real.
     public func deleteWorkout(_ workout: Workout) {
-        attempt { try store.deleteWorkout(id: workout.id, at: now()) }
+        attempt {
+            try store.deleteWorkout(id: workout.id, at: now())
+            for check in checks where check.workoutID == workout.id && !check.isAnswered {
+                try store.delete(PainCheck.self, id: check.id, at: now())
+            }
+        }
         reload()
     }
 
@@ -193,31 +280,56 @@ public final class AppModel {
     public func save(_ injury: Injury) {
         var injury = injury
         injury.updatedAt = now()
-        attempt { try store.save(injury) }
+        attempt {
+            try store.save(injury)
+            if !injury.isActive {
+                // A resolved injury is not asked about any more.
+                for check in checks where check.injuryID == injury.id && !check.isAnswered {
+                    try store.delete(PainCheck.self, id: check.id, at: now())
+                }
+            }
+        }
         reload()
     }
 
+    /// Deletes an injury with all of its pain readings.
     public func deleteInjury(id: String) {
         attempt { try store.delete(Injury.self, id: id, at: now()) }
         reload()
     }
 
-    /// Unanswered checks whose time has come, oldest first. A check more than
-    /// three days overdue is dropped from the list and stays recorded as missing.
+    /// Unanswered checks whose time has come, oldest first. One left too long
+    /// drops off the list and stays recorded as missing, never as zero.
     public var dueChecks: [PainCheck] {
+        _ = tick
         let time = now()
-        return checks.filter { !$0.isAnswered && $0.dueAt <= time && time.timeIntervalSince($0.dueAt) < 3 * 86_400 }
+        return checks.filter { check in
+            guard !check.isAnswered, check.dueAt <= time else { return false }
+            let window = check.moment == .afterSession ? AppModel.afterSessionWindow : AppModel.delayedWindow
+            return time.timeIntervalSince(check.dueAt) <= window
+        }
     }
 
     /// Checks still to come, for scheduling reminders.
     public var upcomingChecks: [PainCheck] {
+        _ = tick
         let time = now()
         return checks.filter { !$0.isAnswered && $0.dueAt > time }
     }
 
+    /// Pain is 0 to 10 in half points. Anything else typed or dragged is pulled into that range.
+    static func cleanPain(_ pain: Double) -> Double? {
+        guard pain.isFinite else { return nil }
+        return min(10, max(0, (pain * 2).rounded() / 2))
+    }
+
     public func answer(_ check: PainCheck, pain: Double, type: PainType? = nil, notes: String = "") {
+        guard let clean = AppModel.cleanPain(pain) else {
+            lastError = "That pain value is not a number."
+            return
+        }
         var check = check
-        check.pain = (pain * 2).rounded() / 2          // half points
+        check.pain = clean
         check.painType = type
         check.notes = notes
         check.answeredAt = now()
@@ -228,6 +340,10 @@ public final class AppModel {
 
     /// Records a baseline reading for an injury with no session attached.
     public func logBaseline(injury: Injury, pain: Double, type: PainType? = nil, notes: String = "") {
+        guard AppModel.cleanPain(pain) != nil else {
+            lastError = "That pain value is not a number."
+            return
+        }
         let check = PainCheck(injuryID: injury.id, workoutID: nil, moment: .baseline, dueAt: now(), zone: zone,
                               updatedAt: now())
         attempt { try store.save(check) }
@@ -242,9 +358,14 @@ public final class AppModel {
 
     /// Each loaded tissue and side: the last 7 days against its own previous four weeks.
     public func tissueWeeks() -> [TissueWeek] {
-        let today = Day(now(), in: zone)
-        let finished = Set(workouts.map(\.id)).union(active.map { [$0.id] } ?? [])
-        let sets = allSets.filter { finished.contains($0.workoutID) }.map { ledger.ledgerSet($0, profile: profile) }
+        _ = tick
+        // After a flight west the clock can read a day earlier than a session
+        // already logged; that session still counts as this week.
+        var today = Day(now(), in: zone)
+        if let latest = allSets.map(\.workoutDay).max(), latest > today { today = latest }
+        // 35 days are shown; the 28 before them are only needed as reference loads.
+        let from = today.adding(-35 - ledger.settings.referenceWindowDays)
+        let sets = ledgerHistory().map(\.set).filter { $0.day >= from }
         let days = ledger.tissueDays(sets, through: today).filter { today.days(since: $0.day) < 35 && $0.day <= today }
         var week: [String: Double] = [:], prior: [String: Double] = [:], sides: [String: (String, Side)] = [:]
         for d in days where d.dose > 0 {
@@ -260,12 +381,22 @@ public final class AppModel {
 
     // MARK: Health and export
 
-    public func importHealth(from source: HealthSource, days: Int = 60) async {
+    /// Reads the last `days` days from a health source. Returns how many values
+    /// were stored, or nil if access was unavailable or the read failed.
+    @MainActor
+    @discardableResult
+    public func importHealth(from source: HealthSource, days: Int = 60) async -> Int? {
         let today = Day(now(), in: zone)
+        lastError = nil
         do {
-            guard try await source.requestAccess() else { return }
-            try store.save(try await source.dailyMetrics(from: today.adding(-days), through: today))
-        } catch { lastError = String(describing: error) }
+            guard try await source.requestAccess() else { return nil }
+            let metrics = try await source.dailyMetrics(from: today.adding(-days), through: today)
+            try store.save(metrics)
+            return metrics.filter { $0.value.isFinite }.count
+        } catch {
+            lastError = String(describing: error)
+            return nil
+        }
     }
 
     public func dailyMetrics(_ metric: String) -> [DailyMetric] { (try? store.dailyMetrics(metric)) ?? [] }
@@ -275,6 +406,7 @@ public final class AppModel {
     public func merge(_ data: Data) -> Int {
         var changed = 0
         attempt { changed = try store.merge(try Store.decodeSnapshot(data)) }
+        profile = store.profile
         reload()
         return changed
     }
