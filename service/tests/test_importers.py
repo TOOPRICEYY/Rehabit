@@ -101,3 +101,24 @@ def test_doestrack_mirror(con, tmp_path):
     assert doestrack.import_backup(con, path)["dose_events"] == 2
     row = con.execute("SELECT * FROM dose_event WHERE id = 'l1'").fetchone()
     assert (row["drug"], row["day"], row["site"]) == ("Example", "2025-03-01", "Thigh - Right")
+
+
+def test_garmin_daily_keeps_missing_values_missing(con, tmp_path):
+    from rehabit.importers import garmin_daily
+    nights = tmp_path / "sleep.json"
+    nights.write_text(json.dumps({"nights": [
+        {"date": "2025-03-01", "hrv": {"last_night_avg_ms": 70}, "total_minutes": 450, "score": 80,
+         "avg_heart_rate": 52},
+        {"date": "2025-03-02", "total_minutes": 400},                      # no HRV that night
+        {"date": None, "no_data": True},
+    ]}))
+    days = tmp_path / "daily.json"
+    days.write_text(json.dumps({"days": [
+        {"date": "2025-03-01", "heart_rate": {"resting": 48}, "steps": 6000},
+        {"date": "2025-03-02", "heart_rate": {}, "steps": 0},              # watch not worn
+    ]}))
+    counts = garmin_daily.import_files(con, [nights, days])
+    assert counts == {"hrv_ms": 1, "sleep_minutes": 2, "sleep_score": 1, "sleep_hr": 1,
+                      "resting_hr": 1, "steps": 1}
+    assert garmin_daily.import_files(con, [nights, days]) == counts        # safe to run twice
+    assert con.execute("SELECT COUNT(*) FROM daily_metric").fetchone()[0] == 7

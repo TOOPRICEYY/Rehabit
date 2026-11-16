@@ -18,7 +18,28 @@ from .ledger import _d
 SLACK_DAYS = {"day": 0, "week": 7, "month": 15}
 MIN_SHARE = 0.25
 KINDS = ["spike", "re_entry", "re_entry_period", "intensity_jump", "density", "density_cluster",
-         "layoff_no_step_back", "session_jump", "freeze"]
+         "layoff_no_step_back", "session_jump", "freeze",
+         "hrv_suppressed", "rhr_elevated", "short_sleep", "load_on_low_recovery",
+         "step_spike", "step_day_jump"]
+# Which daily metric each of these kinds needs. Their base rates only count
+# windows that fall after that metric's record starts (plus its 35-day warm-up).
+NEEDS = {"hrv_suppressed": ["hrv_ms"], "rhr_elevated": ["resting_hr"],
+         "short_sleep": ["sleep_minutes"], "load_on_low_recovery": ["hrv_ms", "resting_hr"],
+         "step_spike": ["steps"], "step_day_jump": ["steps"]}
+WARM_UP_DAYS = 35
+# Walking loads these; a step flag is only relevant to an injury in one of them.
+STEP_REGIONS = {"hip", "thigh", "knee", "lower leg"}
+
+
+def _walks(con: sqlite3.Connection, injury: sqlite3.Row) -> bool:
+    """True if the injury is in a tissue that walking loads."""
+    tissues = json.loads(injury["tissues"])
+    if not tissues:
+        return False
+    regions = sorted(STEP_REGIONS)
+    return con.execute(
+        f"SELECT COUNT(*) FROM tissue WHERE id IN ({','.join('?' * len(tissues))})"
+        f" AND region IN ({','.join('?' * len(regions))})", (*tissues, *regions)).fetchone()[0] > 0
 
 
 def _relevant_flags(con: sqlite3.Connection, injury: sqlite3.Row) -> list[dict]:
@@ -31,9 +52,14 @@ def _relevant_flags(con: sqlite3.Connection, injury: sqlite3.Row) -> list[dict]:
             (tissue, MIN_SHARE),
         ):
             exercises.add(r["exercise_id"])
+    walks = _walks(con, injury)
     out = []
     for f in con.execute("SELECT * FROM flag WHERE kind != 'compensation' ORDER BY day"):
-        if f["scope_type"] == "tissue":
+        if f["scope_type"] == "recovery":
+            keep = True        # recovery is whole-body, so it bears on every injury
+        elif f["scope_type"] == "steps":
+            keep = walks
+        elif f["scope_type"] == "tissue":
             keep = f["scope"] in tissues and f["side"] == injury["side"]
         elif f["scope_type"] == "exercise":
             keep = f["exercise_id"] in exercises and f["side"] in (injury["side"], "both")
@@ -50,12 +76,19 @@ def replay(con: sqlite3.Connection, lookback_days: int = 14) -> list[dict]:
         return []
     data_start, data_end = _d(span[0]), _d(span[1])
     active_days = {_d(r[0]) for r in con.execute("SELECT DISTINCT day FROM session")}
+    first = {r["metric"]: _d(r["d"]) for r in con.execute(
+        "SELECT metric, MIN(day) AS d FROM daily_metric GROUP BY metric")}
+    usable_from = {}
+    for kind, metrics in NEEDS.items():
+        starts = [first[m] for m in metrics if m in first]
+        usable_from[kind] = (min(starts) + timedelta(days=WARM_UP_DAYS)) if starts else None
     results = []
     for injury in con.execute("SELECT * FROM injury ORDER BY onset"):
         onset = _d(injury["onset"])
         length = lookback_days + SLACK_DAYS.get(injury["onset_precision"], 0)
         start = onset - timedelta(days=length)
         flags = _relevant_flags(con, injury)
+        walks = _walks(con, injury)
         by_day: dict[date, set[str]] = {}
         for f in flags:
             by_day.setdefault(_d(f["day"]), set()).add(f["kind"])
@@ -70,16 +103,25 @@ def replay(con: sqlite3.Connection, lookback_days: int = 14) -> list[dict]:
                 kinds = set()
                 for d in days:
                     kinds |= by_day.get(d, set())
-                windows.append(kinds)
+                windows.append((days[-1], kinds))
             w_end += timedelta(days=7)
 
         in_window = [f for f in flags if start <= _d(f["day"]) <= onset]
         kinds = {}
         for kind in KINDS:
             hits = [f for f in in_window if f["kind"] == kind]
-            base = (sum(1 for w in windows if kind in w) / len(windows)) if windows else None
-            kinds[kind] = {"count": len(hits), "base_rate": base}
-        any_base = (sum(1 for w in windows if w) / len(windows)) if windows else None
+            if kind in NEEDS:
+                since = usable_from[kind]
+                if since is None or (kind.startswith("step") and not walks):
+                    continue
+                pool = [k for w_start, k in windows if w_start >= since]
+                measured = start >= since
+            else:
+                pool, measured = [k for _, k in windows], True
+            base = (sum(1 for k in pool if kind in k) / len(pool)) if pool else None
+            kinds[kind] = {"count": len(hits), "base_rate": base, "windows": len(pool),
+                           "measured": measured}
+        any_base = (sum(1 for _, k in windows if k) / len(windows)) if windows else None
         results.append({
             "comparison_windows": len(windows),
             "injury": injury["label"], "side": injury["side"], "onset": injury["onset"],
@@ -105,8 +147,12 @@ def format_report(results: list[dict]) -> str:
             lines.append(f"  any relevant flag: base rate {r['any_flag_base_rate']:.0%} of windows")
         for kind, v in fired:
             base = "n/a" if v["base_rate"] is None else f"{v['base_rate']:.0%}"
-            lines.append(f"  {kind:<20} fired {v['count']:>2} times   base rate {base} of windows")
-        quiet = [k for k, v in r["kinds"].items() if not v["count"]]
+            of = "windows" if v["windows"] == r["comparison_windows"] else f"{v['windows']} windows"
+            lines.append(f"  {kind:<20} fired {v['count']:>2} times   base rate {base} of {of}")
+        unmeasured = [k for k, v in r["kinds"].items() if not v["measured"]]
+        if unmeasured:
+            lines.append("  not measured yet in this window: " + ", ".join(unmeasured))
+        quiet = [k for k, v in r["kinds"].items() if not v["count"] and v["measured"]]
         if fired and quiet:
             lines.append("  did not fire: " + ", ".join(quiet))
         for f in r["flags"][:12]:

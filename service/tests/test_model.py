@@ -173,3 +173,69 @@ def test_tools_are_read_only(con, tmp_path):
     assert tools.run_query("SELECT COUNT(*) AS n FROM set_entry")[0]["n"] == 1
     load = tools.get_tissue_load("pec_major", "left", START.isoformat(), START.isoformat())
     assert load and "dose" in str(load)
+
+
+def add_metric(con, day, metric, value):
+    con.execute("INSERT INTO daily_metric(day, metric, value, unit, source) VALUES (?,?,?,?,?)",
+                (day.isoformat(), metric, value, None, "test"))
+
+
+def test_recovery_flags_compare_the_week_with_the_four_before_it(con):
+    for i in range(60):
+        day = START + timedelta(days=i)
+        low = i >= 50                                                      # the last ten days dip
+        add_metric(con, day, "hrv_ms", 56 if low else 70)                  # 0.8 of the baseline
+        add_metric(con, day, "resting_hr", 55 if low else 50)
+        add_metric(con, day, "sleep_minutes", 330 if low else 480)
+    add_set(con, START + timedelta(days=40))                               # trained while fine
+    add_set(con, START + timedelta(days=58))                               # trained while down
+    ledger.compute(con)
+    flags.compute(con)
+    found = kinds(con, scope_type="recovery")
+    late, early = (START + timedelta(days=58)).isoformat(), (START + timedelta(days=40)).isoformat()
+    for kind in ("hrv_suppressed", "rhr_elevated", "short_sleep", "load_on_low_recovery"):
+        assert (late, kind) in found
+    assert not {k for d, k in found if d <= early}
+    # Too little history to have a baseline: nothing fires, however low the value.
+    assert not {k for d, k in found if d < (START + timedelta(days=20)).isoformat()}
+
+
+def test_a_slow_drift_in_hrv_is_not_a_flag(con):
+    for i in range(120):                                                   # falls 30 percent over four months
+        add_metric(con, START + timedelta(days=i), "hrv_ms", 80 - i * 0.2)
+    flags.compute(con)
+    assert not kinds(con, kind="hrv_suppressed")
+
+
+def test_step_flags(con):
+    for i in range(50):
+        add_metric(con, START + timedelta(days=i), "steps", 4000)
+    add_metric(con, START + timedelta(days=50), "steps", 15000)
+    for i in range(51, 56):
+        add_metric(con, START + timedelta(days=i), "steps", 9000)
+    flags.compute(con)
+    found = kinds(con, scope_type="steps")
+    assert ((START + timedelta(days=50)).isoformat(), "step_day_jump") in found
+    assert ((START + timedelta(days=55)).isoformat(), "step_spike") in found
+    assert ((START + timedelta(days=49)).isoformat(), "step_spike") not in found
+
+
+def test_replay_applies_steps_to_leg_injuries_only_and_recovery_to_all(con, profile):
+    profile.injuries.append({"id": "calf", "label": "Left calf strain", "side": "left",
+                             "onset": "2025-03-10", "onset_precision": "day", "tissues": ["calf"]})
+    seed_injuries(con, profile)
+    onset = date(2025, 3, 10)
+    for i in range(1, 120):
+        day = onset - timedelta(days=i)
+        add_metric(con, day, "steps", 12000 if i <= 5 else 4000)
+        add_metric(con, day, "hrv_ms", 50 if i <= 5 else 70)
+        if i % 7 == 0:
+            add_set(con, day)
+    ledger.compute(con)
+    flags.compute(con)
+    by_label = {r["injury"]: r["kinds"] for r in replay.replay(con, lookback_days=14)}
+    calf, pec = by_label["Left calf strain"], by_label["Left pec strain"]
+    assert calf["step_spike"]["count"] > 0 and "step_spike" not in pec
+    assert calf["hrv_suppressed"]["count"] > 0 and pec["hrv_suppressed"]["count"] > 0
+    assert "rhr_elevated" not in pec                                       # never measured
+    assert calf["hrv_suppressed"]["windows"] <= calf["spike"]["windows"]

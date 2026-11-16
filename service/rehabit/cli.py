@@ -6,7 +6,7 @@ import argparse
 import json
 
 from . import db, flags, ledger, library, profile as profile_mod, replay as replay_mod
-from .importers import doestrack, garmin, hevy
+from .importers import doestrack, garmin, garmin_daily, hevy
 
 
 def build(args) -> None:
@@ -20,6 +20,8 @@ def build(args) -> None:
     if args.garmin:
         summary["garmin"] = garmin.import_listing(con, args.garmin, prof)
         summary["garmin_sides_paired"] = garmin.pair_sides(con)
+    if args.garmin_daily:
+        summary["garmin_daily"] = garmin_daily.import_files(con, args.garmin_daily)
     if args.doestrack:
         summary["doestrack"] = doestrack.import_backup(con, args.doestrack)
     summary["ledger"] = ledger.compute(con)
@@ -47,6 +49,8 @@ def main(argv: list[str] | None = None) -> None:
     b.add_argument("--profile")
     b.add_argument("--hevy")
     b.add_argument("--garmin", nargs="*")
+    b.add_argument("--garmin-daily", nargs="*",
+                   help="saved Garmin sleep history and daily summary results")
     b.add_argument("--doestrack")
     b.set_defaults(func=build)
 

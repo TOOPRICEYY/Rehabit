@@ -27,11 +27,19 @@ Nothing here is clinical advice. The numbers are starting values, labelled as se
    mean of the previous four, load after 21 days with none, a load 10 percent over the
    28-day heaviest, back-to-back days, five loaded days in nine, a load frozen for six
    sessions, a session 1.5 times the 28-day longest, and so on.
-5. **Replay** (`replay.py`). For each injury with a known onset, lists the flags that
+5. **Recovery and steps** (`importers/garmin_daily.py`, `flags.py`). Overnight heart rate
+   variability, resting heart rate, sleep and daily steps are stored per day, and missing
+   days stay missing. Each is judged as the last 7 days against the 28 days before them,
+   so the baseline is the person's own and moves with season or medication. Flags: HRV
+   below 0.92 of baseline, resting heart rate 3 beats above it, three short nights in
+   seven, training while either of the first two holds, and steps 1.5 times baseline.
+   Recovery flags apply to every injury; step flags only to hip, thigh, knee and lower leg.
+   Steps are a separate channel and are not yet converted into tissue dose.
+6. **Replay** (`replay.py`). For each injury with a known onset, lists the flags that
    fired in the two weeks before it, next to the base rate: the share of all comparable
    two-week windows in which the same flag fired. A flag that fires before an injury but
    also fires in most ordinary fortnights tells you nothing.
-6. **Read-only MCP server** (`mcp_server.py`). Ten tools an agent can use to read the
+7. **Read-only MCP server** (`mcp_server.py`). Eleven tools an agent can use to read the
    history, loads and flags. It opens the database read-only and `run_query` accepts a
    single SELECT only.
 
@@ -39,7 +47,8 @@ Nothing here is clinical advice. The numbers are starting values, labelled as se
 
     cd service
     python3 -m rehabit.cli build --db ../data/rehabit.db --profile ../data/profile.json \
-        --hevy ../data/hevy.csv --garmin ../data/garmin/*.txt --doestrack ../data/doestrack.json
+        --hevy ../data/hevy.csv --garmin ../data/garmin/*.txt \
+        --garmin-daily ../data/garmin_daily/*.json --doestrack ../data/doestrack.json
     python3 -m rehabit.cli replay --db ../data/rehabit.db
     python3 -m rehabit.cli replay --db ../data/rehabit.db --lookback 28 --json
 
@@ -64,5 +73,8 @@ fixtures.
   Those rows are kept but carry no tissue load.
 - Tissue shares are estimates, stored with `estimate_source = 'default'`.
 - Sides for older rehab sessions are inferred from notes and the profile's rules.
+- Recovery does not yet change the dose. On the first replay the recovery flags at these
+  thresholds fired in most ordinary windows, so they are reported, not acted on.
+- Step counts include steps taken during runs, so steps and run minutes overlap.
 - The replay checks rules against a handful of injuries. That is enough to reject a rule
   that fires all the time, and not enough to tune thresholds without fitting noise.

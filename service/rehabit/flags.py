@@ -1,4 +1,4 @@
-"""Named load flags. Each is a plain rule with a visible reason.
+"""Named load, recovery and step flags. Each is a plain rule with a visible reason.
 
 The flags describe a change in load ("this week is 1.8 times what this tissue has
 recently seen"). They are not injury probabilities. Thresholds are starting values
@@ -31,6 +31,15 @@ class Thresholds:
     layoff_days: int = 7               # gap after which the load should step back
     compensation_ratio: float = 1.3    # other side's chronic load against onset
     session_jump: float = 1.5          # one session's minutes against the 28-day longest
+    # Recovery and steps: the last 7 days against the 28 days before them.
+    baseline_min_days: int = 14        # values needed in those 28 days
+    recent_min_days: int = 4           # values needed in the last 7
+    hrv_suppressed: float = 0.92       # 7-day mean HRV as a share of the baseline
+    rhr_elevated_bpm: float = 3.0      # 7-day mean resting heart rate above the baseline
+    short_sleep_minutes: float = 390   # a short night (6.5 hours) ...
+    short_sleep_nights: int = 3        # ... this many times in 7
+    step_spike: float = 1.5            # 7-day mean steps against the baseline
+    step_day_jump: float = 1.5         # one day's steps against the 28-day highest
 
 
 def _insert(con, day, kind, scope_type, scope, detail, side=None, value=None,
@@ -202,6 +211,76 @@ def _compensation_flags(con, t: Thresholds) -> None:
                             detail=f"{tissue} ({other}) carries {r['chronic'] / base:.2f} times its load at the onset of {inj['label']}")
 
 
+def _metric(con, metric: str) -> dict[date, float]:
+    # One value per day; if two sources report the same day, the mean.
+    return {_d(r["day"]): r["v"] for r in con.execute(
+        "SELECT day, AVG(value) AS v FROM daily_metric WHERE metric = ? GROUP BY day", (metric,))}
+
+
+def _recent_and_baseline(series: dict[date, float], d: date, t: Thresholds):
+    """Mean of the last 7 days and of the 28 before them, or None if too sparse.
+
+    The baseline excludes the current week, so a bad week is compared with what
+    came before it and not partly with itself. It also moves with the season, a
+    change of medication or a new watch, which a fixed all-time mean would not.
+    """
+    recent = [series[x] for i in range(7) if (x := d - timedelta(days=i)) in series]
+    prior = [series[x] for i in range(7, 35) if (x := d - timedelta(days=i)) in series]
+    if len(recent) < t.recent_min_days or len(prior) < t.baseline_min_days:
+        return None
+    return sum(recent) / len(recent), sum(prior) / len(prior), prior
+
+
+def _recovery_flags(con, t: Thresholds) -> None:
+    hrv, rhr, sleep = _metric(con, "hrv_ms"), _metric(con, "resting_hr"), _metric(con, "sleep_minutes")
+    low_days: dict[date, str] = {}
+    for d in sorted(hrv):
+        got = _recent_and_baseline(hrv, d, t)
+        if got and got[0] / got[1] < t.hrv_suppressed:
+            detail = f"7-day HRV of {got[0]:.0f} ms is {got[0] / got[1]:.2f} of the previous four weeks ({got[1]:.0f} ms)"
+            _insert(con, d, "hrv_suppressed", "recovery", "hrv_ms", detail,
+                    value=got[0] / got[1], threshold=t.hrv_suppressed)
+            low_days[d] = detail
+    for d in sorted(rhr):
+        got = _recent_and_baseline(rhr, d, t)
+        if got and got[0] - got[1] >= t.rhr_elevated_bpm:
+            detail = f"7-day resting heart rate of {got[0]:.0f} is {got[0] - got[1]:.1f} above the previous four weeks ({got[1]:.0f})"
+            _insert(con, d, "rhr_elevated", "recovery", "resting_hr", detail,
+                    value=got[0] - got[1], threshold=t.rhr_elevated_bpm)
+            low_days.setdefault(d, detail)
+    for d in sorted(sleep):
+        nights = [sleep[x] for i in range(7) if (x := d - timedelta(days=i)) in sleep]
+        short = sum(1 for n in nights if n < t.short_sleep_minutes)
+        if len(nights) >= t.recent_min_days and short >= t.short_sleep_nights:
+            _insert(con, d, "short_sleep", "recovery", "sleep_minutes",
+                    f"{short} of the last {len(nights)} nights under {t.short_sleep_minutes / 60:.1f} hours",
+                    value=short, threshold=t.short_sleep_nights)
+    # Training on a day when recovery was already down: the two together are the
+    # claim worth testing, since either alone is common.
+    for r in con.execute("SELECT day, COUNT(*) AS n FROM session GROUP BY day"):
+        d = _d(r["day"])
+        if d in low_days:
+            _insert(con, d, "load_on_low_recovery", "recovery", "session",
+                    f"trained while {low_days[d]}", value=r["n"])
+
+
+def _step_flags(con, t: Thresholds) -> None:
+    steps = _metric(con, "steps")
+    for d in sorted(steps):
+        got = _recent_and_baseline(steps, d, t)
+        if not got:
+            continue
+        recent, base, prior = got
+        if recent / base > t.step_spike:
+            _insert(con, d, "step_spike", "steps", "steps", value=recent / base, threshold=t.step_spike,
+                    detail=f"7-day steps of {recent:.0f} a day are {recent / base:.2f} times the previous four weeks ({base:.0f})")
+        highest = max(prior + [steps[x] for i in range(1, 7) if (x := d - timedelta(days=i)) in steps])
+        if steps[d] > highest * t.step_day_jump:
+            _insert(con, d, "step_day_jump", "steps", "steps", value=steps[d] / highest,
+                    threshold=t.step_day_jump,
+                    detail=f"{steps[d]:.0f} steps against a highest of {highest:.0f} in the five weeks before")
+
+
 def compute(con: sqlite3.Connection, thresholds: Thresholds = Thresholds(),
             settings: Settings = Settings()) -> dict:
     """Rebuild the flag table. Run ledger.compute first."""
@@ -210,6 +289,8 @@ def compute(con: sqlite3.Connection, thresholds: Thresholds = Thresholds(),
     _exercise_flags(con, thresholds, settings)
     _activity_flags(con, thresholds)
     _compensation_flags(con, thresholds)
+    _recovery_flags(con, thresholds)
+    _step_flags(con, thresholds)
     con.commit()
     return {r["kind"]: r["n"] for r in con.execute(
         "SELECT kind, COUNT(*) AS n FROM flag GROUP BY kind ORDER BY kind")}

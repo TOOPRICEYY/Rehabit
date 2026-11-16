@@ -110,6 +110,15 @@ class Tools:
             params.append(scope)
         return db.rows(self._con(), sql + f" ORDER BY day LIMIT {MAX_ROWS}", tuple(params))
 
+    def get_daily_metrics(self, start_day: str, end_day: str, metric: str | None = None) -> list[dict]:
+        """Nightly HRV, sleep and resting heart rate, and daily steps. Missing days are absent, not zero."""
+        sql = "SELECT day, metric, value, unit, source FROM daily_metric WHERE day BETWEEN ? AND ?"
+        params: list[Any] = [start_day, end_day]
+        if metric:
+            sql += " AND metric = ?"
+            params.append(metric)
+        return db.rows(self._con(), sql + f" ORDER BY day, metric LIMIT {MAX_ROWS}", tuple(params))
+
     def get_dose_events(self, start_day: str, end_day: str, drug: str | None = None) -> list[dict]:
         """Doses from the dose log mirror: drug, amount, route and injection site."""
         sql = ("SELECT taken_at, day, drug, amount, unit, route, site, status FROM dose_event"
@@ -144,7 +153,7 @@ class Tools:
 
 
 TOOL_NAMES = ["get_overview", "list_sessions", "get_session", "query_sets", "get_tissue_load",
-              "get_flags", "get_dose_events", "get_library", "replay_flags", "run_query"]
+              "get_flags", "get_daily_metrics", "get_dose_events", "get_library", "replay_flags", "run_query"]
 
 
 def build_server(db_path: str):
