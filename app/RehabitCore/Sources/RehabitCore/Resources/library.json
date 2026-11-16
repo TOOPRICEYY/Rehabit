@@ -1,0 +1,1123 @@
+{
+ "tissues": [
+  {
+   "id": "pec_major",
+   "name": "Pectoralis major",
+   "kind": "muscle",
+   "region": "chest"
+  },
+  {
+   "id": "front_delt",
+   "name": "Front deltoid",
+   "kind": "muscle",
+   "region": "shoulder"
+  },
+  {
+   "id": "side_delt",
+   "name": "Side deltoid",
+   "kind": "muscle",
+   "region": "shoulder"
+  },
+  {
+   "id": "rear_delt",
+   "name": "Rear deltoid",
+   "kind": "muscle",
+   "region": "shoulder"
+  },
+  {
+   "id": "rotator_cuff",
+   "name": "Rotator cuff",
+   "kind": "muscle",
+   "region": "shoulder"
+  },
+  {
+   "id": "triceps",
+   "name": "Triceps",
+   "kind": "muscle",
+   "region": "upper arm"
+  },
+  {
+   "id": "biceps",
+   "name": "Biceps and brachialis",
+   "kind": "muscle",
+   "region": "upper arm"
+  },
+  {
+   "id": "forearm",
+   "name": "Forearm flexors and grip",
+   "kind": "muscle",
+   "region": "forearm"
+  },
+  {
+   "id": "lats",
+   "name": "Latissimus dorsi",
+   "kind": "muscle",
+   "region": "back"
+  },
+  {
+   "id": "mid_back",
+   "name": "Rhomboids and mid trapezius",
+   "kind": "muscle",
+   "region": "back"
+  },
+  {
+   "id": "upper_traps",
+   "name": "Upper trapezius",
+   "kind": "muscle",
+   "region": "back"
+  },
+  {
+   "id": "erectors",
+   "name": "Spinal erectors",
+   "kind": "muscle",
+   "region": "back"
+  },
+  {
+   "id": "abs",
+   "name": "Abdominals",
+   "kind": "muscle",
+   "region": "trunk"
+  },
+  {
+   "id": "obliques",
+   "name": "Obliques",
+   "kind": "muscle",
+   "region": "trunk"
+  },
+  {
+   "id": "hip_flexors",
+   "name": "Hip flexors",
+   "kind": "muscle",
+   "region": "hip"
+  },
+  {
+   "id": "glute_max",
+   "name": "Gluteus maximus",
+   "kind": "muscle",
+   "region": "hip"
+  },
+  {
+   "id": "glute_med",
+   "name": "Gluteus medius",
+   "kind": "muscle",
+   "region": "hip"
+  },
+  {
+   "id": "adductors",
+   "name": "Adductors",
+   "kind": "muscle",
+   "region": "thigh"
+  },
+  {
+   "id": "quads",
+   "name": "Quadriceps",
+   "kind": "muscle",
+   "region": "thigh"
+  },
+  {
+   "id": "hamstrings",
+   "name": "Hamstrings",
+   "kind": "muscle",
+   "region": "thigh"
+  },
+  {
+   "id": "patellar_tendon",
+   "name": "Patellar tendon",
+   "kind": "tendon",
+   "region": "knee"
+  },
+  {
+   "id": "calf",
+   "name": "Gastrocnemius and soleus",
+   "kind": "muscle",
+   "region": "lower leg"
+  },
+  {
+   "id": "achilles",
+   "name": "Achilles tendon",
+   "kind": "tendon",
+   "region": "lower leg"
+  }
+ ],
+ "patterns": [
+  {
+   "id": "press_horizontal",
+   "name": "Horizontal press",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "pec_major",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "triceps",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "rotator_cuff",
+     "share": 0.25,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "press_incline",
+   "name": "Incline press",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "pec_major",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.7,
+     "role": "assist"
+    },
+    {
+     "tissue": "triceps",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "rotator_cuff",
+     "share": 0.25,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "push_up",
+   "name": "Push-up",
+   "bodyweightShare": 0.64,
+   "links": [
+    {
+     "tissue": "pec_major",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "triceps",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "abs",
+     "share": 0.25,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "fly",
+   "name": "Chest fly",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "pec_major",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "biceps",
+     "share": 0.15,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "press_overhead",
+   "name": "Overhead press",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "front_delt",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "side_delt",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "triceps",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "upper_traps",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "rotator_cuff",
+     "share": 0.3,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "pec_major",
+     "share": 0.2,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "raise_lateral",
+   "name": "Lateral or front raise",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "side_delt",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "upper_traps",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "rotator_cuff",
+     "share": 0.3,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "upright_row",
+   "name": "Upright row",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "side_delt",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "upper_traps",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "biceps",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "rotator_cuff",
+     "share": 0.3,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "triceps_extension",
+   "name": "Triceps extension or pushdown",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "triceps",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "forearm",
+     "share": 0.2,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "curl",
+   "name": "Biceps curl",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "biceps",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "forearm",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.15,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "row",
+   "name": "Row",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "lats",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "mid_back",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "rear_delt",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "biceps",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "forearm",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "erectors",
+     "share": 0.25,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "pec_major",
+     "share": 0.1,
+     "role": "end_range"
+    }
+   ]
+  },
+  {
+   "id": "pull_up",
+   "name": "Pull-up or chin-up",
+   "bodyweightShare": 1.0,
+   "links": [
+    {
+     "tissue": "lats",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "biceps",
+     "share": 0.7,
+     "role": "assist"
+    },
+    {
+     "tissue": "mid_back",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "forearm",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "rear_delt",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "pec_major",
+     "share": 0.25,
+     "role": "assist"
+    },
+    {
+     "tissue": "abs",
+     "share": 0.2,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "pulldown",
+   "name": "Lat pulldown",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "lats",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "biceps",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "mid_back",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "forearm",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "rear_delt",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "pec_major",
+     "share": 0.2,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "deadlift",
+   "name": "Deadlift",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "glute_max",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "erectors",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "quads",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "lats",
+     "share": 0.3,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "forearm",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "upper_traps",
+     "share": 0.4,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "adductors",
+     "share": 0.3,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "rdl",
+   "name": "Romanian deadlift or back extension",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "hamstrings",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "erectors",
+     "share": 0.7,
+     "role": "prime"
+    },
+    {
+     "tissue": "forearm",
+     "share": 0.4,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "squat",
+   "name": "Squat",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "adductors",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "erectors",
+     "share": 0.4,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "calf",
+     "share": 0.15,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "squat_bodyweight",
+   "name": "Bodyweight squat",
+   "bodyweightShare": 0.85,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "adductors",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.6,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "lunge",
+   "name": "Lunge",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.9,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_med",
+     "share": 0.4,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "adductors",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "calf",
+     "share": 0.2,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "leg_press",
+   "name": "Leg press",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "adductors",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.6,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "leg_extension",
+   "name": "Leg extension",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.8,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "leg_curl",
+   "name": "Leg curl",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "hamstrings",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "calf",
+     "share": 0.2,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "calf_raise",
+   "name": "Calf raise",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "calf",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "achilles",
+     "share": 1.0,
+     "role": "prime"
+    }
+   ]
+  },
+  {
+   "id": "core",
+   "name": "Trunk exercise",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "abs",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "obliques",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "hip_flexors",
+     "share": 0.5,
+     "role": "assist"
+    }
+   ]
+  }
+ ],
+ "catalogue": [
+  {
+   "name": "Bench Press (Barbell)",
+   "pattern": "press_horizontal",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Bench Press (Dumbbell)",
+   "pattern": "press_horizontal",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Single-Arm Bench Press (Dumbbell)",
+   "pattern": "press_horizontal",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Chest Press (Machine)",
+   "pattern": "press_horizontal",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Floor Press (Dumbbell)",
+   "pattern": "press_horizontal",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Incline Bench Press (Barbell)",
+   "pattern": "press_incline",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Incline Bench Press (Dumbbell)",
+   "pattern": "press_incline",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Push-Up",
+   "pattern": "push_up",
+   "convention": "bodyweight",
+   "unilateral": false
+  },
+  {
+   "name": "Chest Fly (Dumbbell)",
+   "pattern": "fly",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Chest Fly (Cable)",
+   "pattern": "fly",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Pec Deck (Machine)",
+   "pattern": "fly",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Overhead Press (Barbell)",
+   "pattern": "press_overhead",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Shoulder Press (Dumbbell)",
+   "pattern": "press_overhead",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Lateral Raise (Dumbbell)",
+   "pattern": "raise_lateral",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Lateral Raise (Cable)",
+   "pattern": "raise_lateral",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Front Raise (Dumbbell)",
+   "pattern": "raise_lateral",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Upright Row (Cable)",
+   "pattern": "upright_row",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Triceps Pushdown (Cable)",
+   "pattern": "triceps_extension",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Single-Arm Triceps Pushdown (Cable)",
+   "pattern": "triceps_extension",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Overhead Triceps Extension (Dumbbell)",
+   "pattern": "triceps_extension",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Skullcrusher (EZ Bar)",
+   "pattern": "triceps_extension",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Biceps Curl (Dumbbell)",
+   "pattern": "curl",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Biceps Curl (Barbell)",
+   "pattern": "curl",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Biceps Curl (Cable)",
+   "pattern": "curl",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Hammer Curl (Dumbbell)",
+   "pattern": "curl",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Preacher Curl (Machine)",
+   "pattern": "curl",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Bent Over Row (Barbell)",
+   "pattern": "row",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Single-Arm Row (Dumbbell)",
+   "pattern": "row",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Seated Row (Cable)",
+   "pattern": "row",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Chest Supported Row (Machine)",
+   "pattern": "row",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Pull-Up",
+   "pattern": "pull_up",
+   "convention": "bodyweight",
+   "unilateral": false
+  },
+  {
+   "name": "Chin-Up",
+   "pattern": "pull_up",
+   "convention": "bodyweight",
+   "unilateral": false
+  },
+  {
+   "name": "Weighted Pull-Up",
+   "pattern": "pull_up",
+   "convention": "bodyweight_plus",
+   "unilateral": false
+  },
+  {
+   "name": "Lat Pulldown (Cable)",
+   "pattern": "pulldown",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Single-Arm Lat Pulldown (Cable)",
+   "pattern": "pulldown",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Deadlift (Barbell)",
+   "pattern": "deadlift",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Trap Bar Deadlift",
+   "pattern": "deadlift",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Romanian Deadlift (Barbell)",
+   "pattern": "rdl",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Romanian Deadlift (Dumbbell)",
+   "pattern": "rdl",
+   "convention": "per_hand",
+   "unilateral": false
+  },
+  {
+   "name": "Single-Leg Romanian Deadlift (Dumbbell)",
+   "pattern": "rdl",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Back Extension",
+   "pattern": "rdl",
+   "convention": "bodyweight_plus",
+   "unilateral": false
+  },
+  {
+   "name": "Squat (Barbell)",
+   "pattern": "squat",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Goblet Squat (Dumbbell)",
+   "pattern": "squat",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Squat (Bodyweight)",
+   "pattern": "squat_bodyweight",
+   "convention": "bodyweight",
+   "unilateral": false
+  },
+  {
+   "name": "Lunge (Dumbbell)",
+   "pattern": "lunge",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Bulgarian Split Squat (Dumbbell)",
+   "pattern": "lunge",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Step-Up (Dumbbell)",
+   "pattern": "lunge",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Leg Press (Machine)",
+   "pattern": "leg_press",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Single-Leg Press (Machine)",
+   "pattern": "leg_press",
+   "convention": "total",
+   "unilateral": true
+  },
+  {
+   "name": "Leg Extension (Machine)",
+   "pattern": "leg_extension",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Single-Leg Extension (Machine)",
+   "pattern": "leg_extension",
+   "convention": "total",
+   "unilateral": true
+  },
+  {
+   "name": "Leg Curl (Machine)",
+   "pattern": "leg_curl",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Single-Leg Curl (Machine)",
+   "pattern": "leg_curl",
+   "convention": "total",
+   "unilateral": true
+  },
+  {
+   "name": "Calf Raise (Machine)",
+   "pattern": "calf_raise",
+   "convention": "total",
+   "unilateral": false
+  },
+  {
+   "name": "Single-Leg Calf Raise (Dumbbell)",
+   "pattern": "calf_raise",
+   "convention": "per_hand",
+   "unilateral": true
+  },
+  {
+   "name": "Plank",
+   "pattern": "core",
+   "convention": "bodyweight",
+   "unilateral": false
+  },
+  {
+   "name": "Crunch",
+   "pattern": "core",
+   "convention": "bodyweight",
+   "unilateral": false
+  },
+  {
+   "name": "Hanging Leg Raise",
+   "pattern": "core",
+   "convention": "bodyweight",
+   "unilateral": false
+  }
+ ]
+}

@@ -60,6 +60,9 @@ def main(argv: list[str] | None = None) -> None:
     r.add_argument("--json", action="store_true")
     r.set_defaults(func=replay)
 
+    e = sub.add_parser("export-shared", help="rewrite the files the app shares with the service")
+    e.set_defaults(func=lambda args: print("\n".join(__import__("rehabit.shared", fromlist=["x"]).write())))
+
     s = sub.add_parser("mcp", help="serve the read-only MCP tools over stdio")
     s.add_argument("--db", required=True)
     s.set_defaults(func=serve)

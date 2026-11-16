@@ -108,6 +108,84 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
         "abs": (1.0, P), "obliques": (0.5, A), "hip_flexors": (0.5, A)}),
 }
 
+# Named exercises offered by the app's picker: (name, movement pattern, how the
+# load is entered, whether it is usually done one side at a time). The pattern
+# decides which tissues are loaded; a custom exercise picks a pattern the same way.
+CATALOGUE: list[tuple[str, str, str, bool]] = [
+    ("Bench Press (Barbell)", "press_horizontal", "total", False),
+    ("Bench Press (Dumbbell)", "press_horizontal", "per_hand", False),
+    ("Single-Arm Bench Press (Dumbbell)", "press_horizontal", "per_hand", True),
+    ("Chest Press (Machine)", "press_horizontal", "total", False),
+    ("Floor Press (Dumbbell)", "press_horizontal", "per_hand", False),
+    ("Incline Bench Press (Barbell)", "press_incline", "total", False),
+    ("Incline Bench Press (Dumbbell)", "press_incline", "per_hand", False),
+    ("Push-Up", "push_up", "bodyweight", False),
+    ("Chest Fly (Dumbbell)", "fly", "per_hand", False),
+    ("Chest Fly (Cable)", "fly", "per_hand", True),
+    ("Pec Deck (Machine)", "fly", "total", False),
+    ("Overhead Press (Barbell)", "press_overhead", "total", False),
+    ("Shoulder Press (Dumbbell)", "press_overhead", "per_hand", False),
+    ("Lateral Raise (Dumbbell)", "raise_lateral", "per_hand", False),
+    ("Lateral Raise (Cable)", "raise_lateral", "per_hand", True),
+    ("Front Raise (Dumbbell)", "raise_lateral", "per_hand", False),
+    ("Upright Row (Cable)", "upright_row", "total", False),
+    ("Triceps Pushdown (Cable)", "triceps_extension", "total", False),
+    ("Single-Arm Triceps Pushdown (Cable)", "triceps_extension", "per_hand", True),
+    ("Overhead Triceps Extension (Dumbbell)", "triceps_extension", "per_hand", True),
+    ("Skullcrusher (EZ Bar)", "triceps_extension", "total", False),
+    ("Biceps Curl (Dumbbell)", "curl", "per_hand", False),
+    ("Biceps Curl (Barbell)", "curl", "total", False),
+    ("Biceps Curl (Cable)", "curl", "per_hand", True),
+    ("Hammer Curl (Dumbbell)", "curl", "per_hand", False),
+    ("Preacher Curl (Machine)", "curl", "total", False),
+    ("Bent Over Row (Barbell)", "row", "total", False),
+    ("Single-Arm Row (Dumbbell)", "row", "per_hand", True),
+    ("Seated Row (Cable)", "row", "total", False),
+    ("Chest Supported Row (Machine)", "row", "total", False),
+    ("Pull-Up", "pull_up", "bodyweight", False),
+    ("Chin-Up", "pull_up", "bodyweight", False),
+    ("Weighted Pull-Up", "pull_up", "bodyweight_plus", False),
+    ("Lat Pulldown (Cable)", "pulldown", "total", False),
+    ("Single-Arm Lat Pulldown (Cable)", "pulldown", "per_hand", True),
+    ("Deadlift (Barbell)", "deadlift", "total", False),
+    ("Trap Bar Deadlift", "deadlift", "total", False),
+    ("Romanian Deadlift (Barbell)", "rdl", "total", False),
+    ("Romanian Deadlift (Dumbbell)", "rdl", "per_hand", False),
+    ("Single-Leg Romanian Deadlift (Dumbbell)", "rdl", "per_hand", True),
+    ("Back Extension", "rdl", "bodyweight_plus", False),
+    ("Squat (Barbell)", "squat", "total", False),
+    ("Goblet Squat (Dumbbell)", "squat", "total", False),
+    ("Squat (Bodyweight)", "squat_bodyweight", "bodyweight", False),
+    ("Lunge (Dumbbell)", "lunge", "per_hand", True),
+    ("Bulgarian Split Squat (Dumbbell)", "lunge", "per_hand", True),
+    ("Step-Up (Dumbbell)", "lunge", "per_hand", True),
+    ("Leg Press (Machine)", "leg_press", "total", False),
+    ("Single-Leg Press (Machine)", "leg_press", "total", True),
+    ("Leg Extension (Machine)", "leg_extension", "total", False),
+    ("Single-Leg Extension (Machine)", "leg_extension", "total", True),
+    ("Leg Curl (Machine)", "leg_curl", "total", False),
+    ("Single-Leg Curl (Machine)", "leg_curl", "total", True),
+    ("Calf Raise (Machine)", "calf_raise", "total", False),
+    ("Single-Leg Calf Raise (Dumbbell)", "calf_raise", "per_hand", True),
+    ("Plank", "core", "bodyweight", False),
+    ("Crunch", "core", "bodyweight", False),
+    ("Hanging Leg Raise", "core", "bodyweight", False),
+]
+
+
+def export() -> dict:
+    """The library as plain data, shared with the app so both sides load the same shares."""
+    return {
+        "tissues": [{"id": i, "name": n, "kind": k, "region": r} for i, (n, k, r) in TISSUES.items()],
+        "patterns": [
+            {"id": i, "name": n, "bodyweightShare": bw,
+             "links": [{"tissue": t, "share": sh, "role": role} for t, (sh, role) in links.items()]}
+            for i, (n, bw, links) in EXERCISES.items()],
+        "catalogue": [{"name": n, "pattern": p, "convention": c, "unilateral": u}
+                      for n, p, c, u in CATALOGUE],
+    }
+
+
 # First match wins, so the specific patterns come before the general ones.
 _PATTERNS: list[tuple[str, str]] = [
     (r"leg curl", "leg_curl"),

@@ -1,0 +1,957 @@
+{
+ "note": "Synthetic. Written by `rehabit export-shared`; do not edit by hand.",
+ "sets": [
+  {
+   "day": "2025-01-06",
+   "exercise": "Bench Press (Dumbbell)",
+   "pattern": "press_horizontal",
+   "side": "both",
+   "kind": "reps",
+   "reps": 10,
+   "holdSeconds": null,
+   "loadKg": 20.0
+  },
+  {
+   "day": "2025-01-06",
+   "exercise": "Bench Press (Dumbbell)",
+   "pattern": "press_horizontal",
+   "side": "both",
+   "kind": "reps",
+   "reps": 8,
+   "holdSeconds": null,
+   "loadKg": 22.5
+  },
+  {
+   "day": "2025-01-06",
+   "exercise": "Single-Leg Extension (Machine)",
+   "pattern": "leg_extension",
+   "side": "right",
+   "kind": "hold",
+   "reps": null,
+   "holdSeconds": 45,
+   "loadKg": 15.0
+  },
+  {
+   "day": "2025-01-08",
+   "exercise": "Bench Press (Dumbbell)",
+   "pattern": "press_horizontal",
+   "side": "both",
+   "kind": "reps",
+   "reps": 10,
+   "holdSeconds": null,
+   "loadKg": 25.0
+  },
+  {
+   "day": "2025-01-08",
+   "exercise": "Bench Press (Dumbbell)",
+   "pattern": "press_horizontal",
+   "side": "both",
+   "kind": "reps",
+   "reps": 10,
+   "holdSeconds": null,
+   "loadKg": 20.0
+  },
+  {
+   "day": "2025-01-08",
+   "exercise": "Pull-Up",
+   "pattern": "pull_up",
+   "side": "both",
+   "kind": "reps",
+   "reps": 6,
+   "holdSeconds": null,
+   "loadKg": 72.0
+  },
+  {
+   "day": "2025-01-09",
+   "exercise": "Single-Arm Row (Dumbbell)",
+   "pattern": "row",
+   "side": "left",
+   "kind": "reps",
+   "reps": 12,
+   "holdSeconds": null,
+   "loadKg": 18.0
+  },
+  {
+   "day": "2025-01-09",
+   "exercise": "Single-Arm Row (Dumbbell)",
+   "pattern": "row",
+   "side": "right",
+   "kind": "reps",
+   "reps": 12,
+   "holdSeconds": null,
+   "loadKg": 24.0
+  },
+  {
+   "day": "2025-01-15",
+   "exercise": "Single-Leg Extension (Machine)",
+   "pattern": "leg_extension",
+   "side": "right",
+   "kind": "reps",
+   "reps": 12,
+   "holdSeconds": null,
+   "loadKg": 20.0
+  },
+  {
+   "day": "2025-01-15",
+   "exercise": "Mystery Movement",
+   "pattern": null,
+   "side": "both",
+   "kind": "reps",
+   "reps": 10,
+   "holdSeconds": null,
+   "loadKg": 30.0
+  },
+  {
+   "day": "2025-02-15",
+   "exercise": "Bench Press (Dumbbell)",
+   "pattern": "press_horizontal",
+   "side": "both",
+   "kind": "reps",
+   "reps": 10,
+   "holdSeconds": null,
+   "loadKg": 10.0
+  },
+  {
+   "day": "2025-02-16",
+   "exercise": "Bench Press (Dumbbell)",
+   "pattern": "press_horizontal",
+   "side": "both",
+   "kind": "reps",
+   "reps": 5,
+   "holdSeconds": null,
+   "loadKg": 40.0
+  },
+  {
+   "day": "2025-02-16",
+   "exercise": "Plank",
+   "pattern": "core",
+   "side": "both",
+   "kind": "hold",
+   "reps": null,
+   "holdSeconds": 60,
+   "loadKg": null
+  }
+ ],
+ "tissueDays": [
+  {
+   "day": "2025-01-06",
+   "tissue": "front_delt",
+   "side": "left",
+   "dose": 9.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.1981,
+   "chronic": 0.3158
+  },
+  {
+   "day": "2025-01-06",
+   "tissue": "front_delt",
+   "side": "right",
+   "dose": 9.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.1981,
+   "chronic": 0.3158
+  },
+  {
+   "day": "2025-01-06",
+   "tissue": "patellar_tendon",
+   "side": "right",
+   "dose": 7.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.9585,
+   "chronic": 0.2526
+  },
+  {
+   "day": "2025-01-06",
+   "tissue": "pec_major",
+   "side": "left",
+   "dose": 18.0,
+   "sets": 2.0,
+   "reps": 18.0,
+   "acute": 2.3962,
+   "chronic": 0.6315
+  },
+  {
+   "day": "2025-01-06",
+   "tissue": "pec_major",
+   "side": "right",
+   "dose": 18.0,
+   "sets": 2.0,
+   "reps": 18.0,
+   "acute": 2.3962,
+   "chronic": 0.6315
+  },
+  {
+   "day": "2025-01-06",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.0,
+   "sets": 1.0,
+   "reps": 9.0,
+   "acute": 1.1981,
+   "chronic": 0.3158
+  },
+  {
+   "day": "2025-01-06",
+   "tissue": "rotator_cuff",
+   "side": "left",
+   "dose": 4.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.599,
+   "chronic": 0.1579
+  },
+  {
+   "day": "2025-01-06",
+   "tissue": "rotator_cuff",
+   "side": "right",
+   "dose": 4.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.599,
+   "chronic": 0.1579
+  },
+  {
+   "day": "2025-01-06",
+   "tissue": "triceps",
+   "side": "left",
+   "dose": 9.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.1981,
+   "chronic": 0.3158
+  },
+  {
+   "day": "2025-01-06",
+   "tissue": "triceps",
+   "side": "right",
+   "dose": 9.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.1981,
+   "chronic": 0.3158
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "abs",
+   "side": "left",
+   "dose": 1.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.1597,
+   "chronic": 0.0421
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "abs",
+   "side": "right",
+   "dose": 1.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.1597,
+   "chronic": 0.0421
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "biceps",
+   "side": "left",
+   "dose": 4.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.5591,
+   "chronic": 0.1474
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "biceps",
+   "side": "right",
+   "dose": 4.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.5591,
+   "chronic": 0.1474
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "forearm",
+   "side": "left",
+   "dose": 3.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.3994,
+   "chronic": 0.1053
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "forearm",
+   "side": "right",
+   "dose": 3.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.3994,
+   "chronic": 0.1053
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "front_delt",
+   "side": "left",
+   "dose": 10.123,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 2.248,
+   "chronic": 0.6492
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "front_delt",
+   "side": "right",
+   "dose": 10.123,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 2.248,
+   "chronic": 0.6492
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "lats",
+   "side": "left",
+   "dose": 6.0,
+   "sets": 1.0,
+   "reps": 6.0,
+   "acute": 0.7987,
+   "chronic": 0.2105
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "lats",
+   "side": "right",
+   "dose": 6.0,
+   "sets": 1.0,
+   "reps": 6.0,
+   "acute": 0.7987,
+   "chronic": 0.2105
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "mid_back",
+   "side": "left",
+   "dose": 3.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.3994,
+   "chronic": 0.1053
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "mid_back",
+   "side": "right",
+   "dose": 3.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.3994,
+   "chronic": 0.1053
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "pec_major",
+   "side": "left",
+   "dose": 21.747,
+   "sets": 2.0,
+   "reps": 20.0,
+   "acute": 4.6957,
+   "chronic": 1.3509
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "pec_major",
+   "side": "right",
+   "dose": 21.747,
+   "sets": 2.0,
+   "reps": 20.0,
+   "acute": 4.6957,
+   "chronic": 1.3509
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "rear_delt",
+   "side": "left",
+   "dose": 1.8,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.2396,
+   "chronic": 0.0632
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "rear_delt",
+   "side": "right",
+   "dose": 1.8,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.2396,
+   "chronic": 0.0632
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "rotator_cuff",
+   "side": "left",
+   "dose": 5.062,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.124,
+   "chronic": 0.3246
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "rotator_cuff",
+   "side": "right",
+   "dose": 5.062,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.124,
+   "chronic": 0.3246
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "triceps",
+   "side": "left",
+   "dose": 10.123,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 2.248,
+   "chronic": 0.6492
+  },
+  {
+   "day": "2025-01-08",
+   "tissue": "triceps",
+   "side": "right",
+   "dose": 10.123,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 2.248,
+   "chronic": 0.6492
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "biceps",
+   "side": "left",
+   "dose": 6.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.2834,
+   "chronic": 0.3527
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "biceps",
+   "side": "right",
+   "dose": 6.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.2834,
+   "chronic": 0.3527
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "erectors",
+   "side": "left",
+   "dose": 3.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.3994,
+   "chronic": 0.1053
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "erectors",
+   "side": "right",
+   "dose": 3.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.3994,
+   "chronic": 0.1053
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "forearm",
+   "side": "left",
+   "dose": 4.8,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.9852,
+   "chronic": 0.27
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "forearm",
+   "side": "right",
+   "dose": 4.8,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.9852,
+   "chronic": 0.27
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "lats",
+   "side": "left",
+   "dose": 9.6,
+   "sets": 1.0,
+   "reps": 12.0,
+   "acute": 1.9704,
+   "chronic": 0.5399
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "lats",
+   "side": "right",
+   "dose": 9.6,
+   "sets": 1.0,
+   "reps": 12.0,
+   "acute": 1.9704,
+   "chronic": 0.5399
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "mid_back",
+   "side": "left",
+   "dose": 12.0,
+   "sets": 1.0,
+   "reps": 12.0,
+   "acute": 1.9437,
+   "chronic": 0.5226
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "mid_back",
+   "side": "right",
+   "dose": 12.0,
+   "sets": 1.0,
+   "reps": 12.0,
+   "acute": 1.9437,
+   "chronic": 0.5226
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "pec_major",
+   "side": "left",
+   "dose": 1.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 4.2303,
+   "chronic": 1.3457
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "pec_major",
+   "side": "right",
+   "dose": 1.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 4.2303,
+   "chronic": 1.3457
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "rear_delt",
+   "side": "left",
+   "dose": 6.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.0065,
+   "chronic": 0.2714
+  },
+  {
+   "day": "2025-01-09",
+   "tissue": "rear_delt",
+   "side": "right",
+   "dose": 6.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.0065,
+   "chronic": 0.2714
+  },
+  {
+   "day": "2025-01-15",
+   "tissue": "patellar_tendon",
+   "side": "right",
+   "dose": 17.067,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 2.5369,
+   "chronic": 0.7819
+  },
+  {
+   "day": "2025-01-15",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 21.333,
+   "sets": 1.0,
+   "reps": 12.0,
+   "acute": 3.1712,
+   "chronic": 0.9774
+  },
+  {
+   "day": "2025-02-15",
+   "tissue": "front_delt",
+   "side": "left",
+   "dose": 5.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.6755,
+   "chronic": 0.3425
+  },
+  {
+   "day": "2025-02-15",
+   "tissue": "front_delt",
+   "side": "right",
+   "dose": 5.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.6755,
+   "chronic": 0.3425
+  },
+  {
+   "day": "2025-02-15",
+   "tissue": "pec_major",
+   "side": "left",
+   "dose": 10.0,
+   "sets": 1.0,
+   "reps": 10.0,
+   "acute": 1.3526,
+   "chronic": 0.7098
+  },
+  {
+   "day": "2025-02-15",
+   "tissue": "pec_major",
+   "side": "right",
+   "dose": 10.0,
+   "sets": 1.0,
+   "reps": 10.0,
+   "acute": 1.3526,
+   "chronic": 0.7098
+  },
+  {
+   "day": "2025-02-15",
+   "tissue": "rotator_cuff",
+   "side": "left",
+   "dose": 2.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.3377,
+   "chronic": 0.1713
+  },
+  {
+   "day": "2025-02-15",
+   "tissue": "rotator_cuff",
+   "side": "right",
+   "dose": 2.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.3377,
+   "chronic": 0.1713
+  },
+  {
+   "day": "2025-02-15",
+   "tissue": "triceps",
+   "side": "left",
+   "dose": 5.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.6755,
+   "chronic": 0.3425
+  },
+  {
+   "day": "2025-02-15",
+   "tissue": "triceps",
+   "side": "right",
+   "dose": 5.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.6755,
+   "chronic": 0.3425
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "abs",
+   "side": "left",
+   "dose": 12.0,
+   "sets": 1.0,
+   "reps": 12.0,
+   "acute": 1.5981,
+   "chronic": 0.4315
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "abs",
+   "side": "right",
+   "dose": 12.0,
+   "sets": 1.0,
+   "reps": 12.0,
+   "acute": 1.5981,
+   "chronic": 0.4315
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "biceps",
+   "side": "left",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0056,
+   "chronic": 0.0908
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "biceps",
+   "side": "right",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0056,
+   "chronic": 0.0908
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "erectors",
+   "side": "left",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0018,
+   "chronic": 0.0271
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "erectors",
+   "side": "right",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0018,
+   "chronic": 0.0271
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "forearm",
+   "side": "left",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0043,
+   "chronic": 0.0695
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "forearm",
+   "side": "right",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0043,
+   "chronic": 0.0695
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "front_delt",
+   "side": "left",
+   "dose": 22.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 3.5808,
+   "chronic": 1.1199
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "front_delt",
+   "side": "right",
+   "dose": 22.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 3.5808,
+   "chronic": 1.1199
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 6.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.7987,
+   "chronic": 0.2105
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 6.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.7987,
+   "chronic": 0.2105
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "lats",
+   "side": "left",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0086,
+   "chronic": 0.139
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "lats",
+   "side": "right",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0086,
+   "chronic": 0.139
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "mid_back",
+   "side": "left",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0085,
+   "chronic": 0.1345
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "mid_back",
+   "side": "right",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0085,
+   "chronic": 0.1345
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "obliques",
+   "side": "left",
+   "dose": 6.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.7987,
+   "chronic": 0.2105
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "obliques",
+   "side": "right",
+   "dose": 6.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.7987,
+   "chronic": 0.2105
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "patellar_tendon",
+   "side": "right",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0262,
+   "chronic": 0.2494
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "pec_major",
+   "side": "left",
+   "dose": 45.0,
+   "sets": 1.0,
+   "reps": 5.0,
+   "acute": 7.1631,
+   "chronic": 2.2637
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "pec_major",
+   "side": "right",
+   "dose": 45.0,
+   "sets": 1.0,
+   "reps": 5.0,
+   "acute": 7.1631,
+   "chronic": 2.2637
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0328,
+   "chronic": 0.3117
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "rear_delt",
+   "side": "left",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0044,
+   "chronic": 0.0699
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "rear_delt",
+   "side": "right",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0044,
+   "chronic": 0.0699
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "rotator_cuff",
+   "side": "left",
+   "dose": 11.25,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.7904,
+   "chronic": 0.5599
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "rotator_cuff",
+   "side": "right",
+   "dose": 11.25,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.7904,
+   "chronic": 0.5599
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "triceps",
+   "side": "left",
+   "dose": 22.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 3.5808,
+   "chronic": 1.1199
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "triceps",
+   "side": "right",
+   "dose": 22.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 3.5808,
+   "chronic": 1.1199
+  }
+ ]
+}

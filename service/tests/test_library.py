@@ -38,3 +38,17 @@ def test_every_link_points_at_a_known_tissue():
 def test_every_pattern_targets_a_known_exercise():
     for _, exercise_id in library._PATTERNS:
         assert exercise_id in library.EXERCISES
+
+
+def test_shared_files_are_current():
+    """The app loads these. If this fails, run `python3 -m rehabit.cli export-shared`."""
+    from rehabit import shared
+    for path, text in shared.files().items():
+        assert path.read_text() == text, f"{path.name} is stale"
+
+
+def test_catalogue_points_at_real_patterns():
+    from rehabit import library
+    assert all(pattern in library.EXERCISES for _, pattern, _, _ in library.CATALOGUE)
+    names = [name for name, *_ in library.CATALOGUE]
+    assert len(names) == len(set(names))
