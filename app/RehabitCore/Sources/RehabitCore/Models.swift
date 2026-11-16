@@ -27,8 +27,23 @@ public enum WeightUnit: String, Codable, CaseIterable, Sendable {
 
 /// What a pain feels like. The kind matters as much as the number: a stretch
 /// that fades is a different signal from a sharp catch at one point in the range.
-public enum PainType: String, Codable, CaseIterable, Sendable {
-    case ache, sharp, pulling, pinching, burning, tightness, throbbing, tingling
+///
+/// This is an open list, not a closed enum: a word added by a newer version of
+/// the app is kept as it is instead of making the whole record unreadable.
+public struct PainType: RawRepresentable, Codable, Hashable, Sendable, CaseIterable {
+    public let rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+
+    public static let ache = PainType(rawValue: "ache")
+    public static let sharp = PainType(rawValue: "sharp")
+    public static let pulling = PainType(rawValue: "pulling")
+    public static let pinching = PainType(rawValue: "pinching")
+    public static let burning = PainType(rawValue: "burning")
+    public static let tightness = PainType(rawValue: "tightness")
+    public static let throbbing = PainType(rawValue: "throbbing")
+    public static let tingling = PainType(rawValue: "tingling")
+    public static let allCases: [PainType] = [.ache, .sharp, .pulling, .pinching, .burning, .tightness,
+                                              .throbbing, .tingling]
 }
 
 public enum RangeOfMotion: String, Codable, CaseIterable, Sendable {
@@ -195,5 +210,14 @@ public struct Profile: Codable, Equatable, Sendable {
     public var unit: WeightUnit
     public init(bodyweightKg: Double? = nil, unit: WeightUnit = .lb) {
         self.bodyweightKg = bodyweightKg; self.unit = unit
+    }
+
+    private enum CodingKeys: String, CodingKey { case bodyweightKg, unit }
+
+    /// An unrecognised unit falls back to pounds; it must not cost the body weight.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        bodyweightKg = try? c.decodeIfPresent(Double.self, forKey: .bodyweightKg)
+        unit = (try? c.decode(WeightUnit.self, forKey: .unit)) ?? .lb
     }
 }

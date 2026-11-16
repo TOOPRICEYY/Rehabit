@@ -25,6 +25,8 @@ public struct Day: Hashable, Comparable, Codable, Sendable, CustomStringConverti
         let parts = text.split(separator: "-").compactMap { Int($0) }
         guard parts.count == 3, (1...12).contains(parts[1]), (1...31).contains(parts[2]) else { return nil }
         self.init(year: parts[0], month: parts[1], day: parts[2])
+        // 31 February would otherwise slide into March.
+        guard components == (parts[0], parts[1], parts[2]) else { return nil }
     }
 
     /// The day a moment falls on in a given time zone.

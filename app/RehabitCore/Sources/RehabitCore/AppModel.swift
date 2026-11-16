@@ -28,7 +28,7 @@ public final class AppModel {
     public private(set) var active: Workout?
     public private(set) var activeSets: [WorkoutSet] = []
     public private(set) var lastError: String?
-    public var profile: Profile { didSet { store.profile = profile } }
+    public var profile: Profile { didSet { if profile != oldValue { attempt { try store.setProfile(profile, at: now()) } } } }
 
     public let library: Library
     private let store: Store
@@ -40,7 +40,9 @@ public final class AppModel {
 
     public init(store: Store, library: Library = .standard, zone: TimeZone = .current,
                 now: @escaping () -> Date = Date.init) {
-        self.store = store; self.library = library; self.zone = zone; self.now = now
+        // Times are kept to the millisecond, the precision they are stored and compared at.
+        self.store = store; self.library = library; self.zone = zone
+        self.now = { Stamp.date(Stamp.millis(now())) }
         ledger = Ledger(library: library)
         advisor = Advisor(ledger: ledger)
         profile = store.profile
