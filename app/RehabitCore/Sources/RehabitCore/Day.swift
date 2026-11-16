@@ -56,6 +56,14 @@ public struct Day: Hashable, Comparable, Codable, Sendable, CustomStringConverti
         return "\(pad(c.year, 4))-\(pad(c.month, 2))-\(pad(c.day, 2))"
     }
 
+    /// Midnight at the start of this day in a time zone.
+    public func start(in zone: TimeZone = .current) -> Date {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = zone
+        let c = components
+        return calendar.date(from: DateComponents(year: c.year, month: c.month, day: c.day))!
+    }
+
     public func adding(_ days: Int) -> Day { Day(number: number + days) }
     public func days(since other: Day) -> Int { number - other.number }
     public static func < (a: Day, b: Day) -> Bool { a.number < b.number }

@@ -14,7 +14,12 @@ public protocol HealthSource: Sendable {
 }
 
 public enum MetricName {
+    /// Overnight HRV as Garmin reports it (based on beat-to-beat differences, RMSSD).
     public static let hrv = "hrv_ms"
+    /// HRV as Apple Health reports it (SDNN). It is a different measure from the
+    /// one above and runs on a different scale, so the two are never mixed in
+    /// one baseline.
+    public static let hrvSDNN = "hrv_sdnn_ms"
     public static let restingHeartRate = "resting_hr"
     public static let sleepMinutes = "sleep_minutes"
     public static let steps = "steps"

@@ -28,6 +28,10 @@ public struct CatalogueExercise: Codable, Hashable, Sendable {
     public let pattern: String
     public let convention: LoadConvention
     public let unilateral: Bool
+
+    public init(name: String, pattern: String, convention: LoadConvention, unilateral: Bool) {
+        self.name = name; self.pattern = pattern; self.convention = convention; self.unilateral = unilateral
+    }
 }
 
 /// The tissue and exercise library. It is written by the service

@@ -1,0 +1,39 @@
+# Xcode project definition. Generate the project with XcodeGen:
+#   brew install xcodegen && cd app/Rehabit && xcodegen && open Rehabit.xcodeproj
+# The generated .xcodeproj is not committed.
+name: Rehabit
+options:
+  bundleIdPrefix: app.rehabit
+  deploymentTarget:
+    iOS: "17.0"
+packages:
+  RehabitCore:
+    path: ../RehabitCore
+targets:
+  Rehabit:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    dependencies:
+      - package: RehabitCore
+      - sdk: HealthKit.framework
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Rehabit
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        NSHealthShareUsageDescription: >-
+          Rehabit reads heart rate variability, resting heart rate, sleep and steps
+          to show them beside your training load. It never writes to Health.
+    entitlements:
+      path: Rehabit.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+    settings:
+      base:
+        SWIFT_VERSION: "5.0"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1"

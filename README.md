@@ -1,12 +1,35 @@
 # Rehabit
 
-A workout tracker with rehab tooling layered on top. This repository currently holds
-phase 0: the data model and the load model, run over exported history before any app
-exists, so the rules can be judged against what actually happened.
+A workout tracker with rehab tooling layered on top. Two parts live here:
+
+- `service/`: the data model and the load model in Python, run over exported history so
+  the rules can be judged against what actually happened. It also serves the MCP tools.
+- `app/`: the iPhone app. `app/RehabitCore` is a Swift package with everything that is
+  not a screen and nothing from Apple beyond Foundation; `app/Rehabit` is the SwiftUI app.
 
 Nothing here is clinical advice. The numbers are starting values, labelled as settings.
 
-## What phase 0 does
+## The app
+
+`RehabitCore` holds the records (workout, set, injury, pain check), SQLite storage, a
+JSON snapshot that two devices can merge (the newer change wins, deletions included),
+the tissue ledger, the notes shown while logging a set, and the pain follow-up schedule
+(right after, that evening, next morning, 24 and 48 hours). An unanswered pain check
+stays missing; it is never stored as zero. The ledger is a port of `service/rehabit/
+ledger.py`, and a fixture written by the service holds the two to the same numbers.
+
+    cd app/RehabitCore && swift test          # macOS or Linux (needs libsqlite3-dev)
+
+    brew install xcodegen                     # the app itself needs a Mac with Xcode 15+
+    cd app/Rehabit && xcodegen && open Rehabit.xcodeproj
+
+After changing the exercise library or the ledger in the service, run
+`python3 -m rehabit.cli export-shared` from `service/` to rewrite the app's copy.
+
+Not built yet: iCloud and repository sync (the export file exists, the transport does
+not), editing a finished workout, rest timers, and Health Connect for Android.
+
+## What the service does
 
 1. **Schema** (`service/rehabit/schema.sql`). One SQLite file: sessions, sets (with side,
    load convention, reps or isometric hold, pain), injuries, daily metrics, dose events,

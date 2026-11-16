@@ -96,7 +96,7 @@ public final class AppModel {
         } else {
             let chosen = side ?? (exercise.unilateral ? (injuries.first { $0.isActive }?.side ?? .left) : .both)
             set = WorkoutSet(workout: workout, position: position, exercise: exercise.name,
-                             pattern: exercise.pattern, side: chosen == .both && exercise.unilateral ? .left : chosen,
+                             pattern: exercise.pattern.isEmpty ? nil : exercise.pattern, side: chosen == .both && exercise.unilateral ? .left : chosen,
                              loadUnit: profile.unit, convention: exercise.convention)
             if let previous = previousSets(exercise: exercise.name, side: set.side).first {
                 set.kind = previous.kind; set.reps = previous.reps; set.holdSeconds = previous.holdSeconds
@@ -128,6 +128,13 @@ public final class AppModel {
         let earlier = allSets.filter { $0.exercise == exercise && $0.side == side && finished.contains($0.workoutID) }
         guard let lastDay = earlier.map(\.workoutDay).max() else { return [] }
         return earlier.filter { $0.workoutDay == lastDay }.sorted { $0.position < $1.position }
+    }
+
+    /// The picker entry for a set already logged, so "add set" can repeat it.
+    public func catalogueEntry(for set: WorkoutSet) -> CatalogueExercise {
+        library.catalogue.first { $0.name == set.exercise }
+            ?? CatalogueExercise(name: set.exercise, pattern: set.pattern ?? "", convention: set.convention,
+                                 unilateral: set.side != .both)
     }
 
     public func sets(of workout: Workout) -> [WorkoutSet] {

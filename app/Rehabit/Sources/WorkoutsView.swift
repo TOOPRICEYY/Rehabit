@@ -1,0 +1,105 @@
+import RehabitCore
+import SwiftUI
+
+struct WorkoutsView: View {
+    @Environment(AppModel.self) private var model
+    @State private var showingActive = false
+    @State private var showingChecks = false
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Button {
+                        if model.active == nil { model.startWorkout() }
+                        showingActive = true
+                    } label: {
+                        Label(model.active == nil ? "Start workout" : "Resume workout",
+                              systemImage: model.active == nil ? "plus.circle.fill" : "play.circle.fill")
+                            .font(.headline)
+                    }
+                }
+                Section("History") {
+                    if model.workouts.isEmpty {
+                        Text("No workouts yet.").foregroundStyle(.secondary)
+                    }
+                    ForEach(model.workouts) { workout in
+                        NavigationLink {
+                            WorkoutDetailView(workout: workout)
+                        } label: {
+                            VStack(alignment: .leading) {
+                                Text(workout.title)
+                                Text("\(workout.start.formatted(date: .abbreviated, time: .shortened)) · \(model.sets(of: workout).count) sets")
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .onDelete { offsets in
+                        for workout in offsets.map({ model.workouts[$0] }) { model.deleteWorkout(workout) }
+                    }
+                }
+            }
+            .navigationTitle("Workouts")
+            .fullScreenCover(isPresented: $showingActive) {
+                ActiveWorkoutView { dueNow in
+                    showingActive = false
+                    Reminders.schedule(model.upcomingChecks, injuries: model.injuries)
+                    showingChecks = !dueNow.isEmpty
+                }
+            }
+            .sheet(isPresented: $showingChecks) {
+                NavigationStack {
+                    CheckInsList()
+                        .navigationTitle("How does it feel?")
+                        .toolbar { Button("Done") { showingChecks = false } }
+                }
+            }
+        }
+    }
+}
+
+struct WorkoutDetailView: View {
+    @Environment(AppModel.self) private var model
+    let workout: Workout
+
+    var body: some View {
+        List {
+            ForEach(ExerciseGroup.groups(model.sets(of: workout))) { group in
+                Section(group.title) {
+                    ForEach(group.sets) { set in
+                        VStack(alignment: .leading) {
+                            Text(Format.summary(set))
+                            if !set.notes.isEmpty {
+                                Text(set.notes).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle(workout.title)
+    }
+}
+
+/// Consecutive sets of one exercise on one side, shown as one block.
+struct ExerciseGroup: Identifiable {
+    let id: String
+    let exercise: String
+    let side: Side
+    var sets: [WorkoutSet]
+
+    var title: String { side == .both ? exercise : "\(exercise) · \(Format.side(side))" }
+
+    static func groups(_ sets: [WorkoutSet]) -> [ExerciseGroup] {
+        var out: [ExerciseGroup] = []
+        for set in sets {
+            if let index = out.firstIndex(where: { $0.exercise == set.exercise && $0.side == set.side }) {
+                out[index].sets.append(set)
+            } else {
+                out.append(ExerciseGroup(id: set.exercise + "|" + set.side.rawValue, exercise: set.exercise,
+                                         side: set.side, sets: [set]))
+            }
+        }
+        return out
+    }
+}
