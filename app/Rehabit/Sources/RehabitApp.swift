@@ -1,4 +1,5 @@
 import Combine
+import Observation
 import RehabitCore
 import SwiftUI
 import UIKit
@@ -168,6 +169,8 @@ struct NumberField: View {
     @Binding var value: Double?
     var width: CGFloat = 64
     var decimal = true
+    /// What − and + do for this field while it is being typed in; shown above the keys.
+    var step: StepAction?
     @State private var text = ""
     @FocusState private var focused: Bool
 
@@ -179,17 +182,67 @@ struct NumberField: View {
             .focused($focused)
             .onAppear { text = Format.number(value) }
             .onChange(of: text) { _, typed in
-                let parsed = Double(typed.replacingOccurrences(of: ",", with: "."))
-                let clean = parsed.flatMap { $0.isFinite && $0 >= 0 && $0 < 100_000 ? $0 : nil }
+                // Only typing changes the number. Showing a rounded value (45.36 for
+                // an exact 45.359237) must never write the rounding back.
+                guard focused else { return }
+                let clean = Self.parse(typed)
                 if clean != value { value = clean }
             }
             .onChange(of: value) { _, changed in
-                if !focused { text = Format.number(changed) }
+                // A change from elsewhere (a stepper, the linked side) shows even while
+                // typing; one that only echoes what was typed leaves the text alone.
+                if !focused || Self.parse(text) != changed { text = Format.number(changed) }
             }
+            .onChange(of: focused) { _, now in
+                if now { StepTarget.shared.current = step }
+                else if StepTarget.shared.current?.id == step?.id { StepTarget.shared.current = nil }
+            }
+    }
+
+    static func parse(_ typed: String) -> Double? {
+        let parsed = Double(typed.replacingOccurrences(of: ",", with: "."))
+        return parsed.flatMap { $0.isFinite && $0 >= 0 && $0 < 100_000 ? $0 : nil }
     }
 }
 
+/// − and + for the number being typed in, shown in the bar above the keys,
+/// where a thumb already is.
+struct StepAction: Identifiable {
+    let id: String
+    /// "5 lb", "1 rep", "5 s".
+    let label: String
+    let minus: () -> Void
+    let plus: () -> Void
+}
+
+@Observable
+final class StepTarget {
+    static let shared = StepTarget()
+    var current: StepAction?
+}
+
 extension View {
+    /// The bar above number pads: − and + for the focused number when it has a
+    /// step, and Done.
+    func keyboardStepBar() -> some View {
+        toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                if let step = StepTarget.shared.current {
+                    Button { step.minus() } label: { Image(systemName: "minus").frame(width: 44, height: 36) }
+                        .accessibilityLabel("Minus \(step.label)")
+                    Text(step.label).font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
+                    Button { step.plus() } label: { Image(systemName: "plus").frame(width: 44, height: 36) }
+                        .accessibilityLabel("Plus \(step.label)")
+                }
+                Spacer()
+                Button("Done") {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                    to: nil, from: nil, for: nil)
+                }
+            }
+        }
+    }
+
     /// A Done button above number pads, which have no key of their own to close them.
     func keyboardDoneButton() -> some View {
         toolbar {

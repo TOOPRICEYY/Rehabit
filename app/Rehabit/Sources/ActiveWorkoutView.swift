@@ -21,9 +21,11 @@ struct ActiveWorkoutView: View {
     @State private var title = ""
     @State private var picker: PickerPurpose?
     @State private var confirmingDiscard = false
+    @State private var confirmingUnfinished = false
 
     var body: some View {
         NavigationStack {
+            ScrollViewReader { proxy in
             List {
                 Section {
                     TextField("Workout name", text: $title)
@@ -35,6 +37,7 @@ struct ActiveWorkoutView: View {
                     ExerciseCard(block: block, isFirst: index == 0, isLast: index == blocks.count - 1) {
                         picker = .replace(block.exercise)
                     }
+                    .id(block.id)
                 }
                 if blocks.isEmpty {
                     Section {
@@ -45,11 +48,19 @@ struct ActiveWorkoutView: View {
                 }
             }
             .listSectionSpacing(.compact)
+            // A newly added exercise is brought into view.
+            .onChange(of: model.activeBlocks.map(\.id)) { old, new in
+                if let added = new.first(where: { !old.contains($0) }) {
+                    withAnimation { proxy.scrollTo(added, anchor: .top) }
+                }
+            }
+            }
             .navigationTitle("Workout")
             .navigationBarTitleDisplayMode(.inline)
-            .keyboardDoneButton()
+            .keyboardStepBar()
             .scrollDismissesKeyboard(.interactively)
             .safeAreaInset(edge: .bottom) { bottomBar }
+            .onChange(of: model.rest) { _, rest in RestNotice.schedule(rest) }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Discard", role: .destructive) { confirmingDiscard = true }
@@ -59,10 +70,17 @@ struct ActiveWorkoutView: View {
                         // Close the keyboard first so a field still being typed in hands over its value.
                         dismissKeyboard()
                         model.renameActive(title)
-                        onClose(model.finishWorkout())
+                        if model.unfinishedSets.isEmpty { finish(removing: false) } else { confirmingUnfinished = true }
                     }
                     .fontWeight(.semibold)
                 }
+            }
+            .confirmationDialog("\(model.unfinishedSets.count) sets not marked done", isPresented: $confirmingUnfinished,
+                                titleVisibility: .visible) {
+                Button("Keep them") { finish(removing: false) }
+                Button("Remove them", role: .destructive) { finish(removing: true) }
+            } message: {
+                Text("Sets you planned but did not mark done can be kept as logged or left out of this workout.")
             }
             .confirmationDialog("Discard this workout?", isPresented: $confirmingDiscard) {
                 Button("Discard workout", role: .destructive) {
@@ -88,27 +106,40 @@ struct ActiveWorkoutView: View {
         }
     }
 
-    /// Always in reach: the time since the last set was touched (a rest
-    /// readout, nothing more) and the way to add the next exercise.
+    private func finish(removing: Bool) {
+        RestNotice.schedule(nil)
+        onClose(model.finishWorkout(removingUnfinished: removing))
+    }
+
+    /// Always in reach: the rest countdown after a set marked done (or the
+    /// time since the last set) and the way to add the next exercise.
     private var bottomBar: some View {
         HStack(spacing: 12) {
             TimelineView(.periodic(from: .now, by: 1)) { context in
-                let since = model.lastActivity.map { max(0, context.date.timeIntervalSince($0)) } ?? 0
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Since last set").font(.caption2).foregroundStyle(.secondary).lineLimit(1)
-                    Text(Format.elapsed(since)).font(.title3.monospacedDigit().weight(.semibold))
+                if let rest = model.rest {
+                    RestReadout(rest: rest, now: context.date)
+                } else {
+                    let since = model.lastActivity.map { max(0, context.date.timeIntervalSince($0)) } ?? 0
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Since last set").font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                        Text(Format.elapsed(since)).font(.title3.monospacedDigit().weight(.semibold))
+                    }
+                    .accessibilityElement(children: .combine)
                 }
-                .accessibilityElement(children: .combine)
             }
             Spacer(minLength: 8)
             Button {
                 dismissKeyboard()
                 picker = .add
             } label: {
-                Label("Add exercise", systemImage: "plus")
-                    .font(.headline)
-                    .lineLimit(1)
-                    .padding(.horizontal, 6)
+                if model.rest == nil {
+                    Label("Add exercise", systemImage: "plus")
+                        .font(.headline)
+                        .lineLimit(1)
+                        .padding(.horizontal, 6)
+                } else {
+                    Image(systemName: "plus").font(.headline).accessibilityLabel("Add exercise")
+                }
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
@@ -138,6 +169,7 @@ struct ExerciseCard: View {
     @State private var confirmingRemove = false
     @State private var askingWhichSide = false
     @State private var showingHistory = false
+    @State private var confirmingLink = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
     private var mode: SideMode { block.mode }
@@ -146,7 +178,7 @@ struct ExerciseCard: View {
 
     var body: some View {
         Section {
-            if mode == .perSide && !RoundRow.stacks(typeSize) { columnHeader }
+            if mode == .perSide { columnHeader }
             let rounds = block.rounds
             ForEach(rounds) { round in
                 RoundRow(round: round, number: number(of: round, in: rounds), mode: mode, injured: injured)
@@ -174,6 +206,11 @@ struct ExerciseCard: View {
                 ExerciseHistoryView(exercise: block.exercise)
                     .toolbar { Button("Done") { showingHistory = false } }
             }
+        }
+        .confirmationDialog(linkWarning, isPresented: $confirmingLink, titleVisibility: .visible) {
+            Button("Link anyway") { model.setLinked(true, for: block.exercise) }
+        } message: {
+            Text("While linked, a change to the left side's load and reps is copied to the right side.")
         }
         .confirmationDialog("Remove \(block.exercise) and its \(block.sets.count) sets?",
                             isPresented: $confirmingRemove, titleVisibility: .visible) {
@@ -290,7 +327,7 @@ struct ExerciseCard: View {
             .pickerStyle(.inline)
             if mode == .perSide {
                 Toggle(isOn: Binding(get: { model.isLinked(block.exercise) },
-                                     set: { model.setLinked($0, for: block.exercise) })) {
+                                     set: { requestLink($0) })) {
                     Label("Right follows left", systemImage: "link")
                 }
             }
@@ -306,12 +343,31 @@ struct ExerciseCard: View {
             } label: {
                 Label("Load means: \(conventionName)", systemImage: "scalemass")
             }
-            Picker(selection: allSets(\.loadUnit)) {
-                ForEach(WeightUnit.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+            Menu {
+                let current = sample?.loadUnit ?? model.profile.unit
+                ForEach(WeightUnit.allCases.filter { $0 != current }, id: \.self) { unit in
+                    Button("Convert to \(unit.rawValue)") { model.setUnit(unit, for: block.exercise) }
+                    Button("Numbers were already in \(unit.rawValue)") {
+                        model.setUnit(unit, for: block.exercise, converting: false)
+                    }
+                }
             } label: {
-                Label("Unit", systemImage: "ruler")
+                Label("Unit: \(sample?.loadUnit.rawValue ?? model.profile.unit.rawValue)", systemImage: "ruler")
             }
-            .pickerStyle(.menu)
+            Menu {
+                let own = model.profile.restSeconds[block.exercise.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()]
+                Button { model.setRest(nil, for: block.exercise) } label: {
+                    Label("Default (\(Format.restLength(model.profile.defaultRestSeconds)))",
+                          systemImage: own == nil ? "checkmark" : "")
+                }
+                ForEach([0, 30, 45, 60, 90, 120, 150, 180, 240, 300], id: \.self) { seconds in
+                    Button { model.setRest(seconds, for: block.exercise) } label: {
+                        Label(Format.restLength(seconds), systemImage: own == seconds ? "checkmark" : "")
+                    }
+                }
+            } label: {
+                Label("Rest for this exercise: \(Format.restLength(model.restSeconds(for: block.exercise)))", systemImage: "timer")
+            }
             Picker(selection: allSets(\.kind)) {
                 Text("Reps").tag(SetKind.reps)
                 Text("Isometric holds").tag(SetKind.hold)
@@ -369,50 +425,43 @@ struct ExerciseCard: View {
 
     // MARK: Columns and footer
 
+    private var linkWarning: String {
+        let side = injured.first.map { Format.side($0).lowercased() } ?? "one"
+        return "The \(side) side is injured. Linking copies the left side's numbers onto the right."
+    }
+
+    /// Linking an exercise that loads a one-sided injury asks first: it would
+    /// copy one side's load onto the other.
+    private func requestLink(_ on: Bool) {
+        if on && injured.count == 1 { confirmingLink = true } else { model.setLinked(on, for: block.exercise) }
+    }
+
+    /// Whether the right follows the left, and which side is injured.
     private var columnHeader: some View {
         let linked = model.isLinked(block.exercise)
         return HStack(spacing: 8) {
-            Color.clear.frame(width: RoundRow.badgeSize, height: 1)
-            HStack(spacing: 4) {
-                columnTitle(.left)
-                Spacer(minLength: 4)
-                // Sits between the columns: the right side follows the left while linked.
-                Button {
-                    model.setLinked(!linked, for: block.exercise)
-                } label: {
-                    HStack(spacing: 3) {
-                        Image(systemName: linked ? "link" : "link.badge.plus")
-                        Text(linked ? "linked" : "separate")
-                    }
-                    .lineLimit(1)
-                    .fixedSize()
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(linked ? Color.accentColor : Color.secondary)
-                    .padding(.horizontal, 7).padding(.vertical, 3)
-                    .background(linked ? Color.accentColor.opacity(0.12) : Color(.tertiarySystemFill), in: Capsule())
+            Button {
+                requestLink(!linked)
+            } label: {
+                HStack(spacing: 3) {
+                    Image(systemName: linked ? "link" : "link.badge.plus")
+                    Text(linked ? "Right follows left" : "Sides separate")
                 }
-                .buttonStyle(.borderless)
-                .accessibilityLabel(linked ? "Sides linked" : "Sides separate")
-                .accessibilityHint("When linked, the right side copies the left side's load and reps")
-                .padding(.trailing, 4)
+                .lineLimit(1)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(linked ? Color.accentColor : Color.secondary)
+                .padding(.horizontal, 8).padding(.vertical, 4)
+                .background(linked ? Color.accentColor.opacity(0.12) : Color(.tertiarySystemFill), in: Capsule())
             }
-            .frame(maxWidth: .infinity)
-            columnTitle(.right).frame(maxWidth: .infinity, alignment: .leading)
+            .buttonStyle(.borderless)
+            .accessibilityHint("When linked, the right side copies the left side's load and reps")
+            if injured.count == 1, let side = injured.first {
+                Label("\(Format.side(side)) injured", systemImage: "bandage.fill")
+                    .font(.caption.weight(.semibold)).foregroundStyle(.orange)
+            }
+            Spacer(minLength: 0)
         }
-        .font(.caption.weight(.semibold))
-        .foregroundStyle(.secondary)
         .listRowSeparator(.hidden, edges: .bottom)
-        .padding(.bottom, -6)
-    }
-
-    private func columnTitle(_ side: Side) -> some View {
-        HStack(spacing: 4) {
-            Text(Format.side(side).uppercased()).lineLimit(1).fixedSize()
-            if injured.contains(side) && injured.count == 1 {
-                Image(systemName: "bandage.fill").foregroundStyle(.orange)
-                    .accessibilityLabel("injured side")
-            }
-        }
     }
 
     @ViewBuilder private var footer: some View {
@@ -477,18 +526,10 @@ struct RoundRow: View {
             }
             .accessibilityLabel(round.isWarmup ? "Warm-up set, options" : "Set \(number), options")
             if round.isPair {
-                // Side by side, under the LEFT and RIGHT column titles, while
-                // they fit; stacked with L and R marks at large text sizes.
-                if Self.stacks(typeSize) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        cell(.left, label: "L")
-                        cell(.right, label: "R")
-                    }
-                } else {
-                    HStack(alignment: .top, spacing: 8) {
-                        cell(.left, label: nil)
-                        cell(.right, label: nil)
-                    }
+                // Left above right, each with its own done mark within reach of a thumb.
+                VStack(alignment: .leading, spacing: 10) {
+                    cell(.left, label: "L")
+                    cell(.right, label: "R")
                 }
             } else if let both = round.both {
                 SetCell(set: both, partner: nil, number: number, label: nil,
@@ -498,6 +539,9 @@ struct RoundRow: View {
         .padding(.vertical, 2)
         .buttonStyle(.borderless)
         .contextMenu { setMenu }
+        // Done rounds look settled; planned ones stay plain.
+        .listRowBackground(round.members.allSatisfy(\.isDone) && !round.members.isEmpty
+                           ? Color.green.opacity(0.09) : Color(.secondarySystemGroupedBackground))
         .alert(noteFor.map { noteTitle($0) } ?? "Note", isPresented: Binding(get: { noteFor != nil }, set: { if !$0 { noteFor = nil } })) {
             TextField("Note", text: $noteText)
             Button("Save") {
@@ -551,6 +595,16 @@ struct RoundRow: View {
 
     @ViewBuilder private var setMenu: some View {
         Section {
+            let allDone = round.members.allSatisfy(\.isDone)
+            Button { model.setDone(!allDone, round) } label: {
+                Label(allDone ? "Mark \(round.isPair ? "both sides" : "set") not done" : "Mark \(round.isPair ? "both sides" : "set") done",
+                      systemImage: allDone ? "circle" : "checkmark.circle.fill")
+            }
+            if let first = round.members.first, first.convention != .bodyweight {
+                Text("Load step \(Format.number(model.loadStep(for: first.exercise, unit: first.loadUnit))) \(first.loadUnit.rawValue)")
+            }
+        }
+        Section {
             Toggle(isOn: Binding(get: { round.isWarmup }, set: { on in each { $0.isWarmup = on } })) {
                 Label("Warm-up", systemImage: "flame")
             }
@@ -574,7 +628,7 @@ struct RoundRow: View {
                         ForEach(PainType.allCases, id: \.self) { Text($0.rawValue.capitalized).tag(PainType?.some($0)) }
                     }
                 } label: {
-                    Label(set.pain.map { "Pain \(Format.number($0))" } ?? "Pain and how it feels", systemImage: "bolt.heart")
+                    Label(set.pain.map { "Pain \(Format.number($0))" + (set.painType.map { " · \($0.rawValue)" } ?? "") } ?? "Pain and how it feels", systemImage: "bolt.heart")
                 }
                 Picker(selection: field(set, \.repsInReserve)) {
                     Text("Not recorded").tag(Double?.none)
@@ -654,8 +708,10 @@ struct SetCell: View {
     /// elsewhere once a pain has been recorded.
     let showPain: Bool
     @State private var draft: WorkoutSet
+    @State private var timingHold = false
     @ScaledMetric(relativeTo: .body) private var loadWidth: CGFloat = 58
     @ScaledMetric(relativeTo: .body) private var repsWidth: CGFloat = 44
+    @ScaledMetric(relativeTo: .body) private var checkSize: CGFloat = 40
 
     init(set: WorkoutSet, partner: WorkoutSet?, number: Int, label: String?, showPain: Bool) {
         self.set = set; self.partner = partner; self.number = number; self.label = label; self.showPain = showPain
@@ -668,7 +724,7 @@ struct SetCell: View {
         return model.previousSet(exercise: set.exercise, side: set.side, index: index)
     }
 
-    private var sideWords: String { self.set.side == .both ? "" : ", \(Format.side(self.set.side).lowercased())" }
+    private var sideWords: String { (self.set.side == .both ? "" : ", \(Format.side(self.set.side).lowercased())") + ", \(self.set.exercise)" }
     private var unitWords: String { draft.loadUnit == .lb ? "pounds" : "kilograms" }
 
     var body: some View {
@@ -684,23 +740,32 @@ struct SetCell: View {
                         .accessibilityLabel("Body weight")
                 } else {
                     NumberField(title: Format.number(last?.loadValue).ifEmpty(draft.loadUnit.rawValue),
-                                value: $draft.loadValue, width: loadWidth)
+                                value: $draft.loadValue, width: loadWidth, step: loadStep)
                         .accessibilityLabel("Set \(number)\(sideWords), \(unitWords)")
                 }
                 Text("×").foregroundStyle(.secondary).accessibilityHidden(true)
                 if draft.kind == .hold {
                     NumberField(title: Format.number(last?.holdSeconds).ifEmpty("s"), value: $draft.holdSeconds,
-                                width: repsWidth, decimal: false)
+                                width: repsWidth, decimal: false, step: countStep)
                         .accessibilityLabel("Set \(number)\(sideWords), seconds held")
                     Text("s").font(.caption).foregroundStyle(.secondary).accessibilityHidden(true)
                 } else {
-                    NumberField(title: Format.number(last?.reps).ifEmpty("reps"), value: $draft.reps,
-                                width: repsWidth, decimal: false)
+                    NumberField(title: Format.number(last?.reps).ifEmpty("rep"), value: $draft.reps,
+                                width: repsWidth, decimal: false, step: countStep)
                         .accessibilityLabel("Set \(number)\(sideWords), reps")
                 }
+                Spacer(minLength: 4)
+                if draft.kind == .hold && !draft.isDone {
+                    Button { timingHold = true } label: {
+                        Image(systemName: "stopwatch").font(.title3).frame(width: checkSize, height: checkSize)
+                    }
+                    .accessibilityLabel("Time the hold")
+                }
+                doneButton
             }
             let tags = self.tags
-            let records = model.recordsBroken(by: draft)
+            // Records are only claimed for a set marked done.
+            let records = draft.isDone ? model.recordsBroken(by: draft) : []
             if !records.isEmpty {
                 HStack(spacing: 4) {
                     ForEach(records, id: \.self) { kind in
@@ -751,6 +816,37 @@ struct SetCell: View {
         }
     }
 
+    /// A large check at the row's end: planned until tapped, then done (and the rest starts).
+    private var doneButton: some View {
+        Button {
+            model.setDone(!draft.isDone, draft)
+        } label: {
+            Image(systemName: draft.isDone ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: checkSize * 0.75, weight: .regular))
+                .foregroundStyle(draft.isDone ? Color.green : Color.secondary.opacity(0.6))
+                .frame(width: checkSize, height: checkSize)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Set \(number)\(sideWords) done")
+        .accessibilityValue(draft.isDone ? "done" : "not done")
+        .sheet(isPresented: $timingHold) {
+            HoldTimerView(set: draft).presentationDetents([.medium])
+        }
+    }
+
+    private var loadStep: StepAction {
+        let step = model.loadStep(for: draft.exercise, unit: draft.loadUnit)
+        return StepAction(id: draft.id + "|load", label: "\(Format.number(step)) \(draft.loadUnit.rawValue)",
+                          minus: { draft = model.stepped(draft, load: -1) },
+                          plus: { draft = model.stepped(draft, load: 1) })
+    }
+
+    private var countStep: StepAction {
+        StepAction(id: draft.id + "|count", label: draft.kind == .hold ? "5 s" : "1 rep",
+                   minus: { draft = model.stepped(draft, count: -1) },
+                   plus: { draft = model.stepped(draft, count: 1) })
+    }
+
     private func lastDiffers(_ last: WorkoutSet?) -> Bool {
         guard let last else { return false }
         return last.loadValue != draft.loadValue || last.reps != draft.reps || last.holdSeconds != draft.holdSeconds
@@ -758,6 +854,11 @@ struct SetCell: View {
 
     private var tags: [String] {
         var out: [String] = []
+        // A slip of the thumb ("1015 lb") is shown, not silently counted.
+        let heavy = draft.loadUnit == .lb ? 1000.0 : 450.0
+        if (draft.loadValue ?? 0) > heavy || (draft.reps ?? 0) > 100 || (draft.holdSeconds ?? 0) > 900 {
+            out.append("check this number")
+        }
         if let rir = draft.repsInReserve { out.append("RIR \(Format.number(rir))") }
         switch draft.range {
         case .partial: out.append("partial")

@@ -19,7 +19,7 @@ enum Reminders {
             let stale = pending.map(\.identifier).filter { !wanted.contains($0) }
             center.removePendingNotificationRequests(withIdentifiers: stale)
         }
-        guard !rounds.isEmpty else { return }
+        guard !rounds.isEmpty, !Demo.isRunning else { return }
         center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
             guard granted else { return }
             for round in rounds {

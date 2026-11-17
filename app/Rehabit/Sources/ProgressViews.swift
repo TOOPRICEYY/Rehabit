@@ -6,11 +6,18 @@ extension Format {
     /// A weight held in kg, shown in the person's unit: "72.5 lb".
     static func weight(_ kg: Double?, _ unit: WeightUnit) -> String {
         guard let kg else { return "–" }
-        let value = kg / unit.kilograms
-        return "\(number((value * 10).rounded() / 10)) \(unit.rawValue)"
+        let value = (kg / unit.kilograms * 10).rounded() / 10
+        return "\(value.formatted(.number.precision(.fractionLength(0...1)))) \(unit.rawValue)"
     }
 
     static func date(_ day: Day) -> Date { day.start() }
+
+    /// "Off", "45 s", "2 min", "2 min 30 s".
+    static func restLength(_ seconds: Int) -> String {
+        if seconds <= 0 { return "Off" }
+        if seconds < 60 { return "\(seconds) s" }
+        return seconds % 60 == 0 ? "\(seconds / 60) min" : "\(seconds / 60) min \(seconds % 60) s"
+    }
 
     static func day(_ day: Day) -> String {
         date(day).formatted(.dateTime.day().month(.abbreviated).year())

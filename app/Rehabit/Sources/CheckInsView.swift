@@ -30,11 +30,18 @@ struct CheckInsList: View {
     var body: some View {
         let round = model.checkInRound
         List {
+            if let error = model.lastError, !round.isEmpty {
+                Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange).font(.subheadline)
+            }
             if round.isEmpty {
                 ContentUnavailableView {
                     Label("Nothing to answer", systemImage: "checkmark.circle")
                 } description: {
-                    Text("Pain check-ins appear here after a session that loads an injury, and each morning if that is turned on in Settings.")
+                    if let next = model.reminderRounds.min(by: { $0.fireAt < $1.fireAt }) {
+                        Text("Next check-in: \(next.injuryLabels.joined(separator: ", ")), \(next.fireAt.formatted(.relative(presentation: .named))) (\(next.fireAt.formatted(date: .omitted, time: .shortened))).")
+                    } else {
+                        Text("Pain check-ins appear here after a session that loads an injury, and each morning if that is turned on in Settings.")
+                    }
                 } actions: {
                     Button("Log pain now") { logging = true }.buttonStyle(.bordered)
                 }
@@ -42,13 +49,17 @@ struct CheckInsList: View {
             ForEach(round) { item in
                 Section {
                     PainChipStrip(value: binding(item.check.id))
+                    if let same = item.unchangedValue, pain[item.check.id] == nil {
+                        Button("Same as last time: \(Format.number(same))") { pain[item.check.id] = same }
+                            .font(.subheadline)
+                    }
                     DisclosureGroup("How it feels") {
                         PainTypeChips(selection: Binding(get: { type[item.check.id] },
                                                          set: { type[item.check.id] = $0 }))
                     }
                     .font(.subheadline)
                     if needsNumber.contains(item.check.id) && pain[item.check.id] == nil {
-                        Label("No earlier reading to copy. Pick a number.", systemImage: "exclamationmark.circle")
+                        Label("Needs a number: nothing entered in the last three days to copy.", systemImage: "exclamationmark.circle")
                             .font(.footnote).foregroundStyle(.orange)
                     }
                 } header: {
@@ -95,11 +106,12 @@ struct CheckInsList: View {
                 .buttonStyle(.bordered)
                 Button("Unchanged") {
                     saveAnswered(answered)
-                    let left = model.answerUnchanged(open.map(\.check))
-                    needsNumber = Set(left.map(\.id))
+                    let copyable = open.filter { $0.unchangedValue != nil }
+                    let left = model.answerUnchanged(copyable.map(\.check)).map(\.id)
+                    needsNumber = Set(left + open.filter { $0.unchangedValue == nil }.map(\.check.id))
                 }
                 .buttonStyle(.bordered)
-                .disabled(open.isEmpty)
+                .disabled(!open.contains { $0.unchangedValue != nil })
                 Button {
                     saveAnswered(answered)
                     if open.isEmpty { reset() }
@@ -110,7 +122,7 @@ struct CheckInsList: View {
                 .disabled(answered.isEmpty)
             }
             .controlSize(.large)
-            Text("Unchanged copies each injury's last reading. Skip leaves it unanswered, never zero.")
+            Text("Unchanged copies a number entered in the last three days. Skip leaves it unanswered, never zero.")
                 .font(.caption2).foregroundStyle(.secondary)
         }
         .padding(.horizontal, 16).padding(.vertical, 10)
@@ -136,33 +148,27 @@ struct CheckInsList: View {
 struct PainChipStrip: View {
     @Binding var value: Double?
 
+    /// All of 0 to 10 at once, in three rows, so no number is hidden off-screen.
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    ForEach(Format.painSteps, id: \.self) { step in
-                        let chosen = value == step
-                        Button {
-                            value = chosen ? nil : step
-                        } label: {
-                            Text(Format.number(step))
-                                .font(.callout.monospacedDigit().weight(chosen ? .bold : .regular))
-                                .frame(minWidth: 44, minHeight: 44)
-                                .background(chosen ? Format.painColor(step) : Format.painColor(step).opacity(0.15),
-                                            in: RoundedRectangle(cornerRadius: 10))
-                                .foregroundStyle(chosen ? Color.white : Color.primary)
-                        }
-                        .buttonStyle(.plain)
-                        .id(step)
-                        .accessibilityLabel("Pain \(Format.number(step))")
-                        .accessibilityAddTraits(chosen ? .isSelected : [])
-                    }
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 7), spacing: 6) {
+            ForEach(Format.painSteps, id: \.self) { step in
+                let chosen = value == step
+                Button {
+                    value = chosen ? nil : step
+                } label: {
+                    Text(Format.number(step))
+                        .font(.callout.monospacedDigit().weight(chosen ? .bold : .regular))
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(chosen ? Format.painColor(step) : Format.painColor(step).opacity(0.15),
+                                    in: RoundedRectangle(cornerRadius: 10))
+                        .foregroundStyle(chosen ? Color.white : Color.primary)
                 }
-                .padding(.vertical, 4)
+                .buttonStyle(.plain)
+                .accessibilityLabel("Pain \(Format.number(step))")
+                .accessibilityAddTraits(chosen ? .isSelected : [])
             }
-            .onAppear { if let value { proxy.scrollTo(value, anchor: .center) } }
         }
-        .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
+        .padding(.vertical, 4)
     }
 }
 

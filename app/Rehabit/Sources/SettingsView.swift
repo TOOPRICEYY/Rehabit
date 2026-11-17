@@ -41,6 +41,17 @@ struct SettingsView: View {
                     Text("Body weight is used for push-ups, pull-ups and other exercises where you are the load.")
                 }
                 Section {
+                    Picker("Rest after a set", selection: Binding(
+                        get: { model.profile.defaultRestSeconds },
+                        set: { seconds in var p = model.profile; p.defaultRestSeconds = seconds; model.profile = p })) {
+                        ForEach(Array(stride(from: 0, through: 300, by: 15)), id: \.self) { Text(Format.restLength($0)).tag($0) }
+                    }
+                } header: {
+                    Text("Rest timer")
+                } footer: {
+                    Text("Counts down after a set is marked done. Each exercise can have its own rest, in its menu during a workout.")
+                }
+                Section {
                     Toggle("Ask about each injury every morning", isOn: Binding(
                         get: { model.profile.dailyCheckIn },
                         set: { on in var p = model.profile; p.dailyCheckIn = on; model.profile = p }))

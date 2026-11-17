@@ -9,18 +9,31 @@ struct ExercisePickerView: View {
     @State private var search = ""
     @State private var customPattern = ""
     @State private var customOneSided = false
+    @State private var customKind = SetKind.reps
+    @State private var holdsOnly = false
 
     private var matches: [CatalogueExercise] {
         let words = search.lowercased().split(separator: " ")
         let mine = model.customExercises.filter { entry in
             words.allSatisfy { entry.name.lowercased().contains($0) }
         }
-        return mine + model.library.search(search)
+        let all = mine + model.library.search(search)
+        return holdsOnly ? all.filter { $0.kind == .hold } : all
     }
 
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    Toggle(isOn: $holdsOnly) {
+                        Label("Isometric holds only", systemImage: "timer")
+                    }
+                    .toggleStyle(.button)
+                    .buttonBorderShape(.capsule)
+                    .font(.subheadline)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4))
+                }
                 Section {
                     ForEach(matches, id: \.name) { exercise in
                         // One tap adds it the usual way: one-sided exercises as a left
@@ -55,10 +68,15 @@ struct ExercisePickerView: View {
                             ForEach(model.library.exercisePatterns) { Text($0.name).tag($0.id) }
                         }
                         Toggle("Done one side at a time", isOn: $customOneSided)
+                        Picker("Sets are", selection: $customKind) {
+                            Text("Reps").tag(SetKind.reps)
+                            Text("Isometric holds").tag(SetKind.hold)
+                        }
+                        .pickerStyle(.segmented)
                         Button("Add \"\(search.trimmingCharacters(in: .whitespaces))\"") {
                             let exercise = CatalogueExercise(name: search.trimmingCharacters(in: .whitespaces),
                                                              pattern: customPattern, convention: .total,
-                                                             unilateral: customOneSided)
+                                                             unilateral: customOneSided, kind: customKind)
                             onPick(exercise, customOneSided ? .perSide : .together)
                         }
                     } header: {
@@ -93,6 +111,9 @@ struct ExercisePickerView: View {
 
     private func subtitle(_ exercise: CatalogueExercise) -> String {
         let movement = model.library.pattern(exercise.pattern)?.name ?? "No movement set"
-        return exercise.unilateral ? "\(movement) · each side" : movement
+        var parts = [movement]
+        if exercise.unilateral { parts.append("each side") }
+        if exercise.kind == .hold { parts.append("hold") }
+        return parts.joined(separator: " · ")
     }
 }

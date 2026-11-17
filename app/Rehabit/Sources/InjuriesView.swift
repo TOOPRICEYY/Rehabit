@@ -26,7 +26,9 @@ struct InjuriesView: View {
                     } label: {
                         VStack(alignment: .leading) {
                             Text(injury.label)
-                            Text(injury.isActive ? "Since \(injury.onset.description)" : "Resolved \(injury.resolvedOn?.description ?? "")")
+                            Text("\(injury.side == .both ? "Both sides" : "\(Format.side(injury.side)) side") · \(injury.tissues.compactMap { model.library.tissue($0)?.name }.joined(separator: ", "))")
+                                .font(.caption).foregroundStyle(.secondary)
+                            Text(injury.isActive ? "Since \(Format.day(injury.onset))" : "Resolved \(injury.resolvedOn.map { Format.day($0) } ?? "")")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                     }
@@ -88,14 +90,35 @@ struct InjuryDetailView: View {
                         }
                         .chartYScale(domain: 0...10)
                         .frame(height: 180)
+                        ForEach(history.suffix(6).reversed()) { check in
+                            HStack {
+                                Text(check.moment.label).font(.subheadline)
+                                Spacer()
+                                Text((check.answeredAt ?? check.dueAt).formatted(date: .abbreviated, time: .shortened))
+                                    .font(.caption).foregroundStyle(.secondary)
+                                Text(check.pain.map { Format.number($0) } ?? "–")
+                                    .font(.subheadline.monospacedDigit().weight(.semibold))
+                                    .foregroundStyle(check.pain.map { Format.painColor($0) } ?? .secondary)
+                                    .frame(minWidth: 28, alignment: .trailing)
+                            }
+                            .accessibilityElement(children: .combine)
+                        }
                     }
                 }
                 Section {
                     Button { logging = true } label: { Label("Log pain now", systemImage: "plus.circle") }
                 }
+                Section("Load and pain") {
+                    LoadPainChart(injury: injury)
+                    NavigationLink {
+                        TherapistReportView(injury: injury)
+                    } label: {
+                        Label("Report for your therapist", systemImage: "doc.text")
+                    }
+                }
                 SymmetrySection(injury: injury)
                 Section("Baseline today") {
-                    PainSlider(pain: $baseline)
+                    PainChipStrip(value: $baseline)
                     Button("Save baseline") {
                         if let baseline { model.logBaseline(injury: injury, pain: baseline) }
                         baseline = nil          // the new point appears on the chart above
@@ -132,13 +155,22 @@ struct InjuryEditorView: View {
     @State private var mechanism = ""
     @State private var notes = ""
     @State private var resolved = false
+    @State private var sideChosen = false
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     TextField("Name, such as Left pec strain", text: $label)
-                    Picker("Side", selection: $side) {
+                        .onChange(of: label) { _, name in
+                            // "Right rotator cuff" means the right side, until a side is picked by hand.
+                            guard !sideChosen else { return }
+                            let words = name.lowercased()
+                            if words.contains("right") && !words.contains("left") { side = .right }
+                            else if words.contains("left") && !words.contains("right") { side = .left }
+                            else if words.contains("both") || words.contains("bilateral") { side = .both }
+                        }
+                    Picker("Side", selection: Binding(get: { side }, set: { side = $0; sideChosen = true })) {
                         Text("Left").tag(Side.left)
                         Text("Right").tag(Side.right)
                         Text("Both").tag(Side.both)
@@ -151,15 +183,18 @@ struct InjuryEditorView: View {
                     TextField("Notes", text: $notes, axis: .vertical)
                     if injury != nil { Toggle("Resolved", isOn: $resolved) }
                 }
-                Section("Tissues involved") {
-                    ForEach(model.library.tissues) { tissue in
-                        Button {
-                            if tissues.contains(tissue.id) { tissues.remove(tissue.id) } else { tissues.insert(tissue.id) }
-                        } label: {
-                            HStack {
-                                Text(tissue.name).foregroundStyle(.primary)
-                                Spacer()
-                                if tissues.contains(tissue.id) { Image(systemName: "checkmark") }
+                let regions = Dictionary(grouping: model.library.tissues, by: \.region)
+                ForEach(regions.keys.sorted(), id: \.self) { region in
+                    Section("Tissues · \(region)") {
+                        ForEach(regions[region] ?? []) { tissue in
+                            Button {
+                                if tissues.contains(tissue.id) { tissues.remove(tissue.id) } else { tissues.insert(tissue.id) }
+                            } label: {
+                                HStack {
+                                    Text(tissue.name).foregroundStyle(.primary)
+                                    Spacer()
+                                    if tissues.contains(tissue.id) { Image(systemName: "checkmark") }
+                                }
                             }
                         }
                     }
@@ -180,7 +215,7 @@ struct InjuryEditorView: View {
 
     private func load() {
         guard let injury else { return }
-        label = injury.label; side = injury.side; onset = injury.onset.start()
+        label = injury.label; side = injury.side; sideChosen = true; onset = injury.onset.start()
         precision = injury.onsetPrecision; tissues = Set(injury.tissues)
         mechanism = injury.mechanism; notes = injury.notes; resolved = !injury.isActive
     }

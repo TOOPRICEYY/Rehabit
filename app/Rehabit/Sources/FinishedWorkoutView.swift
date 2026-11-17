@@ -30,7 +30,7 @@ struct WorkoutDetailView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(workout.start.formatted(date: .complete, time: .shortened)).font(.subheadline)
                     if let end = workout.end, end > workout.start {
-                        Text("\(Int(end.timeIntervalSince(workout.start) / 60)) minutes · \(sets.count) sets")
+                        Text("\(Int(end.timeIntervalSince(workout.start) / 60)) min · \(sets.count) \(sets.count == 1 ? "set" : "sets")")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     if let source = Self.source(workout) {

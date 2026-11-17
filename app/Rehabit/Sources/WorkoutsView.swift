@@ -66,6 +66,7 @@ struct WorkoutsView: View {
                     CheckInsList()
                         .navigationTitle("How does it feel?")
                         .toolbar { Button("Done") { showingChecks = false } }
+                        .onChange(of: model.checkInRound.isEmpty) { _, empty in if empty { showingChecks = false } }
                 }
             }
         }

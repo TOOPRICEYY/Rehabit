@@ -78,4 +78,27 @@ final class RoundOneTests: XCTestCase {
         sleep(1)
         shot("15-settled")
     }
+
+    func testInjuryChartAndReport() {
+        let app = launch()
+        app.tabBars.buttons["Injuries"].tap()
+        let quad = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Left quad strain'")).firstMatch
+        XCTAssertTrue(quad.waitForExistence(timeout: 3))
+        quad.tap()
+        sleep(1)
+        shot("20-injury-top")
+        app.swipeUp()
+        sleep(1)
+        shot("21-load-and-pain")
+        let report = app.buttons["Report for your therapist"]
+        if !report.isHittable { app.swipeUp() }
+        report.tap()
+        sleep(1)
+        shot("22-report")
+        app.swipeUp()
+        sleep(1)
+        shot("23-report-more")
+        app.buttons["Save as PDF"].tap()
+        XCTAssertTrue(app.buttons["Share PDF"].waitForExistence(timeout: 5))
+    }
 }
