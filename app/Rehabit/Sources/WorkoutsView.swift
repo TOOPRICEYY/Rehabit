@@ -75,6 +75,10 @@ struct WorkoutDetailView: View {
                     ForEach(group.sets) { set in
                         VStack(alignment: .leading) {
                             Text(Format.summary(set))
+                            if set.sideInferred == true && set.side != .both {
+                                Text("\(Format.side(set.side).lowercased()) side, inferred")
+                                    .font(.caption2).foregroundStyle(.secondary)
+                            }
                             if !set.notes.isEmpty {
                                 Text(set.notes).font(.caption).foregroundStyle(.secondary)
                             }

@@ -6,10 +6,17 @@ struct InjuriesView: View {
     @Environment(AppModel.self) private var model
     @State private var adding = false
     @State private var deleting: Injury?
+    @State private var sync = MacSync.shared
+    @State private var reviewing = false
 
     var body: some View {
         NavigationStack {
             List {
+                if let waiting = sync.inbox {
+                    Section {
+                        IncomingCard(records: waiting) { reviewing = true }
+                    }
+                }
                 if model.injuries.isEmpty {
                     Text("No injuries recorded.").foregroundStyle(.secondary)
                 }
@@ -34,6 +41,14 @@ struct InjuriesView: View {
             }
             .sheet(isPresented: $adding) {
                 InjuryEditorView(injury: nil)
+            }
+            .sheet(isPresented: $reviewing) {
+                if let waiting = sync.inbox {
+                    IncomingRecordsView(records: waiting, onAdd: {
+                        sync.takeInbox(model)
+                        reviewing = false
+                    }, onLater: { reviewing = false })
+                }
             }
             .confirmationDialog("Delete \(deleting?.label ?? "this injury") and all of its pain readings?",
                                 isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),

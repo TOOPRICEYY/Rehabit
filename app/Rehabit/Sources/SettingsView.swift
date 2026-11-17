@@ -14,6 +14,9 @@ struct SettingsView: View {
     @State private var garminBusy = false
     @State private var pickingHevy = false
     @State private var pickingSyncFolder = false
+    @State private var pickingRecords = false
+    @State private var reviewingRecords = false
+    @State private var recordsError: String?
     @State private var sync = MacSync.shared
     @State private var hevyStatus = ""
 
@@ -86,8 +89,12 @@ struct SettingsView: View {
                     } else {
                         Button("Choose the Rehabit folder in iCloud Drive") { pickingSyncFolder = true }
                     }
+                    Button("Import a Rehabit file…") { pickingRecords = true }
                     if let error = sync.lastError {
                         Text(error).font(.caption).foregroundStyle(.red)
+                    }
+                    if let recordsError {
+                        Text(recordsError).font(.caption).foregroundStyle(.red)
                     }
                 } header: {
                     Text("Sync with your Mac")
@@ -96,6 +103,14 @@ struct SettingsView: View {
                 }
                 .fileImporter(isPresented: $pickingSyncFolder, allowedContentTypes: [.folder]) { result in
                     if case .success(let url) = result { sync.choose(url, model: model) }
+                }
+                .sheet(isPresented: $reviewingRecords) {
+                    if let waiting = sync.inbox {
+                        IncomingRecordsView(records: waiting, onAdd: {
+                            sync.takeInbox(model)
+                            reviewingRecords = false
+                        }, onLater: { reviewingRecords = false })
+                    }
                 }
                 Section {
                     if let exportURL {
@@ -123,6 +138,9 @@ struct SettingsView: View {
                 unit = model.profile.unit
                 bodyweight = shown(model.profile)
             }
+            .background(Color.clear.fileImporter(isPresented: $pickingRecords, allowedContentTypes: [.json]) { result in
+                pickRecords(result)
+            })
             .fileImporter(isPresented: $pickingHevy, allowedContentTypes: [.commaSeparatedText, .plainText]) { result in
                 hevyStatus = importHevy(result)
             }
@@ -227,6 +245,28 @@ struct SettingsView: View {
             text += " Not counted toward tissue load because the exercise is not recognised: " + summary.unmapped.joined(separator: ", ") + "."
         }
         return text
+    }
+
+    /// A Rehabit records file picked by hand: read it, then show what it would add.
+    private func pickRecords(_ result: Result<URL, Error>) {
+        recordsError = nil
+        guard case .success(let url) = result else { return }
+        let access = url.startAccessingSecurityScopedResource()
+        defer { if access { url.stopAccessingSecurityScopedResource() } }
+        guard let data = try? Data(contentsOf: url) else {
+            recordsError = "That file could not be read."
+            return
+        }
+        do {
+            let records = try model.incoming(data)
+            if records.isEmpty {
+                recordsError = "Everything in that file is already on this phone."
+            } else if sync.offer(data, model: model) {
+                reviewingRecords = true
+            }
+        } catch {
+            recordsError = "That is not a Rehabit records file: \(error)"
+        }
     }
 
     private func importHevy(_ result: Result<URL, Error>) -> String {

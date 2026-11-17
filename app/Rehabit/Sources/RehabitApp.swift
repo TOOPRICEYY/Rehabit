@@ -65,7 +65,10 @@ struct RootView: View {
         // the app returns to the front.
         .onReceive(minute) { _ in model.refreshClock() }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { model.refreshClock() }
+            if phase == .active {
+                model.refreshClock()
+                MacSync.shared.checkInbox(model)
+            }
         }
         // Reminders follow the questions still to come: answering one, deleting
         // a workout or resolving an injury withdraws its reminders.
@@ -78,6 +81,12 @@ struct RootView: View {
         .onAppear {
             NotificationRouter.shared.install()
             Reminders.sync(model.upcomingChecks, injuries: model.injuries)
+            MacSync.shared.checkInbox(model)
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-demo-inbox") {
+                MacSync.shared.offer(DemoData.inbox, model: model)
+            }
+            #endif
         }
     }
 }

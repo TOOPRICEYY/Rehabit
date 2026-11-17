@@ -14,6 +14,9 @@ import RehabitCore
 final class MacSync {
     static let shared = MacSync()
     static let fileName = "rehabit-export.json"
+    /// Records prepared on the Mac (by Claude, say) for the app to take in,
+    /// after the person has looked at them.
+    static let inboxName = "rehabit-inbox.json"
     private static let bookmarkKey = "macSync.folderBookmark"
     private static let lastSyncKey = "macSync.lastSync"
 
@@ -22,6 +25,10 @@ final class MacSync {
     private(set) var lastError: String?
     private(set) var busy = false
     private var pending: Task<Void, Never>?
+    /// What the inbox file would add, when it would add anything.
+    private(set) var inbox: IncomingRecords?
+    private var inboxData: Data?
+    private var checking = false
 
     private init() {
         lastSync = UserDefaults.standard.object(forKey: Self.lastSyncKey) as? Date
@@ -78,9 +85,78 @@ final class MacSync {
             lastSync = Date()
             UserDefaults.standard.set(lastSync, forKey: Self.lastSyncKey)
             lastError = nil
+            checkInbox(model)
         } catch {
             lastError = "Could not write to the folder: \(error.localizedDescription)"
         }
+    }
+
+    // MARK: Inbox
+
+    /// Looks for the inbox file in the chosen folder (and in its Rehabit folder
+    /// when the top of iCloud Drive was chosen). The file is often not on the
+    /// phone yet, so it is downloaded and read off the main thread. A missing
+    /// or unreadable file says nothing.
+    func checkInbox(_ model: AppModel) {
+        guard isSetUp, !checking, let folder = try? resolveFolder() else { return }
+        checking = true
+        var candidates = [folder.appendingPathComponent(Self.inboxName)]
+        if folder.lastPathComponent == "com~apple~CloudDocs" {
+            candidates.append(folder.appendingPathComponent("Rehabit").appendingPathComponent(Self.inboxName))
+        }
+        Task.detached(priority: .utility) {
+            let data = Self.read(candidates, in: folder)
+            await MainActor.run {
+                self.checking = false
+                self.offer(data, model: model)
+            }
+        }
+    }
+
+    /// Shows what a file would add, for review. Used by the inbox and by a
+    /// file picked in Settings. Returns false if the file is not Rehabit records.
+    @discardableResult
+    func offer(_ data: Data?, model: AppModel) -> Bool {
+        guard let data, let records = try? model.incoming(data) else { return false }
+        inbox = records.isEmpty ? nil : records
+        inboxData = records.isEmpty ? nil : data
+        return true
+    }
+
+    /// Stores what was offered, once the person said so, and writes a fresh
+    /// export so the Mac sees it too. The file is left where it is: taken in,
+    /// it has nothing more to offer.
+    func takeInbox(_ model: AppModel) {
+        guard let data = inboxData else { return }
+        model.takeIn(data)
+        inbox = nil
+        inboxData = nil
+        if isSetUp { syncNow(model) }
+    }
+
+    func dismissInbox() {
+        inbox = nil
+        inboxData = nil
+    }
+
+    nonisolated private static func read(_ candidates: [URL], in folder: URL) -> Data? {
+        let access = folder.startAccessingSecurityScopedResource()
+        defer { if access { folder.stopAccessingSecurityScopedResource() } }
+        for url in candidates {
+            // An iCloud file not yet on the phone shows up only as a placeholder.
+            let placeholder = url.deletingLastPathComponent().appendingPathComponent(".\(url.lastPathComponent).icloud")
+            guard FileManager.default.fileExists(atPath: url.path) || FileManager.default.fileExists(atPath: placeholder.path)
+            else { continue }
+            try? FileManager.default.startDownloadingUbiquitousItem(at: url)
+            var result: Data?
+            var error: NSError?
+            // A coordinated read waits for iCloud to bring the file down.
+            NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &error) { readable in
+                result = try? Data(contentsOf: readable)
+            }
+            if let result { return result }
+        }
+        return nil
     }
 
     private func resolveFolder() throws -> URL {

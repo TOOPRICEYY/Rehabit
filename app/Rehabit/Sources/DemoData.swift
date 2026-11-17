@@ -6,6 +6,14 @@ import RehabitCore
 /// trying the workout screen. Debug builds only, and only when launched with
 /// `-demo-workout`; the real database is not opened.
 enum DemoData {
+    /// Made-up injuries for the inbox walkthrough (`-demo-inbox`).
+    static let inbox = Data("""
+    {"schemaVersion":1,"exportedAt":"2026-11-17T12:00:00.000Z","injuries":[
+    {"id":"demo-ham","label":"Right hamstring strain","side":"right","onset":"2026-09-02","onsetPrecision":"day","tissues":["hamstrings"],"mechanism":"Sprinting","notes":"Demo record.","updatedAt":"2026-11-17T12:00:00.000Z"},
+    {"id":"demo-cuff","label":"Left rotator cuff irritation","side":"left","onset":"2026-06-01","onsetPrecision":"month","tissues":["rotator_cuff","side_delt"],"mechanism":"Overhead pressing","notes":"","updatedAt":"2026-11-17T12:00:00.000Z"},
+    {"id":"demo-achilles","label":"Achilles tendon soreness","side":"both","onset":"2026-10-12","onsetPrecision":"week","tissues":["achilles"],"mechanism":"Hill running","notes":"","updatedAt":"2026-11-17T12:00:00.000Z"}]}
+    """.utf8)
+
     static func modelIfRequested() -> AppModel? {
         if ProcessInfo.processInfo.arguments.contains("-demo-empty"), let store = try? Store(path: ":memory:") {
             return AppModel(store: store)
