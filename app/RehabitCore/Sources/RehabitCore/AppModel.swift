@@ -67,7 +67,12 @@ public final class AppModel {
         reload()
     }
 
-    private func attempt(_ body: () throws -> Void) {
+    var importZone: TimeZone { zone }
+    var importNow: Date { now() }
+    func noteError(_ text: String) { lastError = text }
+    func storeImported(_ workout: Workout, sets: [WorkoutSet]) throws -> Bool { try store.addIfNew(workout, sets: sets) }
+
+    func attempt(_ body: () throws -> Void) {
         do { try body(); lastError = nil } catch { lastError = String(describing: error) }
     }
 

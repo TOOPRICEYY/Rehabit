@@ -200,6 +200,17 @@ public final class Store {
                   updated: Stamp.millis(record.updatedAt), deleted: false, body: try encode(record))
     }
 
+    /// Stores a workout from another app with its sets, unless a workout with
+    /// this id is already here or was deleted here. Returns whether it was stored.
+    public func addIfNew(_ workout: Workout, sets: [WorkoutSet]) throws -> Bool {
+        if try row(kind: Workout.kind, id: workout.id) != nil { return false }
+        try db.transaction {
+            try save(workout)
+            for set in sets { try save(set) }
+        }
+        return true
+    }
+
     private func decode<R: Record>(_ type: R.Type, _ body: String?) -> R? {
         body.flatMap { try? Store.decoder.decode(R.self, from: Data($0.utf8)) }
     }
