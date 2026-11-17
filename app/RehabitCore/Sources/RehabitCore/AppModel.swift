@@ -366,26 +366,75 @@ public final class AppModel {
     // MARK: Load
 
     /// Each loaded tissue and side: the last 7 days against its own previous four weeks.
-    public func tissueWeeks() -> [TissueWeek] {
-        _ = tick
+    public func tissueWeeks() -> [TissueWeek] { tissueWeeks(weeksAgo: 0) }
+
+    /// The day load weeks end on: today, or a later day a session was already logged on.
+    private var loadToday: Day {
         // After a flight west the clock can read a day earlier than a session
         // already logged; that session still counts as this week.
         var today = Day(now(), in: zone)
         if let latest = allSets.map(\.workoutDay).max(), latest > today { today = latest }
+        return today
+    }
+
+    /// The 35 days of tissue load up to the end of a week (0 is the week ending
+    /// today, 1 the week before), with the sets read to work them out.
+    private func loadWindow(weeksAgo: Int) -> (end: Day, sets: [LedgerSet], days: [TissueDay]) {
+        _ = tick
+        let end = loadToday.adding(-7 * max(0, weeksAgo))
         // 35 days are shown; the 28 before them are only needed as reference loads.
-        let from = today.adding(-35 - ledger.settings.referenceWindowDays)
-        let sets = ledgerHistory().map(\.set).filter { $0.day >= from }
-        let days = ledger.tissueDays(sets, through: today).filter { today.days(since: $0.day) < 35 && $0.day <= today }
+        let from = end.adding(-35 - ledger.settings.referenceWindowDays)
+        let sets = ledgerHistory().map(\.set).filter { $0.day >= from && $0.day <= end }
+        let days = ledger.tissueDays(sets, through: end).filter { end.days(since: $0.day) < 35 && $0.day <= end }
+        return (end, sets, days)
+    }
+
+    /// Each loaded tissue and side for the week ending `weeksAgo` weeks before
+    /// today, against its own four weeks before that.
+    public func tissueWeeks(weeksAgo: Int) -> [TissueWeek] {
+        let window = loadWindow(weeksAgo: weeksAgo)
         var week: [String: Double] = [:], prior: [String: Double] = [:], sides: [String: (String, Side)] = [:]
-        for d in days where d.dose > 0 {
+        for d in window.days where d.dose > 0 {
             let key = d.tissue + "|" + d.side.rawValue
             sides[key] = (d.tissue, d.side)
-            if today.days(since: d.day) < 7 { week[key, default: 0] += d.dose } else { prior[key, default: 0] += d.dose }
+            if window.end.days(since: d.day) < 7 { week[key, default: 0] += d.dose } else { prior[key, default: 0] += d.dose }
         }
         return sides.compactMap { key, value in
             guard let tissue = library.tissue(value.0) else { return nil }
             return TissueWeek(tissue: tissue, side: value.1, week: week[key] ?? 0, usualWeek: (prior[key] ?? 0) / 4)
         }.sorted { ($0.tissue.region, $0.tissue.name, $0.side.rawValue) < ($1.tissue.region, $1.tissue.name, $1.side.rawValue) }
+    }
+
+    /// One tissue and side in detail for the week ending `weeksAgo` weeks back:
+    /// its dose in each of the five weeks up to then (oldest first) and the
+    /// exercises that made up the last of them, largest first.
+    public func tissueDetail(_ tissue: String, side: Side, weeksAgo: Int = 0) -> TissueDetail {
+        let window = loadWindow(weeksAgo: weeksAgo)
+        var weekly = [Double](repeating: 0, count: 5)
+        for d in window.days where d.tissue == tissue && d.side == side {
+            let back = window.end.days(since: d.day) / 7
+            if (0..<5).contains(back) { weekly[4 - back] += d.dose }
+        }
+        var byExercise: [String: Double] = [:]
+        for record in ledger.setDoses(window.sets)
+        where window.end.days(since: record.set.day) < 7 && record.set.side.bodySides.contains(side) {
+            for link in library.pattern(record.set.pattern)?.links ?? [] where link.tissue == tissue {
+                byExercise[record.set.exercise, default: 0] += link.share * record.dose
+            }
+        }
+        let contributions = byExercise.filter { $0.value > 0 }
+            .map { TissueDetail.Contribution(exercise: $0.key, dose: $0.value) }
+            .sorted { ($0.dose, $1.exercise) > ($1.dose, $0.exercise) }
+        return TissueDetail(tissue: tissue, side: side, weekEnding: window.end, weekly: weekly, contributions: contributions)
+    }
+
+    /// The sides of each tissue with an active injury.
+    public var injuredTissueSides: [String: Set<Side>] {
+        var out: [String: Set<Side>] = [:]
+        for injury in injuries where injury.isActive {
+            for tissue in injury.tissues { out[tissue, default: []].formUnion(injury.side.bodySides) }
+        }
+        return out
     }
 
     // MARK: Health and export

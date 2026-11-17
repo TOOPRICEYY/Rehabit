@@ -1,12 +1,41 @@
 import RehabitCore
 import SwiftUI
 
-/// Each tissue and side: the last 7 days against its own previous four weeks.
+enum LoadLayout: String, CaseIterable { case body, list }
+
+/// The Load tab: the body map by default, or the per-tissue bars.
 struct LoadView: View {
-    @Environment(AppModel.self) private var model
+    @AppStorage("loadLayout") private var layout = LoadLayout.body
 
     var body: some View {
         NavigationStack {
+            Group {
+                switch layout {
+                case .body: BodyHeatmapView()
+                case .list: LoadListView()
+                }
+            }
+            .navigationTitle("Load")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Picker("View", selection: $layout) {
+                        Text("Body").tag(LoadLayout.body)
+                        Text("List").tag(LoadLayout.list)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: 220)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+/// Each tissue and side: the last 7 days against its own previous four weeks.
+struct LoadListView: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
             List {
                 let weeks = model.tissueWeeks()
                 if weeks.isEmpty {
@@ -44,8 +73,6 @@ struct LoadView: View {
                     Text("An effective rep is one rep at your usual weight for that exercise. Heavier reps count for more, by the square of the load ratio. These are descriptions of load, not advice; progression is your physical therapist's call.")
                 }
             }
-            .navigationTitle("Load")
-        }
     }
 
     private func ratioText(_ week: TissueWeek) -> String {
