@@ -46,6 +46,12 @@ struct LoadPainChart: View {
             Text("Effective reps compare each side with its own usual weight; weight moved (\(unit), load x reps) compares the two sides directly.")
                 .font(.caption).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+            let unweighed = days.reduce(0) { $0 + $1.unweighedSets }
+            if measure == .weightMoved && unweighed > 0 {
+                Text("\(Format.count(unweighed, "set")) had no weight known (a body-weight movement without a body weight): they count in effective reps, not in weight moved.")
+                    .font(.caption).foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             Chart {
                 ForEach(days) { d in
                     let date = Format.date(d.day)
@@ -179,6 +185,12 @@ struct TherapistReportView: View {
                 }
                 .buttonStyle(.bordered)
                 .font(.subheadline)
+                let unweighed = model.report(for: injury, days: weeks * 7).unweighedSets
+                if unweighed > 0 {
+                    Label("\(Format.count(unweighed, "set")) in this period had no weight known, so they are not in weight moved.",
+                          systemImage: "scalemass")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
                 MarkdownReport(text: text)
             }
             .padding(16)

@@ -81,12 +81,12 @@ struct ActiveWorkoutView: View {
                         // Close the keyboard first so a field still being typed in hands over its value.
                         dismissKeyboard()
                         model.renameActive(title)
-                        if model.unfinishedSets.filter { !$0.isBlank }.isEmpty { finish(removing: false) } else { confirmingUnfinished = true }
+                        if model.usesDoneMarks && !model.unfinishedSets.isEmpty { confirmingUnfinished = true } else { finish(removing: false) }
                     }
                     .fontWeight(.semibold)
                 }
             }
-            .confirmationDialog("\(Format.count(model.unfinishedSets.filter { !$0.isBlank }.count, "set")) not marked done", isPresented: $confirmingUnfinished,
+            .confirmationDialog("\(Format.count(model.unfinishedSets.count, "set")) not marked done", isPresented: $confirmingUnfinished,
                                 titleVisibility: .visible) {
                 Button("Keep them") { finish(removing: false) }
                 Button("Remove them", role: .destructive) { finish(removing: true) }
@@ -352,6 +352,7 @@ struct ExerciseCard: View {
         case .total: what = "\(unit) total"
         case .bodyweight: what = "body weight"
         case .bodyweightPlus: what = "\(unit) added to body weight"
+        case .bodyweightMinus: what = "\(unit) of assistance taken off body weight"
         }
         return s.kind == .hold ? "\(what) · holds in seconds" : what
     }
@@ -389,6 +390,7 @@ struct ExerciseCard: View {
                     Text("Total (bar or stack)").tag(LoadConvention.total)
                     Text("Body weight").tag(LoadConvention.bodyweight)
                     Text("Body weight plus added").tag(LoadConvention.bodyweightPlus)
+                    Text("Body weight less assistance").tag(LoadConvention.bodyweightMinus)
                 }
             } label: {
                 Label("Load means: \(conventionName)", systemImage: "scalemass")
@@ -477,6 +479,7 @@ struct ExerciseCard: View {
         case .total: return "total"
         case .bodyweight: return "body weight"
         case .bodyweightPlus: return "body weight plus"
+        case .bodyweightMinus: return "body weight less assistance"
         }
     }
 
@@ -532,10 +535,8 @@ struct ExerciseCard: View {
     @ViewBuilder private var footer: some View {
         // What the latest working set on each side says, once; older sets'
         // statements (from numbers since changed) are not repeated.
-        let latest = Dictionary(grouping: block.sets.filter { !$0.isWarmup }, by: \.side)
-            .compactMap { $0.value.max { $0.position < $1.position } }
-        let advice = latest.flatMap { model.advice(for: $0) }
-            .reduce(into: [Advice]()) { out, item in if !out.contains(where: { $0.detail == item.detail }) { out.append(item) } }
+        // The core says each jump once per side, naming side and set.
+        let advice = model.advice(for: block)
         VStack(alignment: .leading, spacing: 6) {
             ForEach(advice, id: \.detail) { item in
                 Label(item.detail, systemImage: item.kind == .injuredTissue ? "bandage" : "exclamationmark.triangle")
@@ -817,9 +818,9 @@ struct SetCell: View {
                         .frame(width: loadWidth)
                         .accessibilityLabel("Body weight")
                 } else {
-                    NumberField(title: Format.number(last?.loadValue).ifEmpty(draft.loadUnit.rawValue),
+                    NumberField(title: Format.number(last?.loadValue).ifEmpty(draft.convention == .bodyweightMinus ? "assist" : draft.loadUnit.rawValue),
                                 value: $draft.loadValue, width: loadWidth, step: loadStep, fieldID: draft.id + "|load")
-                        .accessibilityLabel("Set \(number)\(sideWords), \(unitWords)")
+                        .accessibilityLabel(draft.convention == .bodyweightMinus ? "Set \(number)\(sideWords), assistance in \(unitWords)" : "Set \(number)\(sideWords), \(unitWords)")
                 }
                 Text("×").foregroundStyle(.secondary).accessibilityHidden(true)
                 if draft.kind == .hold {
