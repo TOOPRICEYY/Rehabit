@@ -33,17 +33,19 @@ public struct Snapshot: Codable, Sendable {
     public var sets: [WorkoutSet]
     public var injuries: [Injury]
     public var painChecks: [PainCheck]
+    public var routines: [Routine] = []
     public var dailyMetrics: [DailyMetric]
     public var tombstones: [Tombstone]
     public var unreadable: [RawRecord] = []
 
     public init(schemaVersion: Int = Snapshot.currentSchemaVersion, exportedAt: Date, profile: Profile,
                 profileUpdatedAt: Date? = nil, workouts: [Workout], sets: [WorkoutSet], injuries: [Injury],
-                painChecks: [PainCheck], dailyMetrics: [DailyMetric], tombstones: [Tombstone],
-                unreadable: [RawRecord] = []) {
+                painChecks: [PainCheck], routines: [Routine] = [], dailyMetrics: [DailyMetric],
+                tombstones: [Tombstone], unreadable: [RawRecord] = []) {
         self.schemaVersion = schemaVersion; self.exportedAt = exportedAt; self.profile = profile
         self.profileUpdatedAt = profileUpdatedAt; self.workouts = workouts; self.sets = sets
-        self.injuries = injuries; self.painChecks = painChecks; self.dailyMetrics = dailyMetrics
+        self.injuries = injuries; self.painChecks = painChecks; self.routines = routines
+        self.dailyMetrics = dailyMetrics
         self.tombstones = tombstones; self.unreadable = unreadable
     }
 }
@@ -256,7 +258,7 @@ public final class Store {
     /// Live records that could not be read, most likely written by a newer version.
     public func unreadable() throws -> [RawRecord] {
         try load(Workout.self).unreadable + load(WorkoutSet.self).unreadable
-            + load(Injury.self).unreadable + load(PainCheck.self).unreadable
+            + load(Injury.self).unreadable + load(PainCheck.self).unreadable + load(Routine.self).unreadable
     }
 
     /// Marks a record deleted. The row stays as a tombstone. Deleting something
@@ -358,11 +360,13 @@ public final class Store {
                 return .init(kind: kind, id: id, deletedAt: Stamp.date(Int64(t)))
             }
         let workouts = try load(Workout.self), sets = try load(WorkoutSet.self)
-        let injuries = try load(Injury.self), checks = try load(PainCheck.self)
+        let injuries = try load(Injury.self), checks = try load(PainCheck.self), routines = try load(Routine.self)
         return Snapshot(exportedAt: time, profile: profile, profileUpdatedAt: profileUpdatedAt,
                         workouts: workouts.records, sets: sets.records, injuries: injuries.records,
-                        painChecks: checks.records, dailyMetrics: try dailyMetrics(), tombstones: tombstones,
-                        unreadable: workouts.unreadable + sets.unreadable + injuries.unreadable + checks.unreadable)
+                        painChecks: checks.records, routines: routines.records,
+                        dailyMetrics: try dailyMetrics(), tombstones: tombstones,
+                        unreadable: workouts.unreadable + sets.unreadable + injuries.unreadable + checks.unreadable
+                            + routines.unreadable)
     }
 
     public func snapshotJSON(at time: Date = Date()) throws -> Data {
@@ -412,11 +416,12 @@ public final class Store {
         let sets = records("sets", WorkoutSet.self, parentKey: "workoutID", dayKey: "workoutDay")
         let injuries = records("injuries", Injury.self, parentKey: nil, dayKey: "onset")
         let checks = records("painChecks", PainCheck.self, parentKey: "injuryID", dayKey: "dueDay")
+        let routines = records("routines", Routine.self, parentKey: nil, dayKey: "day")
         return Snapshot(schemaVersion: version,
                         exportedAt: try part("exportedAt", Date.self) ?? Date(timeIntervalSince1970: 0),
                         profile: try part("profile", Profile.self) ?? Profile(),
                         profileUpdatedAt: try part("profileUpdatedAt", Date.self),
-                        workouts: workouts, sets: sets, injuries: injuries, painChecks: checks,
+                        workouts: workouts, sets: sets, injuries: injuries, painChecks: checks, routines: routines,
                         dailyMetrics: try part("dailyMetrics", [DailyMetric].self) ?? [],
                         tombstones: try part("tombstones", [Snapshot.Tombstone].self) ?? [],
                         unreadable: unreadable)
@@ -484,6 +489,7 @@ public final class Store {
                 checks.append(check)
             }
             try take(checks)
+            try take(other.routines)
             for raw in other.unreadable {
                 let updated = Stamp.millis(raw.updatedAt)
                 if try arrivingWins(kind: raw.kind, id: raw.id, updated: updated, deleted: false, body: raw.body) {

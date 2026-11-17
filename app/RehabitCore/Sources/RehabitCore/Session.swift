@@ -73,6 +73,8 @@ extension AppModel {
               let started = last.completedAt, !last.isWarmup else { return nil }
         let seconds = restSeconds(for: last.exercise)
         guard seconds > 0, restSkippedAt.map({ $0 < started }) ?? true else { return nil }
+        // In a superset the rest comes after the last exercise of the group that still has this round to do.
+        if let next = supersetNext(after: last), next.exercise != last.exercise { return nil }
         let timer = RestTimer(exercise: last.exercise, setID: last.id, startedAt: started, seconds: seconds)
         return clock.timeIntervalSince(timer.endsAt) < 3600 ? timer : nil
     }

@@ -25,6 +25,8 @@ public final class AppModel {
     public private(set) var workouts: [Workout] = []        // finished, newest first
     public private(set) var injuries: [Injury] = []
     public private(set) var checks: [PainCheck] = []
+    /// Sessions to start from, the most recently used first.
+    public private(set) var routines: [Routine] = []
     public private(set) var active: Workout?
     public private(set) var activeSets: [WorkoutSet] = []
     public private(set) var lastError: String?
@@ -101,6 +103,18 @@ public final class AppModel {
     var localZone: TimeZone { zone }
     var schedule: PainSchedule { PainSchedule(zone: zone, morningHour: profile.morningHour) }
     func storeChecks(_ checks: [PainCheck]) throws { try store.saveAll(checks) }
+    func storeRoutine(_ routine: Routine) throws { try store.save(routine) }
+    func removeRoutine(id: String) throws { try store.delete(Routine.self, id: id, at: now()) }
+    /// Changes the workout in progress (its supersets, the routine it came from) and saves it.
+    func changeActive(_ change: (inout Workout) -> Void) {
+        guard var workout = active else { return }
+        let before = workout
+        change(&workout)
+        guard workout != before else { return }
+        workout.updatedAt = now()
+        attempt { try store.save(workout) }
+        active = workout
+    }
     func storeSets(_ sets: [WorkoutSet]) throws { try store.saveAll(sets) }
     func noteError(_ text: String) { lastError = text }
     func storeImported(_ workout: Workout, sets: [WorkoutSet]) throws -> Bool { try store.addIfNew(workout, sets: sets) }
@@ -133,6 +147,9 @@ public final class AppModel {
             activeSets = active.map { a in allSets.filter { $0.workoutID == a.id }.sorted { $0.position < $1.position } } ?? []
             injuries = try store.all(Injury.self).sorted { $0.onset > $1.onset }
             checks = try store.all(PainCheck.self).sorted { $0.dueAt < $1.dueAt }
+            routines = try store.all(Routine.self).sorted {
+                ($0.lastUsed ?? .distantPast, $1.name.lowercased()) > ($1.lastUsed ?? .distantPast, $0.name.lowercased())
+            }
             unreadableCount = try store.unreadable().count
             history = nil; nameIndex = nil
         }
@@ -577,6 +594,7 @@ public final class AppModel {
                                workouts: try store.arriving(file.workouts, reviving: false),
                                sets: try store.arriving(file.sets, reviving: false).count,
                                painChecks: try store.arriving(file.painChecks, reviving: false).count,
+                               routines: try store.arriving(file.routines, reviving: false),
                                unreadable: file.unreadable.count)
     }
 
@@ -595,6 +613,7 @@ public final class AppModel {
                 sets: try store.arriving(file.sets, reviving: false),
                 injuries: try store.arriving(file.injuries, reviving: false),
                 painChecks: try store.arriving(file.painChecks, reviving: false),
+                routines: try store.arriving(file.routines, reviving: false),
                 dailyMetrics: [], tombstones: []))
         }
         reload()
@@ -611,8 +630,9 @@ public struct IncomingRecords: Equatable, Sendable {
     public var workouts: [Workout] = []
     public var sets = 0
     public var painChecks = 0
+    public var routines: [Routine] = []
     /// Records in the file this version of the app could not read. They are left out.
     public var unreadable = 0
-    public var isEmpty: Bool { injuries.isEmpty && workouts.isEmpty && sets == 0 && painChecks == 0 }
-    public var count: Int { injuries.count + workouts.count + sets + painChecks }
+    public var isEmpty: Bool { injuries.isEmpty && workouts.isEmpty && sets == 0 && painChecks == 0 && routines.isEmpty }
+    public var count: Int { injuries.count + workouts.count + sets + painChecks + routines.count }
 }

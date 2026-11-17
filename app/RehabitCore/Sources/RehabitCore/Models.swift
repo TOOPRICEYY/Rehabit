@@ -73,6 +73,11 @@ public struct Workout: Record, Equatable {
     /// Exercises whose left and right sides were linked or unlinked by hand
     /// in this workout. Kept so a relaunch mid-workout does not forget it.
     public var linkOverrides: [String: Bool]?
+    /// Groups of exercises done back to back, by name: the rest comes after
+    /// the last of a group, not between them.
+    public var supersets: [[String]]?
+    /// The routine this workout was started from, if any.
+    public var routineID: String?
     public var updatedAt: Date
     public var parentID: String? { nil }
     public var day: Day? { startDay }
@@ -143,6 +148,54 @@ public struct WorkoutSet: Record, Equatable {
         self.loadUnit = loadUnit; self.convention = convention; self.repsInReserve = repsInReserve
         self.pain = pain; self.painType = painType; self.range = range; self.isWarmup = isWarmup
         self.completedAt = completedAt; self.notes = notes; self.updatedAt = updatedAt
+    }
+}
+
+/// One exercise of a routine: what to do, how many rounds, on which sides.
+public struct RoutineItem: Codable, Equatable, Identifiable, Sendable {
+    public var id: String
+    public var exercise: String
+    public var pattern: String?
+    public var convention: LoadConvention
+    public var unilateral: Bool
+    public var kind: SetKind
+    /// "together", "perSide", "leftOnly" or "rightOnly" (`SideMode`).
+    public var mode: String
+    /// Working rounds, and warm-up rounds before them.
+    public var rounds: Int
+    public var warmups: Int
+    /// Rest after each set, where it differs from the person's default.
+    public var restSeconds: Int?
+    /// Items with the same number are done back to back, as a superset.
+    public var group: Int?
+    public var notes: String
+
+    public init(id: String = UUID().uuidString, exercise: String, pattern: String?, convention: LoadConvention = .total,
+                unilateral: Bool = false, kind: SetKind = .reps, mode: String = "together", rounds: Int = 3,
+                warmups: Int = 0, restSeconds: Int? = nil, group: Int? = nil, notes: String = "") {
+        self.id = id; self.exercise = exercise; self.pattern = pattern; self.convention = convention
+        self.unilateral = unilateral; self.kind = kind; self.mode = mode; self.rounds = max(1, rounds)
+        self.warmups = max(0, warmups); self.restSeconds = restSeconds; self.group = group; self.notes = notes
+    }
+}
+
+/// A session to start from: its exercises in order. Loads are not kept in
+/// it; each set starts from what was done last time.
+public struct Routine: Record, Equatable {
+    public static let kind = "routine"
+    public var id: String
+    public var name: String
+    public var items: [RoutineItem]
+    public var notes: String
+    public var lastUsed: Date?
+    public var updatedAt: Date
+    public var parentID: String? { nil }
+    public var day: Day? { nil }
+
+    public init(id: String = UUID().uuidString, name: String, items: [RoutineItem] = [], notes: String = "",
+                lastUsed: Date? = nil, updatedAt: Date = Date()) {
+        self.id = id; self.name = name; self.items = items; self.notes = notes
+        self.lastUsed = lastUsed; self.updatedAt = updatedAt
     }
 }
 

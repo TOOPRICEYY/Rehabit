@@ -1,7 +1,7 @@
 import Foundation
 
 /// How an exercise's sets are split between the sides of the body.
-public enum SideMode: String, CaseIterable, Sendable {
+public enum SideMode: String, CaseIterable, Codable, Sendable {
     /// Both sides work together: a barbell squat, a push-up.
     case together
     /// Each side logged by itself, a left and a right set per round.
