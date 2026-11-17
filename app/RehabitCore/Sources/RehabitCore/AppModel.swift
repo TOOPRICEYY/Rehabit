@@ -61,8 +61,13 @@ public final class AppModel {
 
     /// How long each kind of question stays on the list before it counts as missed.
     /// "Right after the session" answered the next day would be a different reading.
+    /// A delayed question answered much later would be stored under a moment
+    /// it does not describe, so it lapses after half a day and stays missing.
     static let afterSessionWindow: TimeInterval = 3 * 3600
-    static let delayedWindow: TimeInterval = 3 * 86_400
+    static let delayedWindow: TimeInterval = 12 * 3600
+    static func window(_ moment: PainCheckMoment) -> TimeInterval {
+        moment == .afterSession ? afterSessionWindow : delayedWindow
+    }
 
     public init(store: Store, library: Library = .standard, zone: TimeZone = .current,
                 now: @escaping () -> Date = Date.init) {
@@ -77,6 +82,10 @@ public final class AppModel {
 
     var importZone: TimeZone { zone }
     var importNow: Date { now() }
+    var clock: Date { now() }
+    var localZone: TimeZone { zone }
+    var schedule: PainSchedule { PainSchedule(zone: zone, morningHour: profile.morningHour) }
+    func storeChecks(_ checks: [PainCheck]) throws { try store.saveAll(checks) }
     func storeSets(_ sets: [WorkoutSet]) throws { try store.saveAll(sets) }
     func noteError(_ text: String) { lastError = text }
     func storeImported(_ workout: Workout, sets: [WorkoutSet]) throws -> Bool { try store.addIfNew(workout, sets: sets) }
@@ -276,16 +285,10 @@ public final class AppModel {
         let end = now()
         workout.end = end
         workout.updatedAt = end
-        let schedule = PainSchedule(zone: zone)
-        var created: [PainCheck] = []
+        let created = newChecks(for: workout, sets: activeSets, end: end)
         attempt {
             try store.save(workout)
-            for injury in schedule.injuriesLoaded(by: activeSets, injuries: injuries, library: library) {
-                for check in schedule.checks(for: injury, workout: workout, endedAt: end) {
-                    try store.save(check)
-                    created.append(check)
-                }
-            }
+            try store.saveAll(created)
         }
         reload()
         return created.filter { $0.moment == .afterSession }
@@ -310,6 +313,14 @@ public final class AppModel {
                 var moved = sets(of: old)
                 for i in moved.indices { moved[i].workoutDay = workout.startDay; moved[i].updatedAt = workout.updatedAt }
                 try store.saveAll(moved)
+            }
+            if workout.end != old.end, let end = workout.end {
+                // The questions still open were timed from the old end. They are
+                // asked again from the new one; those whose time has passed are not.
+                let open = checks.filter { $0.workoutID == workout.id && $0.isOpen }
+                for check in open { try store.delete(PainCheck.self, id: check.id, at: now()) }
+                checks.removeAll { check in open.contains { $0.id == check.id } }
+                try store.saveAll(newChecks(for: workout, sets: sets(of: old), end: end))
             }
         }
         reload()
@@ -359,23 +370,30 @@ public final class AppModel {
         reapplyImportedSides()
     }
 
-    /// Unanswered checks whose time has come, oldest first. One left too long
+    /// The questions to answer now: at most one for each injury, the latest
+    /// whose time has come. An earlier one it replaces, or one left too long,
     /// drops off the list and stays recorded as missing, never as zero.
     public var dueChecks: [PainCheck] {
         _ = tick
         let time = now()
-        return checks.filter { check in
-            guard !check.isAnswered, check.dueAt <= time else { return false }
-            let window = check.moment == .afterSession ? AppModel.afterSessionWindow : AppModel.delayedWindow
-            return time.timeIntervalSince(check.dueAt) <= window
+        var latest: [String: PainCheck] = [:]
+        for check in checks + dailyChecks(from: Day(time, in: zone).adding(-1), days: 2) where check.dueAt <= time {
+            if let held = latest[check.injuryID], held.dueAt > check.dueAt { continue }
+            latest[check.injuryID] = check
         }
+        return latest.values
+            .filter { $0.isOpen && time.timeIntervalSince($0.dueAt) <= AppModel.window($0.moment) }
+            .sorted { ($0.dueAt, $0.id) < ($1.dueAt, $1.id) }
     }
 
-    /// Checks still to come, for scheduling reminders.
+    /// Questions still to come, for scheduling reminders: those stored, and the
+    /// morning questions of the next week.
     public var upcomingChecks: [PainCheck] {
         _ = tick
         let time = now()
-        return checks.filter { !$0.isAnswered && $0.dueAt > time }
+        return (checks + dailyChecks(from: Day(time, in: zone), days: 8))
+            .filter { $0.isOpen && $0.dueAt > time }
+            .sorted { ($0.dueAt, $0.id) < ($1.dueAt, $1.id) }
     }
 
     /// Pain is 0 to 10 in half points. Anything else typed or dragged is pulled into that range.
@@ -393,6 +411,8 @@ public final class AppModel {
         check.pain = clean
         check.painType = type
         check.notes = notes
+        check.source = nil
+        check.skippedAt = nil
         check.answeredAt = now()
         check.updatedAt = now()
         attempt { try store.save(check) }

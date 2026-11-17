@@ -174,6 +174,20 @@ public enum PainCheckMoment: String, Codable, CaseIterable, Sendable {
     case hours24 = "24h"
     case hours48 = "48h"
     case baseline          // a daily reading with no session attached
+    case flare             // logged by the person when something hurt, outside any schedule
+
+    /// The moment in words, as a question's heading.
+    public var label: String {
+        switch self {
+        case .afterSession: return "Right after the session"
+        case .evening: return "That evening"
+        case .nextMorning: return "The next morning"
+        case .hours24: return "24 hours after"
+        case .hours48: return "48 hours after"
+        case .baseline: return "Daily baseline"
+        case .flare: return "Flare-up"
+        }
+    }
 }
 
 /// One question about one injury at one moment. It exists from the time it is
@@ -191,10 +205,21 @@ public struct PainCheck: Record, Equatable {
     public var pain: Double?
     public var painType: PainType?
     public var notes: String
+    /// "unchanged" when the person said nothing had changed and the value was
+    /// copied from their reading before it. Nil for a value they entered.
+    public var source: String?
+    /// Set when the person chose not to answer. The reading stays missing; it
+    /// is only no longer asked for.
+    public var skippedAt: Date?
+    /// What was going on, for a flare-up: "sleep", "stairs", anything.
+    public var context: String?
     public var updatedAt: Date
     public var parentID: String? { injuryID }
     public var day: Day? { dueDay }
     public var isAnswered: Bool { answeredAt != nil }
+    /// Still waiting for an answer.
+    public var isOpen: Bool { answeredAt == nil && skippedAt == nil }
+    public static let unchanged = "unchanged"
 
     public init(id: String = UUID().uuidString, injuryID: String, workoutID: String?,
                 moment: PainCheckMoment, dueAt: Date, zone: TimeZone = .current,
@@ -221,16 +246,23 @@ public struct DailyMetric: Codable, Equatable, Sendable {
 public struct Profile: Codable, Equatable, Sendable {
     public var bodyweightKg: Double?
     public var unit: WeightUnit
-    public init(bodyweightKg: Double? = nil, unit: WeightUnit = .lb) {
+    /// Ask once each morning how every active injury is, sessions or not.
+    public var dailyCheckIn: Bool
+    /// The local hour of the morning questions, 0 to 23.
+    public var morningHour: Int
+    public init(bodyweightKg: Double? = nil, unit: WeightUnit = .lb, dailyCheckIn: Bool = true, morningHour: Int = 8) {
         self.bodyweightKg = bodyweightKg; self.unit = unit
+        self.dailyCheckIn = dailyCheckIn; self.morningHour = min(23, max(0, morningHour))
     }
 
-    private enum CodingKeys: String, CodingKey { case bodyweightKg, unit }
+    private enum CodingKeys: String, CodingKey { case bodyweightKg, unit, dailyCheckIn, morningHour }
 
     /// An unrecognised unit falls back to pounds; it must not cost the body weight.
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         bodyweightKg = try? c.decodeIfPresent(Double.self, forKey: .bodyweightKg)
         unit = (try? c.decode(WeightUnit.self, forKey: .unit)) ?? .lb
+        dailyCheckIn = (try? c.decodeIfPresent(Bool.self, forKey: .dailyCheckIn)) ?? true
+        morningHour = min(23, max(0, (try? c.decodeIfPresent(Int.self, forKey: .morningHour)) ?? 8))
     }
 }

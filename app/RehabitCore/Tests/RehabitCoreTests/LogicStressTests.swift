@@ -465,7 +465,7 @@ final class AppModelStressTests: XCTestCase {
         XCTAssertEqual(repeatSet.loadValue, 30)
         XCTAssertEqual(repeatSet.unitTestKg, 30)
         XCTAssertEqual(again.finishWorkout().count, 1)
-        XCTAssertEqual(again.upcomingChecks.count, 4)
+        XCTAssertEqual(again.upcomingChecks.filter { $0.workoutID != nil }.count, 4)
     }
 
     func testAWorkoutAcrossMidnightBelongsToTheDayItStarted() throws {
@@ -544,8 +544,8 @@ final class AppModelStressTests: XCTestCase {
         logWorkout(model, "Single-Leg Extension (Machine)")
         model.answer(model.dueChecks[0], pain: 2.24, type: .ache)
         clock.addTimeInterval(5 * 86_400 + 1)
-        // Everything else is now more than three days overdue: off the list, still recorded, still nil.
-        XCTAssertTrue(model.dueChecks.isEmpty)
+        // Everything else is now long overdue: off the list, still recorded, still nil.
+        XCTAssertTrue(model.dueChecks.filter { $0.workoutID != nil }.isEmpty)
         let missing = model.checks.filter { !$0.isAnswered }
         XCTAssertEqual(missing.count, 4)
         XCTAssertTrue(missing.allSatisfy { $0.pain == nil })
@@ -555,15 +555,17 @@ final class AppModelStressTests: XCTestCase {
         XCTAssertEqual(model.painHistory(for: injury).last?.moment, .baseline)
     }
 
-    /// "A check more than three days overdue drops off": at exactly three days
-    /// it is not yet more than three days overdue, but it is already gone.
-    func testACheckExactlyThreeDaysOverdueIsStillDue() throws {
+    /// A delayed question stays for half a day and no longer: at exactly that
+    /// long it is still offered, a second later it is not.
+    func testADelayedCheckLapsesAfterHalfADay() throws {
         let model = try makeModel()
         model.save(quad())
         logWorkout(model, "Single-Leg Extension (Machine)")
         let later = try XCTUnwrap(model.checks.first { $0.moment == .hours48 })
-        clock = later.dueAt.addingTimeInterval(3 * 86_400)
+        clock = later.dueAt.addingTimeInterval(12 * 3600)
         XCTAssertTrue(model.dueChecks.contains { $0.id == later.id })
+        clock = later.dueAt.addingTimeInterval(12 * 3600 + 1)
+        XCTAssertFalse(model.dueChecks.contains { $0.id == later.id })
         // The after-session question is different: hours later it would be a
         // different reading, so it is only offered for three hours.
         let after = try XCTUnwrap(model.checks.first { $0.moment == .afterSession })
@@ -595,8 +597,9 @@ final class AppModelStressTests: XCTestCase {
         logWorkout(model, "Single-Leg Extension (Machine)")
         model.deleteWorkout(try XCTUnwrap(model.workouts.first))
         XCTAssertTrue(model.workouts.isEmpty)
-        XCTAssertTrue(model.dueChecks.isEmpty, "\(model.dueChecks.count) due check(s) for a deleted workout")
-        XCTAssertTrue(model.upcomingChecks.isEmpty, "\(model.upcomingChecks.count) reminders for a deleted workout")
+        let due = model.dueChecks.filter { $0.workoutID != nil }, coming = model.upcomingChecks.filter { $0.workoutID != nil }
+        XCTAssertTrue(due.isEmpty, "\(due.count) due check(s) for a deleted workout")
+        XCTAssertTrue(coming.isEmpty, "\(coming.count) reminders for a deleted workout")
     }
 
     /// A screen holding a copy of a set (an edit field still focused) writes it

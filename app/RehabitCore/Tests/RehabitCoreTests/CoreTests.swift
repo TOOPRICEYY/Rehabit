@@ -272,7 +272,7 @@ final class AppModelTests: XCTestCase {
         XCTAssertNil(model.active)
         XCTAssertEqual(model.workouts.count, 1)
         XCTAssertEqual(model.dueChecks.count, 1)
-        XCTAssertEqual(model.upcomingChecks.count, 4)
+        XCTAssertEqual(model.upcomingChecks.filter { $0.workoutID != nil }.count, 4)
 
         model.answer(dueNow[0], pain: 2.7, type: .ache)
         XCTAssertEqual(model.painHistory(for: model.injuries[0]).first?.pain, 2.5)
@@ -280,7 +280,10 @@ final class AppModelTests: XCTestCase {
 
         // Next session: the first set is prefilled from last time, and a jump is named.
         clock.addTimeInterval(3 * 86_400)
-        XCTAssertEqual(model.dueChecks.count, 4)                         // the delayed ones came due
+        // The delayed ones came due and lapsed unanswered: a reading given days late would be
+        // filed under a moment it does not describe. Only the morning's question is left.
+        XCTAssertEqual(model.dueChecks.map(\.moment), [.baseline])
+        XCTAssertEqual(model.checks.filter { !$0.isAnswered }.count, 4)
         model.startWorkout()
         var again = try XCTUnwrap(model.addSet(extension_))
         XCTAssertEqual(again.loadValue, 30)

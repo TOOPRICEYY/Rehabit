@@ -111,16 +111,7 @@ enum Format {
         }
     }
 
-    static func moment(_ moment: PainCheckMoment) -> String {
-        switch moment {
-        case .afterSession: return "Right after the session"
-        case .evening: return "That evening"
-        case .nextMorning: return "The next morning"
-        case .hours24: return "24 hours after"
-        case .hours48: return "48 hours after"
-        case .baseline: return "Baseline"
-        }
-    }
+    static func moment(_ moment: PainCheckMoment) -> String { moment.label }
 
     static func summary(_ set: WorkoutSet) -> String {
         var parts: [String] = []

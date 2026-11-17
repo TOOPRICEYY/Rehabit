@@ -10,7 +10,20 @@ public struct PainSchedule: Sendable {
     public var latestEveningHour = 22
     public var zone: TimeZone
 
-    public init(zone: TimeZone = .current) { self.zone = zone }
+    public init(zone: TimeZone = .current, morningHour: Int = 8) { self.zone = zone; self.morningHour = morningHour }
+
+    /// Two questions about one injury closer together than this are one reading.
+    public static let sameReading: TimeInterval = 4 * 3600
+    /// Questions due within this long of each other are asked together.
+    public static let roundSpan: TimeInterval = 90 * 60
+
+    /// The moment of a day's morning question.
+    public func morning(of day: Day) -> Date? {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = zone
+        let c = day.components
+        return calendar.date(from: DateComponents(year: c.year, month: c.month, day: c.day, hour: morningHour))
+    }
 
     /// The injuries a workout loaded: active, and sharing a tissue and a side with any set.
     public func injuriesLoaded(by sets: [WorkoutSet], injuries: [Injury], library: Library = .standard,
@@ -48,7 +61,14 @@ public struct PainSchedule: Sendable {
         if let morning = calendar.date(bySettingHour: morningHour, minute: 0, second: 0, of: morningDay) {
             out.append(check(.nextMorning, morning))
         }
-        out.append(check(.hours24, end.addingTimeInterval(24 * 3600)))
+        // After a morning session "the next morning" and "24 hours after" fall
+        // close together. One reading serves for both; the morning one is kept,
+        // because it comes at the same hour after every session.
+        let day = end.addingTimeInterval(24 * 3600)
+        let morning = out.last { $0.moment == .nextMorning }?.dueAt
+        if morning.map({ abs($0.timeIntervalSince(day)) >= PainSchedule.sameReading }) ?? true {
+            out.append(check(.hours24, day))
+        }
         out.append(check(.hours48, end.addingTimeInterval(48 * 3600)))
         return out
     }
@@ -72,8 +92,11 @@ public struct SettlingSummary: Equatable, Sendable {
         answered = answeredChecks.count
         peak = answeredChecks.compactMap(\.pain).max()
         // Settled at the first reading that is back near baseline with no later reading above it.
+        // A reading taken as the session ends cannot show that: the reaction it would have to
+        // rule out comes hours later. So with no later reading, settling stays unknown.
         var settledAt: Date?
-        for (i, check) in answeredChecks.enumerated() {
+        let delayed = answeredChecks.contains { $0.moment != .afterSession }
+        for (i, check) in answeredChecks.enumerated() where delayed {
             let rest = answeredChecks[i...].compactMap(\.pain)
             if rest.allSatisfy({ $0 <= baseline + 0.5 }) {
                 settledAt = check.answeredAt ?? check.dueAt
