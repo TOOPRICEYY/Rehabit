@@ -240,3 +240,20 @@ def test_replay_applies_steps_to_leg_injuries_only_and_recovery_to_all(con, prof
     assert calf["hrv_suppressed"]["count"] > 0 and pec["hrv_suppressed"]["count"] > 0
     assert "rhr_elevated" not in pec                                       # never measured
     assert calf["hrv_suppressed"]["windows"] <= calf["spike"]["windows"]
+
+
+def test_run_query_refuses_everything_but_reading(con, tmp_path):
+    from rehabit.mcp_server import Tools
+    db_path = con.execute("PRAGMA database_list").fetchone()[2]
+    con.commit()
+    con.close()
+    tools = Tools(db_path)
+    assert tools.run_query("select count(*) n from tissue")[0]["n"] > 0
+    for sql in ("select * from pragma_database_list",
+                "with x as (select 1) insert into tissue values('a','b','c','d')",
+                "select 1; attach database 'x.db' as o",
+                "select load_extension('x')",
+                "with recursive c(x) as (select 1 union all select x+1 from c) select count(*) from c",
+                "select zeroblob(1000000000)"):
+        assert "error" in tools.run_query(sql), sql
+    assert tools.run_query("select zeroblob(8) b")[0]["b"] == "<8 bytes>"

@@ -170,9 +170,15 @@ class Tools:
             steps[0] += 1
             return 1 if steps[0] > QUERY_BUDGET else 0
         con.set_progress_handler(budget, 1000)
+        if hasattr(con, "setlimit"):
+            # No single value over 10 MB, so a query cannot ask for gigabytes of memory.
+            con.setlimit(sqlite3.SQLITE_LIMIT_LENGTH, 10_000_000)
         try:
             cur = con.execute(sql)
-            return [dict(r) for r in cur.fetchmany(MAX_ROWS)]
+            rows = [dict(r) for r in cur.fetchmany(MAX_ROWS)]
+            # Binary values cannot be sent as JSON; say how big they were instead.
+            return [{k: f"<{len(v)} bytes>" if isinstance(v, (bytes, bytearray)) else v for k, v in r.items()}
+                    for r in rows]
         except Exception as exc:  # the caller wrote the SQL, so the message is the help
             if steps[0] > QUERY_BUDGET:
                 return {"error": "the query ran too long and was stopped"}

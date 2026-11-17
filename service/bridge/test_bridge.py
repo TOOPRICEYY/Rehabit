@@ -275,6 +275,41 @@ class ServerTests(Folder):
             self.assertNotIn(secret, log)
         self.assertIn('tool get_pain_checks', log)
 
+    def test_a_full_client_list_makes_room_for_a_new_client(self):
+        bridge = self.start('correct horse battery staple')
+        with bridge._state_lock:
+            state = bridge.load_state()
+            for i in range(50):                           # strangers who registered and never signed in
+                state['clients'][f'c_old{i}'] = {'redirect_uris': [CALLBACK], 'client_name': 'x',
+                                                 'created': int(time.time()) - 7200 - i}
+            state['tokens']['feed'] = {'type': 'refresh', 'client_id': 'c_old0', 'exp': time.time() + 60}
+            bridge.save_state(state)
+        client = self.register()
+        with bridge._state_lock:
+            clients = bridge.load_state()['clients']
+        self.assertIn(client, clients)
+        self.assertLessEqual(len(clients), 50)
+        self.assertIn('c_old0', clients)                  # a client holding a live token is never dropped
+        self.assertNotIn('c_old49', clients)              # the oldest idle one went first
+
+    def test_a_failing_tool_logs_its_kind_but_not_its_message(self):
+        passcode = 'correct horse battery staple'
+        bridge = self.start(passcode)
+        client = self.register()
+        _, headers, _, verifier = self.authorize(client, passcode)
+        code = urllib.parse.parse_qs(urllib.parse.urlsplit(headers['Location']).query)['code'][0]
+        _, _, body = self.request('POST', '/token', {'grant_type': 'authorization_code', 'code': code,
+                                                     'client_id': client, 'redirect_uri': CALLBACK,
+                                                     'code_verifier': verifier}, form=True)
+        token = json.loads(body)['access_token']
+        bridge.fns['get_library'] = lambda args: (_ for _ in ()).throw(RuntimeError('left quad pain 7'))
+        result = self.rpc(token, 'tools/call', {'name': 'get_library', 'arguments': {}})
+        self.assertTrue(result['isError'])
+        with open(bridge.cfg['log_path'], encoding='utf-8') as f:
+            log = f.read()
+        self.assertIn('raw error: RuntimeError at', log)
+        self.assertNotIn('quad', log)
+
     def test_five_wrong_passcodes_lock_the_page(self):
         passcode = secrets.token_urlsafe(16)
         self.start(passcode=passcode)

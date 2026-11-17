@@ -205,7 +205,13 @@ class Bridge:
                 return ok({'content': [{'type': 'text', 'text': f'Error: {e}'}], 'isError': True})
             except Exception as e:  # noqa: BLE001 - report, never crash the server
                 raw = f'{type(e).__name__}: {e}'
-                self.log(f'tool {name} raw error: {raw} | ' + traceback.format_exc().replace('\n', ' | ')[-600:])
+                if self.cfg.get('log_tool_args', True):
+                    self.log(f'tool {name} raw error: {raw} | ' + traceback.format_exc().replace('\n', ' | ')[-600:])
+                else:
+                    # An error message can quote the arguments or the data, so only its kind and
+                    # where it was raised are logged.
+                    where = traceback.extract_tb(e.__traceback__)[-1]
+                    self.log(f'tool {name} raw error: {type(e).__name__} at {os.path.basename(where.filename)}:{where.lineno}')
                 msg = (self.error_hint(raw) if self.error_hint else None) or raw
                 return ok({'content': [{'type': 'text', 'text': f'Error: {msg}'}], 'isError': True})
             return ok({'content': [{'type': 'text', 'text': json.dumps(out, indent=2, sort_keys=True, ensure_ascii=False)}],
@@ -327,6 +333,16 @@ class Bridge:
                         return self.oauth_err(400, 'invalid_redirect_uri', "redirect_uri is not on this bridge's allowlist")
                     with bridge._state_lock:
                         s = bridge.load_state()
+                        if len(s['clients']) >= 50:
+                            # Anyone can register, so a full list must not lock the owner out: clients
+                            # that hold no live token and are over an hour old make room, oldest first.
+                            live = {t['client_id'] for t in s['tokens'].values() if t['exp'] >= time.time()}
+                            live |= {c['client_id'] for c in s['codes'].values() if c['exp'] >= time.time()}
+                            idle = sorted((c for c in s['clients'] if c not in live
+                                           and s['clients'][c].get('created', 0) < time.time() - 3600),
+                                          key=lambda c: s['clients'][c].get('created', 0))
+                            for c in idle[:max(1, len(s['clients']) - 49)]:
+                                del s['clients'][c]
                         if len(s['clients']) >= 50:
                             return self.oauth_err(400, 'invalid_client_metadata', 'too many registered clients')
                         cid = 'c_' + b64url(secrets.token_bytes(18))
