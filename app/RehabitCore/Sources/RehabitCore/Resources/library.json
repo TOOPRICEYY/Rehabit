@@ -1602,27 +1602,39 @@
  ],
  "matchers": [
   [
-   "nordic|hamstring curl|leg curl",
-   "leg_curl"
-  ],
-  [
-   "leg extension",
+   "reverse nordic|knee extension|leg extension",
    "leg_extension"
   ],
   [
-   "leg press|calf press",
-   "leg_press"
+   "nordic|hamstring curl|leg curl|glute ham",
+   "leg_curl"
   ],
   [
-   "calf",
+   "calf|heel raise",
    "calf_raise"
   ],
   [
-   "hip thrust|bridge|glute kickback|donkey kick|hip extension",
+   "leg press",
+   "leg_press"
+  ],
+  [
+   "side bridge|side plank|hollow|dead bug|pallof",
+   "core"
+  ],
+  [
+   "hip thrust|hip raise|bridge|glute kickback|donkey kick|hip extension",
    "bridge"
   ],
   [
-   "abduct|clamshell|side[- ]lying leg|band walk|monster walk",
+   "horizontal abduction",
+   "rear_fly"
+  ],
+  [
+   "shoulder abduction",
+   "raise_lateral"
+  ],
+  [
+   "abduct|clamshell|side[- ]lying leg|band walk|monster walk|hip (external|internal) rotation",
    "hip_abduction"
   ],
   [
@@ -1650,19 +1662,23 @@
    "pull_up"
   ],
   [
+   "handstand",
+   "press_overhead"
+  ],
+  [
    "push[- ]?up",
    "push_up"
   ],
   [
-   "incline.*press|incline bench",
+   "incline(?!.*(curl|\\brow|fly|raise)).*press|incline bench(?!.*(curl|\\brow|fly|raise))",
    "press_incline"
   ],
   [
-   "overhead press|shoulder press|arnold|seated dumbbell press|military",
+   "overhead press|shoulder press|push press|landmine press|arnold|seated dumbbell press|military",
    "press_overhead"
   ],
   [
-   "bench|chest press|dumbbell press|floor press",
+   "bench(?!.*(curl|\\brow|fly|raise))|chest press|dumbbell press|floor press",
    "press_horizontal"
   ],
   [
@@ -1686,7 +1702,7 @@
    "core"
   ],
   [
-   "lateral raise|front raise|raise",
+   "(lateral|front|side|delt|shoulder|\\by)[- ]raise",
    "raise_lateral"
   ],
   [
@@ -1698,11 +1714,11 @@
    "curl"
   ],
   [
-   "row",
+   "\\brow",
    "row"
   ],
   [
-   "romanian|rdl|hyperext|back extension|good morning",
+   "romanian|rdl|stiff|single[- ]leg deadlift|hyperext|back extension|good morning|swing|pull[- ]?through",
    "rdl"
   ],
   [
@@ -1710,7 +1726,7 @@
    "deadlift"
   ],
   [
-   "lunge|split squat|step[- ]?up",
+   "lunge|split squat|step[- ]?(up|down)",
    "lunge"
   ],
   [

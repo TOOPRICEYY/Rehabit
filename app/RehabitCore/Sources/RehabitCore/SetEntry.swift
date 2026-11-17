@@ -63,14 +63,27 @@ public struct ExerciseBlock: Identifiable, Equatable, Sendable {
     /// The first set's convention, unit and kind: the card shows them once.
     public var sample: WorkoutSet? { sets.min { $0.position < $1.position } }
 
-    /// Sets with both sides are a round each. The n-th left set and the n-th
-    /// right set are paired, in the order they were added.
+    /// Sets with both sides are a round each. A left and a right set that share
+    /// a pair id are one round. Sets without one (older records, imports) are
+    /// paired in order: the n-th left with the n-th right.
     public var rounds: [SetRound] {
         let ordered = sets.sorted { $0.position < $1.position }
         var rounds = ordered.filter { $0.side == .both }.map { SetRound(both: $0) }
         let lefts = ordered.filter { $0.side == .left }, rights = ordered.filter { $0.side == .right }
-        for i in 0..<max(lefts.count, rights.count) {
-            rounds.append(SetRound(left: i < lefts.count ? lefts[i] : nil, right: i < rights.count ? rights[i] : nil))
+        var used = Set<String>()
+        var looseLefts: [WorkoutSet] = []
+        for left in lefts {
+            guard let pair = left.pairID else { looseLefts.append(left); continue }
+            let right = rights.first { $0.pairID == pair && !used.contains($0.id) }
+            if let right { used.insert(right.id) }
+            rounds.append(SetRound(left: left, right: right))
+        }
+        let rest = rights.filter { !used.contains($0.id) }
+        rounds += rest.filter { $0.pairID != nil }.map { SetRound(right: $0) }
+        let looseRights = rest.filter { $0.pairID == nil }
+        for i in 0..<max(looseLefts.count, looseRights.count) {
+            rounds.append(SetRound(left: i < looseLefts.count ? looseLefts[i] : nil,
+                                   right: i < looseRights.count ? looseRights[i] : nil))
         }
         rounds.sort { $0.firstPosition < $1.firstPosition }
         for i in rounds.indices { rounds[i].index = i }
@@ -114,9 +127,11 @@ extension AppModel {
     /// The sides of the body with an active injury in a tissue this exercise
     /// really loads. An injury on both sides counts for both.
     public func injuredSides(for exercise: CatalogueExercise) -> Set<Side> {
-        let loaded = Set((library.pattern(exercise.pattern)?.links ?? []).filter { $0.share >= 0.25 }.map(\.tissue))
+        // An exercise with no movement mapped could load anything: every injured side counts.
+        let pattern = library.pattern(exercise.pattern)
+        let loaded = Set((pattern?.links ?? []).filter { $0.share >= 0.25 }.map(\.tissue))
         var sides = Set<Side>()
-        for injury in injuries where injury.isActive && !loaded.isDisjoint(with: injury.tissues) {
+        for injury in injuries where injury.isActive && (pattern == nil || !loaded.isDisjoint(with: injury.tissues)) {
             sides.formUnion(injury.side.bodySides)
         }
         return sides
@@ -153,14 +168,19 @@ extension AppModel {
     @discardableResult
     public func addRound(_ exercise: CatalogueExercise, sides: [Side]) -> [WorkoutSet] {
         var added = sides.compactMap { addSet(exercise, side: $0) }
-        // A right side with nothing to go on starts from the left. So does a
-        // linked right side that has drifted from it.
         if added.count == 2 {
+            // The two halves of a round belong together whatever is removed later.
+            let pair = UUID().uuidString
+            for i in added.indices { added[i].pairID = pair }
+            // A right side with nothing to go on starts from the left, unless the
+            // right is the injured side: the healthy side's load is no starting
+            // point for it. A linked right side that has drifted follows the left.
             let empty = added[1].loadValue == nil && added[1].reps == nil && added[1].holdSeconds == nil
-            if (empty || isLinked(exercise.name)) && added[1].prescription != added[0].prescription {
+            let injured = injuredSides(for: exercise).contains(added[1].side)
+            if ((empty && !injured) || isLinked(exercise.name)) && added[1].prescription != added[0].prescription {
                 added[1].copyPrescription(from: added[0])
-                update(added[1])
             }
+            for set in added { update(set) }
         }
         return added
     }
@@ -216,12 +236,15 @@ extension AppModel {
                 guard var kept = round.both ?? round.set(on: preferred) ?? round.left ?? round.right else { continue }
                 for other in round.members where other.id != kept.id { removeSet(id: other.id) }
                 kept.side = target
+                // Done if either half was: the work was done, whichever half's numbers are kept.
+                kept.completedAt = round.members.compactMap(\.completedAt).max()
+                if mode == .together { kept.pairID = nil }
                 update(kept)
             case .perSide:
                 if var both = round.both {
                     both.side = .left
                     update(both)
-                    addTwin(of: both, entry: entry)
+                    addTwin(of: both, entry: entry, sameSet: true)
                 } else if let lone = round.left ?? round.right, round.left == nil || round.right == nil {
                     addTwin(of: lone, entry: entry)
                 }
@@ -230,13 +253,23 @@ extension AppModel {
     }
 
     /// Adds the other side's set for a one-sided set, copying what was lifted.
+    /// With `sameSet` the twin is the other half of a set that was done with
+    /// both sides (a split), so it is done if that set was; otherwise it is a
+    /// set still to do.
     @discardableResult
-    func addTwin(of set: WorkoutSet, entry: CatalogueExercise) -> WorkoutSet? {
+    func addTwin(of set: WorkoutSet, entry: CatalogueExercise, sameSet: Bool = false) -> WorkoutSet? {
         let other: Side = set.side == .left ? .right : .left
         guard var twin = addSet(entry, side: other) else { return nil }
+        var set = activeSets.first { $0.id == set.id } ?? set
+        if set.pairID == nil {
+            set.pairID = UUID().uuidString
+            update(set)
+        }
         twin.copyPrescription(from: set)
         twin.isWarmup = set.isWarmup
         twin.range = set.range
+        twin.pairID = set.pairID
+        twin.completedAt = sameSet ? set.completedAt : nil
         twin.pain = nil; twin.painType = nil; twin.repsInReserve = nil; twin.notes = ""
         update(twin)
         return twin
@@ -268,15 +301,17 @@ extension AppModel {
         var left = set
         left.side = .left
         update(left)
-        addTwin(of: left, entry: catalogueEntry(for: set))
+        addTwin(of: left, entry: catalogueEntry(for: set), sameSet: true)
     }
 
     /// Adds a copy of a round at the end of the exercise, with no pain recorded.
     public func duplicate(_ round: SetRound) {
+        let pair = round.members.count == 2 ? UUID().uuidString : nil
         for set in round.members {
             guard var copy = addSet(catalogueEntry(for: set), side: set.side) else { continue }
             copy.copyPrescription(from: set)
             copy.isWarmup = set.isWarmup; copy.range = set.range
+            copy.pairID = pair
             update(copy)
         }
     }
@@ -322,6 +357,16 @@ extension AppModel {
         updateAll(of: exercise) { set in
             set.exercise = replacement.name
             set.pattern = replacement.pattern.isEmpty ? nil : replacement.pattern
+            // The numbers are kept where they still mean the same thing. A load on
+            // a bar is not a load on a push-up, and reps are not seconds of a plank.
+            if set.convention != replacement.convention {
+                if replacement.convention == .bodyweight { set.loadValue = nil }
+                set.convention = replacement.convention
+            }
+            if set.kind != replacement.kind {
+                set.kind = replacement.kind
+                if replacement.kind == .hold { set.reps = nil } else { set.holdSeconds = nil }
+            }
         }
     }
 

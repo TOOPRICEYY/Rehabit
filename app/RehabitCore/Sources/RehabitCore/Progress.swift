@@ -293,11 +293,10 @@ extension AppModel {
     /// Every finished session of an exercise, oldest first: one per workout and
     /// side with at least one working set.
     public func exerciseHistory(_ exercise: String) -> [ExerciseSession] {
-        let name = AppModel.progressName(exercise)
         let finished = Dictionary(workouts.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         struct Key: Hashable { let workout: String; let side: Side }
         var grouped: [Key: [SetFacts]] = [:]
-        for set in storedSets where finished[set.workoutID] != nil && AppModel.progressName(set.exercise) == name {
+        for set in sets(named: exercise) where finished[set.workoutID] != nil {
             grouped[Key(workout: set.workoutID, side: set.side), default: []].append(setFacts(set))
         }
         let sideOrder = Dictionary(uniqueKeysWithValues: Side.allCases.enumerated().map { ($1, $0) })
@@ -335,7 +334,16 @@ extension AppModel {
             guard let start, let other = starts[session.workoutID] else { return true }
             return other < start
         }
-        return recordBook(before).broken(by: setFacts(set))
+        var book = recordBook(before)
+        // The sets before it in its own workout count too: the second of three
+        // equal sets is not a record again.
+        if let day = before.last?.day ?? Optional(set.workoutDay) {
+            for other in sets(named: set.exercise) where other.workoutID == set.workoutID && other.side == set.side
+                && other.id != set.id && other.position < set.position && !other.isWarmup {
+                book.add(setFacts(other), day: day, workoutID: set.workoutID)
+            }
+        }
+        return book.broken(by: setFacts(set))
     }
 
     /// One point per finished workout in which the left and right were both

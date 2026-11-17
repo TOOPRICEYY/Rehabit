@@ -176,11 +176,14 @@ final class SessionTests: XCTestCase {
         try add(m, "Bench Press (Barbell)", load: 100)
         try add(m, "Bench Press (Barbell)", load: 45)
         m.setUnit(.kg, for: "Bench Press (Barbell)")
-        XCTAssertEqual(m.activeSets.map(\.loadValue), [45.5, 20.5])
+        XCTAssertEqual(m.activeSets[0].loadValue ?? 0, 45.359, accuracy: 0.001)
+        XCTAssertEqual(m.activeSets[1].loadValue ?? 0, 20.412, accuracy: 0.001)
         XCTAssertTrue(m.activeSets.allSatisfy { $0.loadUnit == .kg })
-        m.setUnit(.lb, for: "Bench Press (Barbell)", converting: false)
-        XCTAssertEqual(m.activeSets.map(\.loadValue), [45.5, 20.5])
-        XCTAssertTrue(m.activeSets.allSatisfy { $0.loadUnit == .lb })
+        m.setUnit(.lb, for: "Bench Press (Barbell)")                      // and back: the numbers first typed
+        XCTAssertEqual(m.activeSets.map(\.loadValue), [100, 45])
+        m.setUnit(.kg, for: "Bench Press (Barbell)", converting: false)   // "they were kilograms all along"
+        XCTAssertEqual(m.activeSets.map(\.loadValue), [100, 45])
+        XCTAssertTrue(m.activeSets.allSatisfy { $0.loadUnit == .kg })
     }
 
     func testLinkedSidesSurviveARelaunch() throws {

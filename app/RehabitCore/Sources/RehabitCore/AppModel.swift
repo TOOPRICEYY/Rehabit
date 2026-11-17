@@ -55,7 +55,7 @@ public final class AppModel {
         didSet {
             guard profile != oldValue else { return }
             attempt { try store.setProfile(profile, at: now()) }
-            history = nil
+            history = nil; nameIndex = nil
         }
     }
 
@@ -69,6 +69,10 @@ public final class AppModel {
     /// Every set of a workout that still exists, in the form the ledger reads.
     /// Built when first needed and thrown away when a set or the profile changes.
     private var history: [(id: String, set: LedgerSet)]?
+    /// Every set held, by exercise name as names are compared. Built when first
+    /// needed and thrown away with `history`: lowercasing twelve thousand names
+    /// on every keystroke is what made a long history slow.
+    private var nameIndex: [String: [WorkoutSet]]?
 
     /// How long each kind of question stays on the list before it counts as missed.
     /// "Right after the session" answered the next day would be a different reading.
@@ -104,6 +108,18 @@ public final class AppModel {
     /// which would otherwise have to ask `sets(of:)` once per workout.
     var storedSets: [WorkoutSet] { allSets }
 
+    /// Every set of an exercise, of any workout. Case and outer spaces in the name do not matter.
+    func sets(named exercise: String) -> [WorkoutSet] {
+        if nameIndex == nil {
+            var index: [String: [WorkoutSet]] = [:]
+            for (name, sets) in Dictionary(grouping: allSets, by: \.exercise) {
+                index[AppModel.normal(name), default: []] += sets
+            }
+            nameIndex = index
+        }
+        return nameIndex?[AppModel.normal(exercise)] ?? []
+    }
+
     func attempt(_ body: () throws -> Void) {
         do { try body(); lastError = nil } catch { lastError = String(describing: error) }
     }
@@ -118,7 +134,7 @@ public final class AppModel {
             injuries = try store.all(Injury.self).sorted { $0.onset > $1.onset }
             checks = try store.all(PainCheck.self).sorted { $0.dueAt < $1.dueAt }
             unreadableCount = try store.unreadable().count
-            history = nil
+            history = nil; nameIndex = nil
         }
         revision += 1
     }
@@ -177,7 +193,7 @@ public final class AppModel {
             set.id = UUID().uuidString
             set.position = position
             set.pain = nil; set.painType = nil; set.repsInReserve = nil; set.notes = ""
-            set.completedAt = nil
+            set.completedAt = nil; set.pairID = nil
             // The set after a warm-up is a working set: it takes the numbers of the
             // working set before it, or of last session's, never the warm-up's light load.
             if last.isWarmup {
@@ -205,7 +221,7 @@ public final class AppModel {
         attempt { try store.save(set) }
         allSets.append(set)
         if isActive { activeSets.append(set) }
-        history = nil
+        history = nil; nameIndex = nil
         return set
     }
 
@@ -227,27 +243,26 @@ public final class AppModel {
         allSets[index] = set
         if let i = activeSets.firstIndex(where: { $0.id == set.id }) { activeSets[i] = set }
         if moved { activeSets.sort { $0.position < $1.position } }      // kept in the order shown
-        history = nil
+        history = nil; nameIndex = nil
     }
 
     public func removeSet(id: String) {
         attempt { try store.delete(WorkoutSet.self, id: id, at: now()) }
         allSets.removeAll { $0.id == id }
         activeSets.removeAll { $0.id == id }
-        history = nil
+        history = nil; nameIndex = nil
     }
 
     /// The sets of the most recent finished session of this exercise on this side.
     public func previousSets(exercise: String, side: Side) -> [WorkoutSet] {
-        let name = AppModel.normal(exercise)
         let finished = Dictionary(workouts.map { ($0.id, $0.start) }, uniquingKeysWith: { a, _ in a })
-        let earlier = allSets.filter { AppModel.normal($0.exercise) == name && $0.side == side && finished[$0.workoutID] != nil }
-        guard let last = earlier.max(by: { finished[$0.workoutID]! < finished[$1.workoutID]! }) else { return [] }
+        let earlier = sets(named: exercise).filter { $0.side == side && finished[$0.workoutID] != nil }
+        guard let last = earlier.max(by: { (finished[$0.workoutID] ?? .distantPast) < (finished[$1.workoutID] ?? .distantPast) }) else { return [] }
         return earlier.filter { $0.workoutID == last.workoutID }.sorted { $0.position < $1.position }
     }
 
     /// Names are compared the way the ledger compares them: case and outer spaces do not matter.
-    private static func normal(_ name: String) -> String {
+    static func normal(_ name: String) -> String {
         name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 

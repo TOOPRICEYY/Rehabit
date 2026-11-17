@@ -114,6 +114,10 @@ public struct WorkoutSet: Record, Equatable {
     /// When the set was marked done. Nil for a set only planned so far, and
     /// for records from before this was kept or from another app.
     public var completedAt: Date?
+    /// Shared by the left and the right set of one round, so removing one half
+    /// leaves the other where it was. Nil for a set that is no half of a pair,
+    /// and in older records, which are paired in the order they were added.
+    public var pairID: String?
     public var notes: String
     public var updatedAt: Date
     public var parentID: String? { workoutID }

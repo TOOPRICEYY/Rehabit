@@ -7,7 +7,8 @@ public struct RestTimer: Equatable, Sendable {
     public let startedAt: Date
     public let seconds: Int
     public var endsAt: Date { startedAt.addingTimeInterval(Double(seconds)) }
-    public func remaining(at time: Date) -> TimeInterval { max(0, endsAt.timeIntervalSince(time)) }
+    /// Never more than the rest's own length, even if the clock was set back meanwhile.
+    public func remaining(at time: Date) -> TimeInterval { min(Double(seconds), max(0, endsAt.timeIntervalSince(time))) }
 }
 
 /// Doing a workout: marking sets done, resting, stepping the load, warming up.
@@ -80,27 +81,35 @@ extension AppModel {
 
     // MARK: Steps
 
-    /// The usual jump in load for this exercise, in a unit: the smallest step
-    /// between loads already used, when the history shows one; else 5 lb or 2.5 kg.
+    /// The usual jump in load for this exercise, in a unit: the step seen most
+    /// often between the loads already used (the smaller on a tie), so one
+    /// mistyped load does not change it; else 5 lb or 2.5 kg.
     public func loadStep(for exercise: String, unit: WeightUnit) -> Double {
         let usual = unit == .lb ? 5.0 : 2.5
-        let key = AppModel.restKey(exercise)
-        let loads = Set(storedSets.filter { AppModel.restKey($0.exercise) == key && $0.loadUnit == unit }
+        let loads = Set(sets(named: exercise).filter { $0.loadUnit == unit }
             .compactMap(\.loadValue).filter { $0 > 0 && $0.isFinite }).sorted()
-        let gaps = zip(loads.dropFirst(), loads).map { $0 - $1 }.filter { $0 >= 0.25 }
+        var gaps: [Double] = []
+        for (higher, lower) in zip(loads.dropFirst(), loads) {
+            let gap: Double = ((higher - lower) * 100).rounded() / 100
+            if gap >= 0.25 { gaps.append(gap) }
+        }
         guard let smallest = gaps.min() else { return usual }
-        // Three or more loads all a whole number of steps apart show the machine's
-        // or the plates' real step, even a big one. Fewer only ever make it smaller.
-        let regular = gaps.allSatisfy { abs(($0 / smallest).rounded() - $0 / smallest) < 0.01 }
-        if loads.count >= 3 && regular { return min(smallest, unit == .lb ? 25 : 10) }
-        return min(smallest, usual)
+        // With two loads the gap may just be two far-apart weights: it only ever
+        // makes the step smaller. Three or more show the plates' or the stack's real step.
+        guard loads.count >= 3 else { return min(smallest, usual) }
+        var counts: [Double: Int] = [:]
+        for gap in gaps { counts[gap, default: 0] += 1 }
+        let most = counts.values.max() ?? 0
+        let common = counts.filter { $0.value == most }.keys.min() ?? smallest
+        return min(common, unit == .lb ? 25 : 10)
     }
 
     /// The set with its load moved by whole steps and its reps (or, for a
     /// hold, its time in fives of seconds) by whole counts. Never below zero.
     public func stepped(_ set: WorkoutSet, load: Int = 0, count: Int = 0) -> WorkoutSet {
         var out = set
-        if load != 0 {
+        // Stepping down from a load not entered leaves it not entered: unknown is not zero.
+        if load != 0, set.loadValue != nil || load > 0 {
             let step = loadStep(for: set.exercise, unit: set.loadUnit)
             out.loadValue = max(0, (set.loadValue ?? 0) + Double(load) * step)
         }
@@ -117,19 +126,23 @@ extension AppModel {
     // MARK: Warm-up
 
     /// Adds a warm-up round ahead of the exercise's working sets: each side at
-    /// about half of that side's own working load, to the nearest step.
+    /// about half of that side's own working load, to the nearest step and
+    /// never above the working load.
     @discardableResult
     public func addWarmupRound(to block: ExerciseBlock) -> [WorkoutSet] {
         var added: [WorkoutSet] = []
+        let working = block.sets.filter { !$0.isWarmup }.sorted { $0.position < $1.position }
+        let injured = block.sample.map { injuredSides(for: catalogueEntry(for: $0)) } ?? []
         for set in addRound(to: block) {
             var warm = set
-            let working = block.sets.filter { !$0.isWarmup }.sorted { $0.position < $1.position }
-            if let source = working.first(where: { $0.side == set.side }) ?? working.first ?? block.sample {
+            // The other side's working set stands in only for a side that is not injured.
+            let own = working.first { $0.side == set.side }
+            if let source = own ?? (injured.contains(set.side) ? nil : working.first) {
                 warm.copyPrescription(from: source)
-            }
-            if let load = warm.loadValue, load > 0 {
-                let step = loadStep(for: warm.exercise, unit: warm.loadUnit)
-                warm.loadValue = max(step, (load / 2 / step).rounded() * step)
+                if let load = warm.loadValue, load > 0 {
+                    let step = loadStep(for: warm.exercise, unit: warm.loadUnit)
+                    warm.loadValue = min(load, max(step, (load / 2 / step).rounded() * step))
+                }
             }
             warm.isWarmup = true
             update(warm)
@@ -149,13 +162,17 @@ extension AppModel {
     // MARK: Unit
 
     /// Shows an exercise's loads in another unit. Converting keeps the weight
-    /// (100 lb becomes 45.5 kg, to the nearest half); not converting keeps the
+    /// (100 lb becomes 45.359 kg); not converting keeps the
     /// numbers, for loads that were typed under the wrong unit.
     public func setUnit(_ unit: WeightUnit, for exercise: String, converting: Bool = true) {
         updateAll(of: exercise) { set in
             guard set.loadUnit != unit else { return }
             if converting, let value = set.loadValue {
-                set.loadValue = (value * set.loadUnit.kilograms / unit.kilograms * 2).rounded() / 2
+                // The exact weight, so converting back gives the number first typed and
+                // the same weight never reads as a new record. Screens round what they show.
+                let exact = value * set.loadUnit.kilograms / unit.kilograms
+                let near = (exact * 1000).rounded() / 1000
+                set.loadValue = abs(near - exact) < 1e-7 ? near : exact
             }
             set.loadUnit = unit
         }

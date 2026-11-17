@@ -83,7 +83,10 @@ public enum ExerciseMatcher {
         let pattern = pattern(for: clean)
         let lower = clean.lowercased()
         let bodyweight = (library.pattern(pattern)?.bodyweightShare ?? 0) > 0
-        let convention: LoadConvention = bodyweight ? .bodyweightPlus : lower.contains("dumbbell") ? .perHand : .total
+        // An assisted pull-up's number is weight taken off, not added: counted as
+        // body weight alone until assistance has a meaning of its own.
+        let convention: LoadConvention = bodyweight ? (lower.contains("assist") ? .bodyweight : .bodyweightPlus)
+            : lower.contains("dumbbell") ? .perHand : .total
         let oneSided = lower.contains("single") || lower.contains("one arm") || lower.contains("one leg")
         let hold = lower.contains("isometric") || lower.hasSuffix(" hold") || lower.contains("plank") || lower.contains("wall sit")
         return (CatalogueExercise(name: clean, pattern: pattern ?? "", convention: convention, unilateral: oneSided,
