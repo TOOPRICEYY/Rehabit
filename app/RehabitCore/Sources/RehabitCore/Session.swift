@@ -30,10 +30,16 @@ extension AppModel {
         guard let current = activeSets.first(where: { $0.id == set.id }) ?? sets(ofWorkout: set.workoutID).first(where: { $0.id == set.id })
         else { return false }
         guard current.isDone != done else { return true }
-        if done, (current.count ?? 0) <= 0 { return false }
+        if done {
+            guard let count = current.count, count.isFinite, count > 0 else { return false }
+        }
         var changed = current
         changed.completedAt = done ? clock : nil
         update(changed)
+        // A countdown ended or changed by hand belonged to the mark just changed.
+        if restAdjust?.setID == current.id { restAdjust = nil }
+        if restSkippedFor == current.id { restSkippedFor = nil }
+        lastMarkedDone = done ? current.id : (lastMarkedDone == current.id ? nil : lastMarkedDone)
         return true
     }
 
@@ -50,20 +56,29 @@ extension AppModel {
     public func finishHold(_ set: WorkoutSet, seconds: Double) {
         guard var current = activeSets.first(where: { $0.id == set.id }) else { return }
         current.kind = .hold
-        current.holdSeconds = max(0, (seconds * 2).rounded() / 2)
-        current.completedAt = clock
+        let held = seconds.isFinite ? max(0, (seconds * 2).rounded() / 2) : 0
+        current.holdSeconds = held
+        // A hold stopped before it began was not done.
+        current.completedAt = held > 0 ? clock : nil
         update(current)
+        if held > 0 { lastMarkedDone = current.id }
     }
 
     /// Sets of the workout in progress not marked done, when some are. With
     /// nothing marked done the person is not using the marks, and none count as unfinished.
-    public var unfinishedSets: [WorkoutSet] {
-        activeSets.contains { $0.isDone } ? activeSets.filter { !$0.isDone } : []
-    }
+    public var unfinishedSets: [WorkoutSet] { usesDoneMarks ? activeSets.filter { !$0.isDone } : [] }
+
+    /// True when sets of the workout in progress count only once marked done:
+    /// a set has been marked, or the workout was laid out ahead from a
+    /// routine or a repeat, whose rows are a plan until they are done.
+    public var usesDoneMarks: Bool { activeSets.contains { $0.isDone } || active?.planned == true }
 
     func sets(ofWorkout id: String) -> [WorkoutSet] { storedSets.filter { $0.workoutID == id } }
 
     // MARK: Rest
+
+    /// An hour: longer than any rest, and short enough that the sums cannot overflow.
+    static let longestRest = 3600
 
     static func restKey(_ exercise: String) -> String {
         exercise.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -71,13 +86,13 @@ extension AppModel {
 
     /// Seconds of rest after a set of this exercise.
     public func restSeconds(for exercise: String) -> Int {
-        max(0, profile.restSeconds[AppModel.restKey(exercise)] ?? profile.defaultRestSeconds)
+        min(AppModel.longestRest, max(0, profile.restSeconds[AppModel.restKey(exercise)] ?? profile.defaultRestSeconds))
     }
 
     /// Sets this exercise's own rest. Nil goes back to the default.
     public func setRest(_ seconds: Int?, for exercise: String) {
         var all = profile.restSeconds
-        all[AppModel.restKey(exercise)] = seconds.map { max(0, $0) }
+        all[AppModel.restKey(exercise)] = seconds.map { min(AppModel.longestRest, max(0, $0)) }
         profile.restSeconds = all
     }
 
@@ -89,12 +104,14 @@ extension AppModel {
     /// done. Someone doing every set of one side first is recognised from the
     /// round before (their side done there, the other not), and rests after each set.
     public var rest: RestTimer? {
-        guard let last = activeSets.filter({ $0.isDone }).max(by: { ($0.completedAt ?? .distantPast) < ($1.completedAt ?? .distantPast) }),
+        // The set just marked, even if the clock was set back since an earlier one; else the latest by time.
+        let marked = lastMarkedDone.flatMap { id in activeSets.first { $0.id == id && $0.isDone } }
+        guard let last = marked ?? activeSets.filter({ $0.isDone }).max(by: { ($0.completedAt ?? .distantPast) < ($1.completedAt ?? .distantPast) }),
               let started = last.completedAt, !last.isWarmup else { return nil }
         let extra = restAdjust.flatMap { $0.setID == last.id ? $0.seconds : nil } ?? 0
         let base = restSeconds(for: last.exercise)
         let seconds = base + extra
-        guard base > 0, seconds > 0, restSkippedAt.map({ $0 < started }) ?? true else { return nil }
+        guard base > 0, seconds > 0, restSkippedFor != last.id else { return nil }
         // In a superset the rest comes after the last exercise of the group that still has this round to do.
         if let next = supersetNext(after: last), next.exercise != last.exercise { return nil }
         if waitsForOtherSide(last) || dropFollows(last) { return nil }
@@ -110,8 +127,9 @@ extension AppModel {
         let rounds = block(set.exercise).rounds
         guard let round = rounds.first(where: { $0.members.contains { $0.id == set.id } }),
               let partner = round.set(on: other), !partner.isDone else { return false }
+        // Working rounds only: a warm-up skipped on one side says nothing about how the sets are done.
         let oneSideAtATime = rounds.prefix(round.index).contains { earlier in
-            guard let own = earlier.set(on: set.side), let theirs = earlier.set(on: other) else { return false }
+            guard !earlier.isWarmup, let own = earlier.set(on: set.side), let theirs = earlier.set(on: other) else { return false }
             return own.isDone && !theirs.isDone
         }
         return !oneSideAtATime
@@ -125,14 +143,18 @@ extension AppModel {
         return next.tag == .drop && !next.isDone
     }
 
-    public func skipRest() { restSkippedAt = clock }
+    public func skipRest() {
+        restSkippedAt = clock
+        restSkippedFor = rest?.setID
+    }
 
     /// Makes the rest running now longer or shorter, this once. The
     /// exercise's own rest (`setRest`) is not changed.
     public func adjustRest(by seconds: Int) {
         guard let timer = rest else { return }
         let before = restAdjust.flatMap { $0.setID == timer.setID ? $0.seconds : nil } ?? 0
-        restAdjust = RestAdjust(setID: timer.setID, seconds: before + seconds)
+        let limit = AppModel.longestRest
+        restAdjust = RestAdjust(setID: timer.setID, seconds: min(limit, max(-limit, before + min(limit, max(-limit, seconds)))))
     }
 
     // MARK: Steps

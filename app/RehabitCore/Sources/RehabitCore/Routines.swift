@@ -9,6 +9,7 @@ extension AppModel {
         var routine = routine
         let name = routine.name.trimmingCharacters(in: .whitespacesAndNewlines)
         routine.name = name.isEmpty ? "Routine" : name
+        routine.items = routine.items.map(\.clamped)
         routine.updatedAt = clock
         attempt { try storeRoutine(routine) }
         reload()
@@ -31,7 +32,7 @@ extension AppModel {
             let own = profile.restSeconds[AppModel.restKey(block.exercise)]
             return RoutineItem(exercise: block.exercise, pattern: sample.pattern, convention: sample.convention,
                                unilateral: entry.unilateral || block.mode != .together, kind: sample.kind,
-                               mode: block.mode.rawValue, rounds: max(1, rounds.filter { !$0.isWarmup }.count),
+                               mode: block.mode.rawValue, rounds: rounds.filter { !$0.isWarmup }.count,
                                warmups: rounds.filter(\.isWarmup).count, restSeconds: own,
                                group: groups.firstIndex { $0.contains(block.exercise) })
         }
@@ -64,36 +65,67 @@ extension AppModel {
         guard active == nil else { return false }
         startWorkout(title: routine.name)
         guard active != nil else { return false }
-        for item in routine.items {
+        var groups: [Int: [String]] = [:]
+        for item in routine.items.map(\.clamped) {
             let known = library.catalogue.first { $0.name.caseInsensitiveCompare(item.exercise) == .orderedSame }
             let entry = known ?? CatalogueExercise(name: item.exercise, pattern: item.pattern ?? "",
                                                    convention: item.convention, unilateral: item.unilateral, kind: item.kind)
             let mode = SideMode(rawValue: item.mode) ?? startingMode(for: entry)
-            for round in 0..<max(1, item.rounds) {
+            // Warm-ups first: the n-th from last time's n-th warm-up, else half of last time's working load.
+            for round in 0..<item.warmups {
+                for set in addRound(entry, sides: mode.sides) {
+                    guard var warm = activeSets.first(where: { $0.id == set.id }) else { continue }
+                    let previous = previousSets(exercise: entry.name, side: set.side)
+                    let warmups = previous.filter(\.isWarmup)
+                    if round < warmups.count {
+                        warm.copyPrescription(from: warmups[round])
+                    } else if let working = previous.first(where: { !$0.isWarmup }) {
+                        warm.copyPrescription(from: working)
+                        if let load = warm.loadValue, load > 0 {
+                            let step = loadStep(for: warm.exercise, unit: warm.loadUnit)
+                            warm.loadValue = min(load, max(step, (load / 2 / step).rounded() * step))
+                        }
+                    }
+                    warm.isWarmup = true; warm.tag = nil
+                    update(warm)
+                }
+            }
+            for round in 0..<item.rounds {
                 for set in addRound(entry, sides: mode.sides) {
                     // The n-th working set starts from the n-th working set of last time, when there was one.
                     let previous = previousSets(exercise: entry.name, side: set.side).filter { !$0.isWarmup }
-                    guard round < previous.count, var filled = activeSets.first(where: { $0.id == set.id }) else { continue }
-                    filled.copyPrescription(from: previous[round])
-                    filled.tag = previous[round].tag
+                    guard var filled = activeSets.first(where: { $0.id == set.id }) else { continue }
+                    filled.isWarmup = false
+                    if round < previous.count {
+                        filled.copyPrescription(from: previous[round])
+                        filled.tag = previous[round].tag
+                    }
                     update(filled)
                 }
             }
-            for _ in 0..<item.warmups { addWarmupRound(to: block(entry.name)) }
-            if let rest = item.restSeconds, rest != restSeconds(for: entry.name) { setRest(rest, for: entry.name) }
+            // The routine's rest applies where the person has not set this exercise's rest themselves.
+            if let rest = item.restSeconds, profile.restSeconds[AppModel.restKey(entry.name)] == nil,
+               rest != profile.defaultRestSeconds { setRest(rest, for: entry.name) }
+            // Grouped under the name the sets carry, whatever spelling the routine held.
+            if let group = item.group, !(groups[group] ?? []).contains(entry.name) { groups[group, default: []].append(entry.name) }
         }
-        var groups: [Int: [String]] = [:]
-        for item in routine.items { if let group = item.group { groups[group, default: []].append(item.exercise) } }
         let supersets = groups.keys.sorted().compactMap { groups[$0] }.filter { $0.count > 1 }
-        changeActive { $0.supersets = supersets.isEmpty ? nil : supersets }
+        changeActive { workout in
+            workout.supersets = supersets.isEmpty ? nil : supersets
+            workout.planned = true
+        }
         return true
     }
 
     // MARK: Supersets
 
-    /// The exercises done back to back with this one in the workout in progress, itself included, in order.
+    /// The exercises done back to back with this one in the workout in
+    /// progress, itself included, in the order they are on the screen. Nil
+    /// when fewer than two of the group are still in the workout.
     public func superset(of exercise: String) -> [String]? {
-        active?.supersets?.first { $0.contains(exercise) }
+        guard let group = active?.supersets?.first(where: { $0.contains(exercise) }) else { return nil }
+        let present = activeBlocks.map(\.exercise).filter { group.contains($0) }
+        return present.count > 1 && present.contains(exercise) ? present : nil
     }
 
     /// Makes these exercises of the workout in progress one superset. Each is
@@ -115,6 +147,32 @@ extension AppModel {
         }
     }
 
+    /// Supersets name only exercises the workout still has sets of.
+    func pruneSupersets() {
+        let present = Set(activeSets.map(\.exercise))
+        changeActive { workout in
+            let groups = (workout.supersets ?? []).map { $0.filter(present.contains) }.filter { $0.count > 1 }
+            workout.supersets = groups.isEmpty ? nil : groups
+        }
+    }
+
+    /// An exercise's turns done in a superset: working rounds done, each with
+    /// the drop sets that follow it. A drop set is the tail of its round, not a turn.
+    func turnsDone(_ exercise: String) -> Int {
+        var turns = 0
+        var current: Bool?                   // the turn under way: whether all of it is done so far
+        for round in block(exercise).rounds where !round.isWarmup {
+            let done = round.members.allSatisfy(\.isDone)
+            if round.members.contains(where: { $0.tag == .drop }), let soFar = current {
+                current = soFar && done
+            } else {
+                if current == true { turns += 1 }
+                current = done
+            }
+        }
+        return turns + (current == true ? 1 : 0)
+    }
+
     /// In a superset, the set to do after this one: the first set not marked
     /// done of the next exercise in the group that still has one, going round.
     /// Nil outside a superset or when the group has nothing left to do.
@@ -123,9 +181,6 @@ extension AppModel {
         // The others first, in order; this exercise again only when they have nothing left this round.
         let order = Array(group[(at + 1)...] + group[..<at])
         // Counted in rounds, so a left and a right set are one turn.
-        func turnsDone(_ name: String) -> Int {
-            block(name).rounds.filter { !$0.isWarmup && $0.members.allSatisfy(\.isDone) }.count
-        }
         let here = turnsDone(set.exercise)
         for name in order where turnsDone(name) < here {
             // It is that exercise's turn: it is behind this one.

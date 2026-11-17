@@ -236,10 +236,12 @@ extension AppModel {
                 let target: Side = mode == .together ? .both : (mode == .leftOnly ? .left : .right)
                 let preferred = mode == .together ? keep : target
                 guard var kept = round.both ?? round.set(on: preferred) ?? round.left ?? round.right else { continue }
+                // A half with nothing in it gives way to the half that holds the work.
+                if !((kept.count ?? 0) > 0), let worked = round.members.first(where: { ($0.count ?? 0) > 0 }) { kept = worked }
                 for other in round.members where other.id != kept.id { removeSet(id: other.id) }
                 kept.side = target
                 // Done if either half was: the work was done, whichever half's numbers are kept.
-                kept.completedAt = round.members.compactMap(\.completedAt).max()
+                kept.completedAt = (kept.count ?? 0) > 0 ? round.members.compactMap(\.completedAt).max() : nil
                 if mode == .together { kept.pairID = nil }
                 update(kept)
             case .perSide:
@@ -259,15 +261,26 @@ extension AppModel {
     /// both sides (a split), so it is done if that set was; otherwise it is a
     /// set still to do.
     @discardableResult
-    func addTwin(of set: WorkoutSet, entry: CatalogueExercise, sameSet: Bool = false) -> WorkoutSet? {
+    func addTwin(of set: WorkoutSet, entry: CatalogueExercise, sameSet: Bool = false, copying: Bool? = nil) -> WorkoutSet? {
         let other: Side = set.side == .left ? .right : .left
+        // Unless the person asked for a copy, an injured side is not given the other side's numbers.
+        let copying = copying ?? !(injuredSides(for: entry).contains(other) && !injuredSides(for: entry).contains(set.side))
         guard var twin = addSet(entry, side: other) else { return nil }
         var set = activeSets.first { $0.id == set.id } ?? set
         if set.pairID == nil {
             set.pairID = UUID().uuidString
             update(set)
         }
-        twin.copyPrescription(from: set)
+        // A set done with both sides is copied as it was. A new set for a side
+        // with an active injury does not take the other side's numbers: it keeps
+        // its own from last time, or stays empty, as `addRound` leaves it.
+        let injured = !sameSet && copying == false
+        if !injured {
+            twin.copyPrescription(from: set)
+        } else {
+            twin.kind = set.kind; twin.convention = set.convention
+            if twin.loadValue == nil { twin.loadUnit = set.loadUnit }
+        }
         twin.isWarmup = set.isWarmup; twin.tag = set.tag
         twin.range = set.range
         twin.pairID = set.pairID
@@ -287,7 +300,7 @@ extension AppModel {
             other.isWarmup = set.isWarmup
             update(other)
         } else {
-            addTwin(of: set, entry: catalogueEntry(for: set))
+            addTwin(of: set, entry: catalogueEntry(for: set), copying: true)
         }
     }
 
@@ -362,6 +375,14 @@ extension AppModel {
     public func replaceExercise(_ exercise: String, with replacement: CatalogueExercise) {
         guard exercise != replacement.name else { return }
         if let link = linkOverrides.removeValue(forKey: exercise) { linkOverrides[replacement.name] = link }
+        // The replacement takes the exercise's place in its superset.
+        changeActive { workout in
+            let groups = (workout.supersets ?? []).map { group -> [String] in
+                var seen = Set<String>()
+                return group.map { $0 == exercise ? replacement.name : $0 }.filter { seen.insert($0).inserted }
+            }.filter { $0.count > 1 }
+            workout.supersets = groups.isEmpty ? nil : groups
+        }
         updateAll(of: exercise) { set in
             set.exercise = replacement.name
             set.pattern = replacement.pattern.isEmpty ? nil : replacement.pattern
@@ -381,6 +402,7 @@ extension AppModel {
     public func removeExercise(_ exercise: String) {
         for set in block(exercise).sets { removeSet(id: set.id) }
         linkOverrides[exercise] = nil
+        removeFromSuperset(exercise)
     }
 
     /// Last session's set on this side at this place in the order, if there was one.

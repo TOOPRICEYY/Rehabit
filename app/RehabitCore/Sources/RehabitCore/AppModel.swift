@@ -51,6 +51,9 @@ public final class AppModel {
     public var restSkippedAt: Date?
     /// Seconds added to or taken from the rest running now. Not stored.
     public var restAdjust: RestAdjust?
+    /// The set whose rest was dismissed, and the set most recently marked done. Not stored.
+    var restSkippedFor: String?
+    var lastMarkedDone: String?
     /// Goes up whenever stored records were saved and read back (a workout
     /// finished, a pain check answered, an injury saved, an import), so the
     /// app knows when to write its export for the Mac again.
@@ -215,12 +218,13 @@ public final class AppModel {
             set.position = position
             set.pain = nil; set.painType = nil; set.repsInReserve = nil; set.notes = ""
             set.completedAt = nil; set.pairID = nil; set.tag = nil
-            // The set after a warm-up is a working set: it takes the numbers of the
-            // working set before it, or of last session's, never the warm-up's light load.
-            if last.isWarmup {
+            // The set after a warm-up or a drop set is a working set: it takes the
+            // numbers of the working set before it, or of last session's, never the
+            // warm-up's or the drop's lighter load.
+            if last.isWarmup || last.tag == .drop {
                 set.isWarmup = false
-                let source = sameSide.last { !$0.isWarmup }
-                    ?? prefillSets(for: exercise, side: chosen).first { !$0.isWarmup }
+                let source = sameSide.last { !$0.isWarmup && $0.tag != .drop }
+                    ?? prefillSets(for: exercise, side: chosen).first { !$0.isWarmup && $0.tag != .drop }
                 if let source { set.copyPrescription(from: source) }
             }
             // Chosen here, never worked out by rule, whatever the set it copies was.
@@ -253,6 +257,8 @@ public final class AppModel {
               set.workoutID == active?.id || workouts.contains(where: { $0.id == set.workoutID }) else { return }
         var set = set
         if let pain = set.pain { set.pain = AppModel.cleanPain(pain) }
+        // A set is done only with reps or seconds: clearing them takes the mark off.
+        if set.completedAt != nil, !((set.count ?? 0) > 0) { set.completedAt = nil }
         // A side changed by hand is the person's, and is never worked out again by rule.
         if set.side != allSets[index].side { set.sideInferred = false }
         guard set != allSets[index] else { return }
@@ -316,7 +322,7 @@ public final class AppModel {
         if let active { existing.insert(active.id) }
         // In the workout in progress, once any set has been marked done, the sets
         // only planned so far are not load yet. With nothing marked, all count.
-        let ticking = activeSets.contains { $0.isDone }
+        let ticking = usesDoneMarks
         let built = allSets.filter { existing.contains($0.workoutID) && !(ticking && $0.workoutID == active?.id && !$0.isDone) }
             .map { (id: $0.id, set: ledger.ledgerSet($0, profile: profile(on: $0.workoutDay))) }
         history = built
@@ -347,14 +353,16 @@ public final class AppModel {
         if removingUnfinished { for set in unfinishedSets { removeSet(id: set.id) } }
         // Rows added and never filled in were not done: they are not kept.
         for set in activeSets where set.isBlank { removeSet(id: set.id) }
+        pruneSupersets()
         guard var workout = active else { return [] }
-        restSkippedAt = nil; restAdjust = nil
+        restSkippedAt = nil; restAdjust = nil; restSkippedFor = nil; lastMarkedDone = nil
         if activeSets.isEmpty {
             discardWorkout()
             return []
         }
         let end = now()
         workout.end = end
+        workout.planned = nil
         workout.updatedAt = end
         let created = newChecks(for: workout, sets: activeSets, end: end)
         attempt {

@@ -102,6 +102,9 @@ public struct Workout: Record, Equatable {
     /// For a session from a watch: sessions logged by hand in the same visit
     /// that the person looked at and chose to keep beside it, by id.
     public var overlapsKept: [String]?
+    /// True for a workout laid out ahead from a routine or a repeat: its sets
+    /// are a plan until marked done, even before the first is.
+    public var planned: Bool?
     public var updatedAt: Date
     public var parentID: String? { nil }
     public var day: Day? { startDay }
@@ -202,8 +205,41 @@ public struct RoutineItem: Codable, Equatable, Identifiable, Sendable {
                 unilateral: Bool = false, kind: SetKind = .reps, mode: String = "together", rounds: Int = 3,
                 warmups: Int = 0, restSeconds: Int? = nil, group: Int? = nil, notes: String = "") {
         self.id = id; self.exercise = exercise; self.pattern = pattern; self.convention = convention
-        self.unilateral = unilateral; self.kind = kind; self.mode = mode; self.rounds = max(1, rounds)
-        self.warmups = max(0, warmups); self.restSeconds = restSeconds; self.group = group; self.notes = notes
+        self.unilateral = unilateral; self.kind = kind; self.mode = mode; self.rounds = rounds
+        self.warmups = warmups; self.restSeconds = restSeconds; self.group = group; self.notes = notes
+        self = clamped
+    }
+
+    /// The item with counts a workout can be laid out from: no negative
+    /// rounds or warm-ups, at least one round of some kind, at most 20 of each.
+    public var clamped: RoutineItem {
+        var item = self
+        item.warmups = min(20, max(0, warmups))
+        item.rounds = min(20, max(item.warmups > 0 ? 0 : 1, rounds))
+        if let rest = restSeconds { item.restSeconds = min(3600, max(0, rest)) }
+        return item
+    }
+}
+
+extension RoutineItem {
+    private enum CodingKeys: String, CodingKey {
+        case id, exercise, pattern, convention, unilateral, kind, mode, rounds, warmups, restSeconds, group, notes
+    }
+
+    /// Counts read from a file are held to the same limits as counts typed in.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(id: try c.decode(String.self, forKey: .id), exercise: try c.decode(String.self, forKey: .exercise),
+                  pattern: try c.decodeIfPresent(String.self, forKey: .pattern),
+                  convention: (try? c.decode(LoadConvention.self, forKey: .convention)) ?? .total,
+                  unilateral: (try? c.decode(Bool.self, forKey: .unilateral)) ?? false,
+                  kind: (try? c.decode(SetKind.self, forKey: .kind)) ?? .reps,
+                  mode: (try? c.decode(String.self, forKey: .mode)) ?? "together",
+                  rounds: (try? c.decode(Int.self, forKey: .rounds)) ?? 3,
+                  warmups: (try? c.decode(Int.self, forKey: .warmups)) ?? 0,
+                  restSeconds: try? c.decodeIfPresent(Int.self, forKey: .restSeconds),
+                  group: try? c.decodeIfPresent(Int.self, forKey: .group),
+                  notes: (try? c.decode(String.self, forKey: .notes)) ?? "")
     }
 }
 
