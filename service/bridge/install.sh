@@ -89,6 +89,7 @@ plist local.rehabit-bridge.rebuild "<string>$PY</string><string>-E</string><stri
   <key>WatchPaths</key><array>
     <string>$HOME/Library/Mobile Documents/iCloud~com~gabrielprice~rehabit/Documents</string>
     <string>$HOME/Library/Mobile Documents/com~apple~CloudDocs/Rehabit</string>
+    <string>$HOME/Library/Mobile Documents/com~apple~CloudDocs/rehabit-export.json</string>
   </array>
   <key>StandardOutPath</key><string>$DEST/data/rebuild.out</string><key>StandardErrorPath</key><string>$DEST/data/rebuild.out</string>"
 AGENTS=(local.rehabit-bridge.server local.rehabit-bridge.rebuild)

@@ -35,6 +35,9 @@ DEFAULT_EXPORTS = [
     '~/Library/Mobile Documents/iCloud~com~gabrielprice~rehabit/Documents/rehabit-export.json',
     # Or a folder chosen in the app's Settings, anywhere in iCloud Drive.
     '~/Library/Mobile Documents/com~apple~CloudDocs/Rehabit/rehabit-export.json',
+    # Or the top of iCloud Drive itself, which is what picking "iCloud Drive"
+    # without opening a folder gives.
+    '~/Library/Mobile Documents/com~apple~CloudDocs/rehabit-export.json',
 ]
 
 
