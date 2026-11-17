@@ -43,7 +43,7 @@ struct WorkoutsView: View {
                         } label: {
                             VStack(alignment: .leading) {
                                 Text(workout.title)
-                                Text("\(workout.start.formatted(date: .abbreviated, time: .shortened)) · \(model.sets(of: workout).count) sets")
+                                Text("\(workout.start.formatted(date: .abbreviated, time: .shortened)) · \(Format.count(model.sets(of: workout).count, "set"))")
                                     .font(.caption).foregroundStyle(.secondary)
                             }
                         }

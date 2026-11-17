@@ -4,13 +4,16 @@ import SwiftUI
 
 extension Format {
     /// A weight held in kg, shown in the person's unit: "72.5 lb".
-    static func weight(_ kg: Double?, _ unit: WeightUnit) -> String {
+    static func weight(_ kg: Double?, _ unit: WeightUnit, decimals: Bool = true) -> String {
         guard let kg else { return "–" }
-        let value = (kg / unit.kilograms * 10).rounded() / 10
+        let value = decimals ? (kg / unit.kilograms * 10).rounded() / 10 : (kg / unit.kilograms).rounded()
         return "\(value.formatted(.number.precision(.fractionLength(0...1)))) \(unit.rawValue)"
     }
 
     static func date(_ day: Day) -> Date { day.start() }
+
+    /// "1 set", "3 sets".
+    static func count(_ n: Int, _ noun: String) -> String { "\(n) \(noun)\(n == 1 ? "" : "s")" }
 
     /// "Off", "45 s", "2 min", "2 min 30 s".
     static func restLength(_ seconds: Int) -> String {
@@ -141,7 +144,7 @@ struct ExercisesListView: View {
             } label: {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.name)
-                    Text("\(item.sessions) sessions · last \(Format.day(item.last))").font(.caption).foregroundStyle(.secondary)
+                    Text("\(Format.count(item.sessions, "session")) · last \(Format.day(item.last))").font(.caption).foregroundStyle(.secondary)
                 }
             }
         }
@@ -159,7 +162,9 @@ struct ExercisesListView: View {
                 seen[set.exercise] = entry
             }
         }
-        return seen.map { (name: $0.key, sessions: $0.value.0.count, last: $0.value.1) }.sorted { $0.last > $1.last }
+        // Most recently done first; on the same day, by name.
+        return seen.map { (name: $0.key, sessions: $0.value.0.count, last: $0.value.1) }
+            .sorted { ($0.last, $1.name) > ($1.last, $0.name) }
     }
 }
 
@@ -304,7 +309,7 @@ struct WeekHeader: View {
             HStack(alignment: .firstTextBaseline, spacing: 18) {
                 stat("\(week.sessions)", week.sessions == 1 ? "session" : "sessions")
                 stat("\(week.workingSets)", "working sets")
-                stat(Format.weight(week.volumeKg, unit), "volume")
+                stat(Format.weight(week.volumeKg, unit, decimals: false), "volume")
             }
             if !week.setsByRegion.isEmpty {
                 Text(week.setsByRegion.sorted { $0.value > $1.value }.map { "\($0.key) \($0.value)" }.joined(separator: " · "))

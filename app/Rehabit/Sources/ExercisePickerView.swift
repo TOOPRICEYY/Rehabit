@@ -21,6 +21,18 @@ struct ExercisePickerView: View {
         return holdsOnly ? all.filter { $0.kind == .hold } : all
     }
 
+    /// The last eight exercises done, newest first.
+    private var recent: [CatalogueExercise] {
+        var seen = Set<String>(), out: [CatalogueExercise] = []
+        for workout in model.workouts {                   // newest first
+            for set in model.sets(of: workout).reversed() where seen.insert(set.exercise).inserted {
+                out.append(model.catalogueEntry(for: set))
+                if out.count == 8 { return out }
+            }
+        }
+        return out
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -33,6 +45,17 @@ struct ExercisePickerView: View {
                     .font(.subheadline)
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4))
+                }
+                if search.isEmpty && !holdsOnly && !recent.isEmpty {
+                    Section("Recent") {
+                        ForEach(recent, id: \.name) { exercise in
+                            Button {
+                                onPick(exercise, model.startingMode(for: exercise))
+                            } label: {
+                                row(exercise)
+                            }
+                        }
+                    }
                 }
                 Section {
                     ForEach(matches, id: \.name) { exercise in
@@ -56,6 +79,8 @@ struct ExercisePickerView: View {
                             }
                         }
                     }
+                } header: {
+                    if search.isEmpty && !holdsOnly && !recent.isEmpty { Text("All exercises") }
                 } footer: {
                     if search.isEmpty {
                         Text("Touch and hold an exercise to choose which sides to log.")

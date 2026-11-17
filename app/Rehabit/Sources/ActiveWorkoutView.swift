@@ -23,6 +23,7 @@ struct ActiveWorkoutView: View {
     @State private var confirmingDiscard = false
     @State private var confirmingUnfinished = false
     @State private var keyboardUp = false
+    @State private var scrollTo: String?
 
     var body: some View {
         NavigationStack {
@@ -54,6 +55,12 @@ struct ActiveWorkoutView: View {
                 if let added = new.first(where: { !old.contains($0) }) {
                     withAnimation { proxy.scrollTo(added, anchor: .top) }
                 }
+            }
+            // Picking an exercise already in the workout adds a round to its card: show it.
+            .onChange(of: scrollTo) { _, target in
+                guard let target else { return }
+                withAnimation { proxy.scrollTo(target, anchor: .bottom) }
+                scrollTo = nil
             }
             }
             .navigationTitle("Workout")
@@ -98,6 +105,7 @@ struct ActiveWorkoutView: View {
                     ExercisePickerView(title: "Add exercise") { exercise, mode in
                         model.addExercise(exercise, mode: mode)
                         picker = nil
+                        scrollTo = exercise.name
                     }
                 case .replace(let name):
                     ExercisePickerView(title: "Replace \(name)") { exercise, _ in
@@ -470,7 +478,12 @@ struct ExerciseCard: View {
     }
 
     @ViewBuilder private var footer: some View {
-        let advice = model.advice(for: block)
+        // What the latest working set on each side says, once; older sets'
+        // statements (from numbers since changed) are not repeated.
+        let latest = Dictionary(grouping: block.sets.filter { !$0.isWarmup }, by: \.side)
+            .compactMap { $0.value.max { $0.position < $1.position } }
+        let advice = latest.flatMap { model.advice(for: $0) }
+            .reduce(into: [Advice]()) { out, item in if !out.contains(where: { $0.detail == item.detail }) { out.append(item) } }
         VStack(alignment: .leading, spacing: 6) {
             ForEach(advice, id: \.detail) { item in
                 Label(item.detail, systemImage: item.kind == .injuredTissue ? "bandage" : "exclamationmark.triangle")
@@ -774,7 +787,10 @@ struct SetCell: View {
             if !records.isEmpty {
                 HStack(spacing: 4) {
                     ForEach(records, id: \.self) { kind in
-                        Label(kind.shortLabel, systemImage: "trophy.fill")
+                        HStack(spacing: 3) {
+                            Image(systemName: "trophy.fill")
+                            Text(kind.shortLabel)
+                        }
                             .font(.caption2.weight(.semibold))
                             .padding(.horizontal, 6).padding(.vertical, 2)
                             .foregroundStyle(Color.orange)
@@ -824,6 +840,7 @@ struct SetCell: View {
     /// A large check at the row's end: planned until tapped, then done (and the rest starts).
     private var doneButton: some View {
         Button {
+            dismissKeyboard()
             model.setDone(!draft.isDone, draft)
         } label: {
             Image(systemName: draft.isDone ? "checkmark.circle.fill" : "circle")
@@ -843,7 +860,11 @@ struct SetCell: View {
         let step = model.loadStep(for: draft.exercise, unit: draft.loadUnit)
         return StepAction(id: draft.id + "|load", label: "\(Format.number(step)) \(draft.loadUnit.rawValue)",
                           minus: { draft = model.stepped(draft, load: -1) },
-                          plus: { draft = model.stepped(draft, load: 1) })
+                          plus: {
+                              // An empty weight starts from last session's, not from zero.
+                              if draft.loadValue == nil, let last = previous?.loadValue { draft.loadValue = last }
+                              else { draft = model.stepped(draft, load: 1) }
+                          })
     }
 
     private var countStep: StepAction {
