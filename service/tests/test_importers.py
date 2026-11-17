@@ -275,3 +275,40 @@ def test_app_export_uses_the_body_weight_of_the_day(con, profile, tmp_path):
     assert abs(push_up["load_kg"] - 88.0 * library.EXERCISES["push_up"][1]) < 1e-9
     assert app._bodyweight_on(app._bodyweight_by_day({"dailyMetrics": metrics}), "2026-10-01", 80.0) == 88
     assert app._bodyweight_on([], "2026-10-01", 80.0) == 80.0
+
+
+def test_app_export_carries_effort_tempo_and_the_injury_plan(con, profile, tmp_path):
+    import copy
+    import sqlite3
+    from rehabit import db
+    from rehabit.importers import app
+    data = json.loads(_app_export(tmp_path).read_text())
+    plan = {"rule": {"duringMax": 4, "settleHours": 24}, "milestones": [{"id": "m1", "title": "Bench 135"}],
+            "setBy": "", "nextVisit": "2026-12-01"}
+    workouts, sets, injuries = (copy.deepcopy(data[k]) for k in ("workouts", "sets", "injuries"))
+    workouts = [w for w in workouts if w["id"] == "W1"] + [w for w in workouts if w["id"] != "W1"]
+    sets = [s for s in sets if s["workoutID"] == "W1"] + [s for s in sets if s["workoutID"] != "W1"]
+    workouts[0]["effort"] = 7.5
+    sets[0]["tempo"] = "3-1-1-0"
+    sets[1]["tempo"] = 31                      # not text: left out
+    injuries[0]["plan"] = plan
+    app.import_export(con, _app_export(tmp_path, workouts=workouts, sets=sets, injuries=injuries), profile)
+    assert con.execute("SELECT effort FROM session WHERE id = ?", ("app:" + workouts[0]["id"],)).fetchone()[0] == 7.5
+    tempo = lambda s: con.execute("SELECT tempo FROM set_entry WHERE id = ?", ("app:" + s["id"],)).fetchone()[0]
+    assert tempo(sets[0]) == "3-1-1-0" and tempo(sets[1]) is None
+    assert json.loads(con.execute("SELECT plan FROM injury WHERE id = 'app:I1'").fetchone()[0]) == plan
+    # An effort outside 0 to 10 is not kept.
+    workouts[0]["effort"] = 40
+    app.import_export(con, _app_export(tmp_path, workouts=workouts, sets=sets, injuries=injuries), profile)
+    assert con.execute("SELECT effort FROM session WHERE id = ?", ("app:" + workouts[0]["id"],)).fetchone()[0] is None
+
+    # A database made before these columns existed gains them when it is opened.
+    old = sqlite3.connect(":memory:")
+    old.executescript("CREATE TABLE session (id TEXT PRIMARY KEY, start TEXT NOT NULL, end TEXT, day TEXT NOT NULL,"
+                      " kind TEXT NOT NULL, title TEXT, activity_type TEXT, minutes REAL, distance_km REAL,"
+                      " avg_hr REAL, max_hr REAL, notes TEXT, source TEXT NOT NULL, source_id TEXT NOT NULL,"
+                      " imported_at TEXT NOT NULL, UNIQUE (source, source_id));")
+    db.init(old)
+    assert "effort" in {r[1] for r in old.execute("PRAGMA table_info(session)")}
+    assert "tempo" in {r[1] for r in old.execute("PRAGMA table_info(set_entry)")}
+    db.init(old)                               # and opening it again changes nothing

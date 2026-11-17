@@ -107,13 +107,16 @@ public struct ExerciseBlock: Identifiable, Equatable, Sendable {
 extension WorkoutSet {
     /// What was lifted and how, the part a left and right set share; not how it felt.
     public var prescription: [Double?] {
-        [loadValue, reps, holdSeconds, kind == .hold ? 1 : 0,
-         Double(LoadConvention.allCases.firstIndex(of: convention) ?? 0), loadUnit == .kg ? 1 : 0]
+        // The tempo as one number, so two sides that differ only in tempo are not taken for the same.
+        let phases = tempo.map { Tempo($0)?.phases.reduce(0) { $0 * 1000 + $1 } ?? -1 }
+        return [loadValue, reps, holdSeconds, kind == .hold ? 1 : 0,
+                Double(LoadConvention.allCases.firstIndex(of: convention) ?? 0), loadUnit == .kg ? 1 : 0, phases]
     }
 
     public mutating func copyPrescription(from other: WorkoutSet) {
         loadValue = other.loadValue; reps = other.reps; holdSeconds = other.holdSeconds
         kind = other.kind; convention = other.convention; loadUnit = other.loadUnit
+        tempo = other.tempo
     }
 }
 
@@ -373,6 +376,7 @@ extension AppModel {
     /// Gives an exercise's sets another exercise's name and movement, keeping
     /// the numbers. If the new exercise is already in the workout the two merge.
     public func replaceExercise(_ exercise: String, with replacement: CatalogueExercise) {
+        if holdRun.map({ $0.exercise == exercise }) ?? false { holdRun = nil }
         guard exercise != replacement.name else { return }
         if let link = linkOverrides.removeValue(forKey: exercise) { linkOverrides[replacement.name] = link }
         // The replacement takes the exercise's place in its superset.

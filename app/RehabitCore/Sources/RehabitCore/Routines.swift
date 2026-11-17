@@ -106,6 +106,14 @@ extension AppModel {
                         filled.copyPrescription(from: previous[round])
                         filled.tag = previous[round].tag
                     }
+                    // What the routine prescribes stands over what was done last time.
+                    if let target = item.targetCount {
+                        // The routine says whether the count is reps or seconds, whatever last time was.
+                        filled.kind = item.kind
+                        if item.kind == .hold { filled.holdSeconds = target; filled.reps = nil }
+                        else { filled.reps = target; filled.holdSeconds = nil }
+                    }
+                    if let tempo = item.tempo { filled.tempo = tempo }
                     update(filled)
                 }
             }
