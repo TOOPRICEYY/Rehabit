@@ -12,7 +12,12 @@ struct WorkoutsView: View {
             List {
                 Section {
                     Button {
-                        if model.active == nil { model.startWorkout() }
+                        if model.active == nil {
+                            model.startWorkout()
+                            // Asked now, before the first set, rather than under the bar
+                            // when the first rest starts.
+                            RestNotice.askPermissionIfNeeded()
+                        }
                         showingActive = true
                     } label: {
                         Label(model.active == nil ? "Start workout" : "Resume workout",

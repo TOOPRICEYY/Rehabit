@@ -194,7 +194,15 @@ struct NumberField: View {
                 if !focused || Self.parse(text) != changed { text = Format.number(changed) }
             }
             .onChange(of: focused) { _, now in
-                if now { StepTarget.shared.current = step }
+                if now {
+                    StepTarget.shared.current = step
+                    // Typing replaces the number rather than adding to it.
+                    if !text.isEmpty {
+                        DispatchQueue.main.async {
+                            UIApplication.shared.sendAction(#selector(UIResponder.selectAll(_:)), to: nil, from: nil, for: nil)
+                        }
+                    }
+                }
                 else if StepTarget.shared.current?.id == step?.id { StepTarget.shared.current = nil }
             }
     }

@@ -63,6 +63,13 @@ struct ExercisePickerView: View {
                 }
                 if !search.trimmingCharacters(in: .whitespaces).isEmpty {
                     Section {
+                        Button("Add new exercise \"\(search.trimmingCharacters(in: .whitespaces))\"") {
+                            let exercise = CatalogueExercise(name: search.trimmingCharacters(in: .whitespaces),
+                                                             pattern: customPattern, convention: .total,
+                                                             unilateral: customOneSided, kind: customKind)
+                            onPick(exercise, customOneSided ? .perSide : .together)
+                        }
+                            .fontWeight(.semibold)
                         Picker("Movement", selection: $customPattern) {
                             Text("None of these").tag("")
                             ForEach(model.library.exercisePatterns) { Text($0.name).tag($0.id) }
@@ -73,12 +80,6 @@ struct ExercisePickerView: View {
                             Text("Isometric holds").tag(SetKind.hold)
                         }
                         .pickerStyle(.segmented)
-                        Button("Add \"\(search.trimmingCharacters(in: .whitespaces))\"") {
-                            let exercise = CatalogueExercise(name: search.trimmingCharacters(in: .whitespaces),
-                                                             pattern: customPattern, convention: .total,
-                                                             unilateral: customOneSided, kind: customKind)
-                            onPick(exercise, customOneSided ? .perSide : .together)
-                        }
                     } header: {
                         Text("Custom exercise")
                     } footer: {
@@ -87,6 +88,7 @@ struct ExercisePickerView: View {
                 }
             }
             .searchable(text: $search, prompt: "Search or name a new exercise")
+            .scrollDismissesKeyboard(.immediately)
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { Button("Cancel") { dismiss() } }
