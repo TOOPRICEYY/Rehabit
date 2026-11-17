@@ -99,6 +99,9 @@ public struct Workout: Record, Equatable {
     public var supersets: [[String]]?
     /// The routine this workout was started from, if any.
     public var routineID: String?
+    /// For a session from a watch: sessions logged by hand in the same visit
+    /// that the person looked at and chose to keep beside it, by id.
+    public var overlapsKept: [String]?
     public var updatedAt: Date
     public var parentID: String? { nil }
     public var day: Day? { startDay }
