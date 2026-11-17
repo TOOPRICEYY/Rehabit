@@ -119,6 +119,19 @@ class Tools:
             params.append(metric)
         return db.rows(self._con(), sql + f" ORDER BY day, metric LIMIT {MAX_ROWS}", tuple(params))
 
+    def get_pain_checks(self, start_day: str, end_day: str, injury_id: str | None = None,
+                        answered_only: bool = False) -> list[dict]:
+        """Pain readings asked for after sessions and as daily baselines, by due day.
+        `pain` is null for a check that was never answered: missing, not zero."""
+        sql = "SELECT * FROM pain_check WHERE day BETWEEN ? AND ?"
+        params: list[Any] = [start_day, end_day]
+        if injury_id:
+            sql += " AND injury_id = ?"
+            params.append(injury_id)
+        if answered_only:
+            sql += " AND pain IS NOT NULL"
+        return db.rows(self._con(), sql + f" ORDER BY due_at LIMIT {MAX_ROWS}", tuple(params))
+
     def get_dose_events(self, start_day: str, end_day: str, drug: str | None = None) -> list[dict]:
         """Doses from the dose log mirror: drug, amount, route and injection site."""
         sql = ("SELECT taken_at, day, drug, amount, unit, route, site, status FROM dose_event"
@@ -153,7 +166,7 @@ class Tools:
 
 
 TOOL_NAMES = ["get_overview", "list_sessions", "get_session", "query_sets", "get_tissue_load",
-              "get_flags", "get_daily_metrics", "get_dose_events", "get_library", "replay_flags", "run_query"]
+              "get_flags", "get_daily_metrics", "get_dose_events", "get_pain_checks", "get_library", "replay_flags", "run_query"]
 
 
 def build_server(db_path: str):

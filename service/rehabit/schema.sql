@@ -112,6 +112,27 @@ CREATE TABLE IF NOT EXISTS dose_event (
   source TEXT NOT NULL
 );
 
+-- One question about one injury at one moment, from the app. `pain` is null
+-- until answered: a skipped check is missing, never zero.
+CREATE TABLE IF NOT EXISTS pain_check (
+  id TEXT PRIMARY KEY,
+  injury_id TEXT NOT NULL,
+  session_id TEXT,
+  moment TEXT NOT NULL,          -- after_session | evening | next_morning | 24h | 48h | baseline
+  due_at TEXT NOT NULL,
+  day TEXT NOT NULL,
+  answered_at TEXT,
+  pain REAL,
+  pain_type TEXT,
+  notes TEXT,
+  source TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS pain_check_day ON pain_check(day);
+
+-- Which daily_metric sources last arrived through the app's export, so a new
+-- export replaces them and leaves directly imported sources alone.
+CREATE TABLE IF NOT EXISTS app_metric_source (source TEXT PRIMARY KEY);
+
 -- Derived tables. Rebuilt from scratch by `rehabit compute`; never edited by hand.
 CREATE TABLE IF NOT EXISTS tissue_load_day (
   day TEXT NOT NULL,

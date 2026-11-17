@@ -122,3 +122,139 @@ def test_garmin_daily_keeps_missing_values_missing(con, tmp_path):
                       "resting_hr": 1, "steps": 1}
     assert garmin_daily.import_files(con, [nights, days]) == counts        # safe to run twice
     assert con.execute("SELECT COUNT(*) FROM daily_metric").fetchone()[0] == 7
+
+
+def _app_export(tmp_path, **changes):
+    """The shape the app writes: times in UTC to the millisecond, days as text."""
+    data = {
+        "schemaVersion": 1, "exportedAt": "2026-11-17T15:00:00.000Z",
+        "profile": {"bodyweightKg": 80.0, "unit": "lb"},
+        "workouts": [
+            {"id": "W1", "title": "Push", "start": "2026-11-10T22:00:00.000Z",
+             "end": "2026-11-10T22:45:00.000Z", "startDay": "2026-11-10", "notes": "",
+             "updatedAt": "2026-11-10T22:45:00.000Z"},
+            {"id": "hevy:abc", "title": "Rehab", "start": "2026-10-01T21:00:00.000Z",
+             "end": "2026-10-01T21:10:00.000Z", "startDay": "2026-10-01", "notes": "",
+             "updatedAt": "2026-10-01T21:00:00.000Z"},
+            {"id": "OPEN", "title": "Workout", "start": "2026-11-17T14:00:00.000Z",
+             "startDay": "2026-11-17", "notes": "", "updatedAt": "2026-11-17T14:00:00.000Z"},
+        ],
+        "sets": [
+            {"id": "S1", "workoutID": "W1", "workoutDay": "2026-11-10", "position": 0,
+             "exercise": "Bench Press (Dumbbell)", "pattern": "press_horizontal", "side": "left",
+             "kind": "reps", "reps": 10, "loadValue": 15, "loadUnit": "lb", "convention": "per_hand",
+             "repsInReserve": 2, "pain": 1.5, "painType": "ache", "isWarmup": False, "notes": "",
+             "updatedAt": "2026-11-10T22:10:00.000Z"},
+            {"id": "S2", "workoutID": "W1", "workoutDay": "2026-11-10", "position": 1,
+             "exercise": "Bench Press (Dumbbell)", "pattern": "press_horizontal", "side": "right",
+             "kind": "reps", "reps": 10, "loadValue": 25, "loadUnit": "lb", "convention": "per_hand",
+             "isWarmup": True, "notes": "", "updatedAt": "2026-11-10T22:11:00.000Z"},
+            {"id": "S3", "workoutID": "W1", "workoutDay": "2026-11-10", "position": 2,
+             "exercise": "Push-Up", "pattern": "push_up", "side": "both", "kind": "reps", "reps": 12,
+             "loadUnit": "lb", "convention": "bodyweight", "isWarmup": False, "notes": "",
+             "updatedAt": "2026-11-10T22:20:00.000Z"},
+            {"id": "S4", "workoutID": "W1", "workoutDay": "2026-11-10", "position": 3,
+             "exercise": "Wrist Roller", "side": "both", "kind": "hold", "holdSeconds": 30,
+             "loadValue": 2, "loadUnit": "kg", "convention": "total", "isWarmup": False,
+             "notes": "new toy", "updatedAt": "2026-11-10T22:30:00.000Z"},
+            {"id": "hevy:abc:0", "workoutID": "hevy:abc", "workoutDay": "2026-10-01", "position": 0,
+             "exercise": "Bench Press (Dumbbell)", "pattern": "press_horizontal", "side": "left",
+             "kind": "reps", "reps": 8, "loadValue": 10, "loadUnit": "lb", "convention": "per_hand",
+             "isWarmup": False, "notes": "", "updatedAt": "2026-10-01T21:00:00.000Z"},
+            {"id": "S9", "workoutID": "OPEN", "workoutDay": "2026-11-17", "position": 0,
+             "exercise": "Squat (Barbell)", "pattern": "squat", "side": "both", "kind": "reps",
+             "reps": 5, "loadValue": 135, "loadUnit": "lb", "convention": "total",
+             "isWarmup": False, "notes": "", "updatedAt": "2026-11-17T14:05:00.000Z"},
+        ],
+        "injuries": [{"id": "I1", "label": "Left pec", "side": "left", "onset": "2026-06-01",
+                      "onsetPrecision": "week", "tissues": ["pec_major"], "mechanism": "",
+                      "notes": "", "updatedAt": "2026-06-02T00:00:00.000Z"}],
+        "painChecks": [
+            {"id": "P1", "injuryID": "I1", "workoutID": "W1", "moment": "after_session",
+             "dueAt": "2026-11-10T22:45:00.000Z", "dueDay": "2026-11-10",
+             "answeredAt": "2026-11-10T22:50:00.000Z", "pain": 2.0, "painType": "ache",
+             "notes": "", "updatedAt": "2026-11-10T22:50:00.000Z"},
+            {"id": "P2", "injuryID": "I1", "workoutID": "W1", "moment": "next_morning",
+             "dueAt": "2026-11-11T13:00:00.000Z", "dueDay": "2026-11-11", "notes": "",
+             "updatedAt": "2026-11-10T22:45:00.000Z"},
+        ],
+        "dailyMetrics": [{"day": "2026-11-10", "metric": "hrv_ms", "value": 58, "source": "garmin"},
+                         {"day": "2026-11-10", "metric": "steps", "value": 9000, "source": "apple_health"}],
+        "tombstones": [],
+    }
+    data.update(changes)
+    path = tmp_path / "rehabit-export.json"
+    path.write_text(json.dumps(data))
+    return path
+
+
+def test_app_export_keeps_what_was_logged(con, profile, tmp_path):
+    from rehabit.importers import app
+    counts = app.import_export(con, _app_export(tmp_path), profile)
+    assert counts["sessions"] == 2 and counts["sets"] == 5
+    assert counts["in_progress"] == 1 and counts["unmapped"] == 1
+    assert counts["injuries"] == 1 and counts["pain_checks"] == 2 and counts["daily_metrics"] == 2
+
+    left, right = _sets(con, "source_exercise = 'Bench Press (Dumbbell)' AND session_id = 'app:W1'")
+    assert (left["side"], right["side"]) == ("left", "right")
+    assert left["side_inferred"] == 0 and left["load_convention"] == "per_hand"
+    assert abs(left["load_kg"] - 15 * 0.45359237) < 1e-9 and left["pain"] == 1.5 and left["rpe"] == 8
+    assert right["set_type"] == "warmup" and right["rpe"] is None
+
+    push_up = _sets(con, "exercise_id = 'push_up'")[0]
+    share = __import__("rehabit.library", fromlist=["x"]).EXERCISES["push_up"][1]
+    assert abs(push_up["load_kg"] - 80.0 * share) < 1e-9      # the app's body weight, not the profile's
+
+    custom = _sets(con, "source_exercise = 'Wrist Roller'")[0]
+    assert custom["exercise_id"] is None and custom["kind"] == "hold" and custom["load_kg"] == 2
+
+    session = dict(con.execute("SELECT * FROM session WHERE id = 'app:W1'").fetchone())
+    assert session["day"] == "2026-11-10" and session["minutes"] == 45
+    unanswered = dict(con.execute("SELECT * FROM pain_check WHERE id = 'app:P2'").fetchone())
+    assert unanswered["pain"] is None and unanswered["answered_at"] is None
+    assert con.execute("SELECT tissues FROM injury WHERE id = 'app:I1'").fetchone()[0] == '["pec_major"]'
+
+
+def test_app_export_is_idempotent_and_drops_what_the_app_dropped(con, profile, tmp_path):
+    from rehabit.importers import app
+    app.import_export(con, _app_export(tmp_path), profile)
+    app.import_export(con, _app_export(tmp_path), profile)
+    assert con.execute("SELECT COUNT(*) FROM set_entry").fetchone()[0] == 5
+    assert con.execute("SELECT COUNT(*) FROM daily_metric").fetchone()[0] == 2
+
+    app.import_export(con, _app_export(tmp_path, sets=[], painChecks=[], dailyMetrics=[], injuries=[]), profile)
+    assert con.execute("SELECT COUNT(*) FROM set_entry").fetchone()[0] == 0
+    assert con.execute("SELECT COUNT(*) FROM pain_check").fetchone()[0] == 0
+    assert con.execute("SELECT COUNT(*) FROM daily_metric").fetchone()[0] == 0
+    assert con.execute("SELECT COUNT(*) FROM injury WHERE id LIKE 'app:%'").fetchone()[0] == 0
+
+
+def test_app_export_skips_logs_the_service_reads_itself(con, profile, tmp_path, hevy_csv):
+    from rehabit.importers import app
+    hevy.import_csv(con, hevy_csv, profile)
+    counts = app.import_export(con, _app_export(tmp_path), profile, skip_prefixes=("hevy:",))
+    assert counts["skipped_sessions"] == 1 and counts["sessions"] == 1 and counts["sets"] == 4
+    assert con.execute("SELECT COUNT(*) FROM set_entry WHERE source = 'hevy_csv'").fetchone()[0] == 7
+
+
+def test_app_export_from_a_newer_app_is_refused(con, profile, tmp_path):
+    import pytest
+    from rehabit.importers import app
+    with pytest.raises(ValueError):
+        app.import_export(con, _app_export(tmp_path, schemaVersion=2), profile)
+
+
+def test_app_sets_reach_the_ledger_and_pain_tool(con, profile, tmp_path):
+    from rehabit import ledger
+    from rehabit.importers import app
+    from rehabit.mcp_server import Tools
+    app.import_export(con, _app_export(tmp_path), profile)
+    ledger.compute(con)
+    rows = con.execute("SELECT side, dose FROM tissue_load_day WHERE tissue_id = 'pec_major'"
+                       " AND day = '2026-11-10' ORDER BY side").fetchall()
+    assert [r[0] for r in rows] == ["left", "right"] and all(r[1] > 0 for r in rows)
+    db_path = con.execute("PRAGMA database_list").fetchone()[2]
+    con.close()
+    tools = Tools(db_path)
+    assert len(tools.get_pain_checks("2026-11-01", "2026-11-30")) == 2
+    assert [c["pain"] for c in tools.get_pain_checks("2026-11-01", "2026-11-30", answered_only=True)] == [2.0]

@@ -6,7 +6,7 @@ import argparse
 import json
 
 from . import db, flags, ledger, library, profile as profile_mod, replay as replay_mod
-from .importers import doestrack, garmin, garmin_daily, hevy
+from .importers import app as app_export, doestrack, garmin, garmin_daily, hevy
 
 
 def build(args) -> None:
@@ -24,6 +24,11 @@ def build(args) -> None:
         summary["garmin_daily"] = garmin_daily.import_files(con, args.garmin_daily)
     if args.doestrack:
         summary["doestrack"] = doestrack.import_backup(con, args.doestrack)
+    if args.app_export:
+        # Workouts the app copied in from Hevy or Garmin are skipped when this
+        # build reads that log itself.
+        skip = tuple(p for p, given in (("hevy:", args.hevy), ("garmin:", args.garmin)) if given)
+        summary["app"] = app_export.import_export(con, args.app_export, prof, skip)
     summary["ledger"] = ledger.compute(con)
     summary["flags"] = flags.compute(con)
     print(json.dumps(summary, indent=2))
@@ -52,6 +57,7 @@ def main(argv: list[str] | None = None) -> None:
     b.add_argument("--garmin-daily", nargs="*",
                    help="saved Garmin sleep history and daily summary results")
     b.add_argument("--doestrack")
+    b.add_argument("--app-export", help="the Rehabit app's export JSON")
     b.set_defaults(func=build)
 
     r = sub.add_parser("replay", help="check the flags against known injury dates")
