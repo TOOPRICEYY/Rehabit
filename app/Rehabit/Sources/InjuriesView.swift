@@ -70,6 +70,7 @@ struct InjuryDetailView: View {
     let injuryID: String
     @State private var editing = false
     @State private var baseline: Double?
+    @State private var logging = false
 
     var body: some View {
         if let injury = model.injuries.first(where: { $0.id == injuryID }) {
@@ -89,6 +90,10 @@ struct InjuryDetailView: View {
                         .frame(height: 180)
                     }
                 }
+                Section {
+                    Button { logging = true } label: { Label("Log pain now", systemImage: "plus.circle") }
+                }
+                SymmetrySection(injury: injury)
                 Section("Baseline today") {
                     PainSlider(pain: $baseline)
                     Button("Save baseline") {
@@ -106,6 +111,7 @@ struct InjuryDetailView: View {
                 }
             }
             .navigationTitle(injury.label)
+            .sheet(isPresented: $logging) { LogPainSheet(injuryID: injury.id) }
             .toolbar { Button("Edit") { editing = true } }
             .sheet(isPresented: $editing) { InjuryEditorView(injury: injury) }
         } else {

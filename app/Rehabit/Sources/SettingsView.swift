@@ -41,6 +41,25 @@ struct SettingsView: View {
                     Text("Body weight is used for push-ups, pull-ups and other exercises where you are the load.")
                 }
                 Section {
+                    Toggle("Ask about each injury every morning", isOn: Binding(
+                        get: { model.profile.dailyCheckIn },
+                        set: { on in var p = model.profile; p.dailyCheckIn = on; model.profile = p }))
+                    if model.profile.dailyCheckIn {
+                        Picker("Morning check-in at", selection: Binding(
+                            get: { min(11, max(5, model.profile.morningHour)) },
+                            set: { hour in var p = model.profile; p.morningHour = hour; model.profile = p })) {
+                            ForEach(5...11, id: \.self) { hour in
+                                Text(Calendar.current.date(from: DateComponents(hour: hour))
+                                    .map { $0.formatted(date: .omitted, time: .shortened) } ?? "\(hour):00").tag(hour)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Pain check-ins")
+                } footer: {
+                    Text("A morning question gives each injury a baseline to compare the after-session readings with. It is only saved when you answer it.")
+                }
+                Section {
                     Button("Read from Apple Health") {
                         Task {
                             healthStatus = "Reading…"
@@ -159,7 +178,11 @@ struct SettingsView: View {
     private func store() {
         // Opening this screen must not rewrite the stored weight with a rounded copy of itself.
         if unit == model.profile.unit && bodyweight == shown(model.profile) { return }
-        model.profile = Profile(bodyweightKg: bodyweight.map { $0 * unit.kilograms }, unit: unit)
+        // Only weight and unit change here; the check-in settings are kept.
+        var profile = model.profile
+        profile.bodyweightKg = bodyweight.map { $0 * unit.kilograms }
+        profile.unit = unit
+        model.profile = profile
     }
 
     @ViewBuilder private var garminSection: some View {

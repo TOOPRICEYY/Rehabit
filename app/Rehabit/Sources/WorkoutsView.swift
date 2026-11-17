@@ -20,6 +20,14 @@ struct WorkoutsView: View {
                             .font(.headline)
                     }
                 }
+                Section("This week") {
+                    WeekHeader()
+                    NavigationLink {
+                        ExercisesListView()
+                    } label: {
+                        Label("Exercises", systemImage: "list.bullet.rectangle")
+                    }
+                }
                 Section("History") {
                     if model.workouts.isEmpty {
                         Text("No workouts yet.").foregroundStyle(.secondary)

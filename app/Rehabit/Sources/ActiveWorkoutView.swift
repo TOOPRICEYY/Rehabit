@@ -137,6 +137,7 @@ struct ExerciseCard: View {
     let onReplace: () -> Void
     @State private var confirmingRemove = false
     @State private var askingWhichSide = false
+    @State private var showingHistory = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
     private var mode: SideMode { block.mode }
@@ -167,6 +168,12 @@ struct ExerciseCard: View {
             header
         } footer: {
             footer
+        }
+        .sheet(isPresented: $showingHistory) {
+            NavigationStack {
+                ExerciseHistoryView(exercise: block.exercise)
+                    .toolbar { Button("Done") { showingHistory = false } }
+            }
         }
         .confirmationDialog("Remove \(block.exercise) and its \(block.sets.count) sets?",
                             isPresented: $confirmingRemove, titleVisibility: .visible) {
@@ -331,6 +338,9 @@ struct ExerciseCard: View {
                 Label("Move down", systemImage: "arrow.down")
             }
             .disabled(isLast)
+            Button { showingHistory = true } label: {
+                Label("History and records", systemImage: "chart.xyaxis.line")
+            }
             Button(action: onReplace) {
                 Label("Replace exercise…", systemImage: "arrow.triangle.2.circlepath")
             }
@@ -423,20 +433,6 @@ struct ExerciseCard: View {
 extension WorkoutSet {
     /// Default values for a binding whose exercise has no sets left.
     static let placeholder = WorkoutSet(workout: Workout(), position: 0, exercise: "", pattern: nil)
-}
-
-extension AppModel {
-    func addWarmupRound(to block: ExerciseBlock) {
-        let working = block.sets.first { !$0.isWarmup } ?? block.sample
-        for set in addRound(to: block) {
-            var warm = set
-            if let working { warm.copyPrescription(from: working) }
-            // About half the working load, to the nearest 2.5.
-            if let load = warm.loadValue { warm.loadValue = (load / 2 / 2.5).rounded() * 2.5 }
-            warm.isWarmup = true
-            update(warm)
-        }
-    }
 }
 
 /// What was done last time for this exercise and side.
@@ -704,6 +700,19 @@ struct SetCell: View {
                 }
             }
             let tags = self.tags
+            let records = model.recordsBroken(by: draft)
+            if !records.isEmpty {
+                HStack(spacing: 4) {
+                    ForEach(records, id: \.self) { kind in
+                        Label(kind.shortLabel, systemImage: "trophy.fill")
+                            .font(.caption2.weight(.semibold))
+                            .padding(.horizontal, 6).padding(.vertical, 2)
+                            .foregroundStyle(Color.orange)
+                            .background(Color.orange.opacity(0.14), in: Capsule())
+                    }
+                }
+                .accessibilityLabel("Record: " + records.map(\.shortLabel).joined(separator: ", "))
+            }
             if showPain || draft.pain != nil || !tags.isEmpty {
                 WrapStack(spacing: 6) {
                     if showPain || draft.pain != nil {

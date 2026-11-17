@@ -48,7 +48,7 @@ struct RootView: View {
                 .tag(AppTab.workouts)
             CheckInsView()
                 .tabItem { Label("Check-ins", systemImage: "waveform.path.ecg") }
-                .badge(model.dueChecks.count)
+                .badge(model.checkInRound.count)
                 .tag(AppTab.checkIns)
             InjuriesView()
                 .tabItem { Label("Injuries", systemImage: "bandage") }
@@ -72,15 +72,15 @@ struct RootView: View {
         }
         // Reminders follow the questions still to come: answering one, deleting
         // a workout or resolving an injury withdraws its reminders.
-        .onChange(of: model.upcomingChecks.map(\.id)) { _, _ in
-            Reminders.sync(model.upcomingChecks, injuries: model.injuries)
+        .onChange(of: model.reminderRounds.map(\.id)) { _, _ in
+            Reminders.sync(model.reminderRounds)
         }
         .onChange(of: router.opened) { _, _ in tab = .checkIns }
         // Records changed: leave a fresh export for the Mac a few seconds later.
         .onChange(of: model.revision) { _, _ in MacSync.shared.changed(model) }
         .onAppear {
             NotificationRouter.shared.install()
-            Reminders.sync(model.upcomingChecks, injuries: model.injuries)
+            Reminders.sync(model.reminderRounds)
             MacSync.shared.checkInbox(model)
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-demo-inbox") {
