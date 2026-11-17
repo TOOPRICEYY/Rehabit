@@ -10,7 +10,9 @@ struct HealthKitSource: HealthSource {
     private var quantities: [(HKQuantityTypeIdentifier, String, HKStatisticsOptions, HKUnit)] {
         [(.stepCount, MetricName.steps, .cumulativeSum, .count()),
          (.restingHeartRate, MetricName.restingHeartRate, .discreteAverage, HKUnit.count().unitDivided(by: .minute())),
-         (.heartRateVariabilitySDNN, MetricName.hrvSDNN, .discreteAverage, .secondUnit(with: .milli))]
+         (.heartRateVariabilitySDNN, MetricName.hrvSDNN, .discreteAverage, .secondUnit(with: .milli)),
+         // Body weight: the last weighing of each day, in kilograms.
+         (.bodyMass, MetricName.bodyMass, .mostRecent, .gramUnit(with: .kilo))]
     }
 
     func requestAccess() async throws -> Bool {
@@ -35,7 +37,8 @@ struct HealthKitSource: HealthSource {
                 intervalComponents: DateComponents(day: 1))
             let collection = try await descriptor.result(for: store)
             collection.enumerateStatistics(from: start, to: end) { statistics, _ in
-                let quantity = options == .cumulativeSum ? statistics.sumQuantity() : statistics.averageQuantity()
+                let quantity = options == .cumulativeSum ? statistics.sumQuantity()
+                    : options == .mostRecent ? statistics.mostRecentQuantity() : statistics.averageQuantity()
                 // No samples that day means no value. It is not stored as zero.
                 guard let value = quantity?.doubleValue(for: unit), value > 0 else { return }
                 out.append(DailyMetric(day: Day(statistics.startDate), metric: metric, value: value, source: name))

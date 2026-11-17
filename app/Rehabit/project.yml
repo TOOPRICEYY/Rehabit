@@ -29,11 +29,11 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         NSHealthShareUsageDescription: >-
-          Rehabit reads heart rate variability, resting heart rate, sleep and steps
+          Rehabit reads heart rate variability, resting heart rate, sleep, steps and body weight
           to show them beside your training load. It never writes to Health.
         # Apple requires this key for any app with the HealthKit entitlement, even one that only reads.
         NSHealthUpdateUsageDescription: >-
-          Rehabit does not write to Health. It only reads heart rate variability,
+          Rehabit does not write to Health. It only reads heart rate variability, body weight,
           resting heart rate, sleep and steps to show them beside your training load.
     entitlements:
       path: Rehabit.entitlements

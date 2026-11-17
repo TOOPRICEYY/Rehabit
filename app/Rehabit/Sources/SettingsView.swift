@@ -1,3 +1,4 @@
+import Charts
 import RehabitCore
 import SwiftUI
 import UniformTypeIdentifiers
@@ -7,6 +8,9 @@ struct SettingsView: View {
     @State private var bodyweight: Double?
     @State private var unit: WeightUnit = .lb
     @State private var exportURL: URL?
+    @State private var spreadsheetURL: URL?
+    @State private var spreadsheetError = false
+    @State private var bodyweightStatus = ""
     @State private var healthStatus = ""
     @State private var garminConnected = GarminAccount.isConnected
     @State private var garminKey = ""
@@ -25,9 +29,10 @@ struct SettingsView: View {
             Form {
                 Section {
                     Picker("Unit", selection: Binding(get: { unit }, set: { new in
-                        // The weight is the same weight in the new unit, not the same number.
+                        // The weight being typed is the same weight in the new unit, not the same number.
                         bodyweight = bodyweight.map { ($0 * unit.kilograms / new.kilograms * 10).rounded() / 10 }
                         unit = new
+                        bodyweightStatus = ""
                         store()
                     })) {
                         ForEach(WeightUnit.allCases, id: \.self) { Text($0.rawValue).tag($0) }
@@ -36,9 +41,20 @@ struct SettingsView: View {
                         Text("Body weight")
                         Spacer()
                         NumberField(title: unit.rawValue, value: $bodyweight, width: 90)
+                            .accessibilityLabel("Body weight in \(unit == .lb ? "pounds" : "kilograms")")
+                        Button("Save") { saveBodyweight() }
+                            .buttonStyle(.borderless)
+                            .disabled(bodyweight == nil)
+                            .accessibilityLabel("Save body weight for today")
                     }
+                    if !bodyweightStatus.isEmpty {
+                        Text(bodyweightStatus).font(.caption).foregroundStyle(.secondary)
+                    }
+                    BodyweightChart(unit: model.profile.unit)
+                } header: {
+                    Text("You")
                 } footer: {
-                    Text("Body weight is used for push-ups, pull-ups and other exercises where you are the load.")
+                    Text("Body weight is used for push-ups, pull-ups and other exercises where you are the load. Saving records it for today, so each workout uses the weight you had on its day. Weights read from Apple Health or a scale appear on the chart too.")
                 }
                 Section {
                     Picker("Rest after a set", selection: Binding(
@@ -91,7 +107,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Recovery data")
                 } footer: {
-                    Text("Reads heart rate variability, resting heart rate, sleep and steps for the last 60 days. Nothing is written to Health.")
+                    Text("Reads heart rate variability, resting heart rate, sleep, steps and body weight for the last 60 days. Nothing is written to Health.")
                 }
                 garminSection
                 Section {
@@ -143,14 +159,34 @@ struct SettingsView: View {
                     }
                 }
                 Section {
+                    NavigationLink {
+                        RecentlyDeletedView()
+                    } label: {
+                        LabeledContent("Recently deleted") {
+                            let count = model.recentlyDeleted.count
+                            Text(count == 0 ? "None" : Format.count(count, "workout"))
+                        }
+                    }
+                    Button("Export spreadsheet") {
+                        spreadsheetURL = writeSpreadsheet()
+                        spreadsheetError = spreadsheetURL == nil
+                    }
+                    .accessibilityHint("Prepares a CSV file of every finished workout to share or save")
+                    if let spreadsheetURL {
+                        ShareLink("Share rehabit-export.csv", item: spreadsheetURL)
+                    }
+                    if spreadsheetError {
+                        Text("The spreadsheet could not be written.").font(.caption).foregroundStyle(.red)
+                    }
+                    Button("Prepare export") { exportURL = writeExport() }
+                        .accessibilityHint("Prepares a JSON file with all your records to share or save")
                     if let exportURL {
                         ShareLink("Share export file", item: exportURL)
                     }
-                    Button("Prepare export") { exportURL = writeExport() }
                 } header: {
                     Text("Your data")
                 } footer: {
-                    Text("One JSON file with every workout, set, injury and pain reading.")
+                    Text("The spreadsheet has one row per set of every finished workout, in the columns of a Hevy export, and opens in Numbers or Excel. The export file is one JSON file with every workout, set, injury and pain reading. Deleted workouts are kept for 30 days.")
                 }
                 if model.unreadableCount > 0 {
                     Section {
@@ -177,7 +213,6 @@ struct SettingsView: View {
             .keyboardDoneButton()
             .scrollDismissesKeyboard(.interactively)
 
-            .onChange(of: bodyweight) { _, _ in store() }
         }
     }
 
@@ -186,14 +221,27 @@ struct SettingsView: View {
         profile.bodyweightKg.map { ($0 / profile.unit.kilograms * 10).rounded() / 10 }
     }
 
+    /// Saves the unit. Body weight is not written here: it is saved as a dated
+    /// reading (saveBodyweight), which also becomes the profile's weight.
     private func store() {
-        // Opening this screen must not rewrite the stored weight with a rounded copy of itself.
-        if unit == model.profile.unit && bodyweight == shown(model.profile) { return }
-        // Only weight and unit change here; the check-in settings are kept.
+        guard unit != model.profile.unit else { return }
+        // Only the unit changes here; the check-in settings are kept.
         var profile = model.profile
-        profile.bodyweightKg = bodyweight.map { $0 * unit.kilograms }
         profile.unit = unit
         model.profile = profile
+    }
+
+    /// Records the typed weight as today's reading.
+    private func saveBodyweight() {
+        guard let bodyweight else { return }
+        model.logBodyweight(bodyweight * unit.kilograms)
+        if let error = model.lastError {
+            bodyweightStatus = error
+        } else {
+            bodyweightStatus = "Saved \(Format.weight(bodyweight * unit.kilograms, unit)) for today."
+            self.bodyweight = shown(model.profile)
+        }
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     @ViewBuilder private var garminSection: some View {
@@ -316,9 +364,124 @@ struct SettingsView: View {
         }
     }
 
+    private func writeSpreadsheet() -> URL? {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("rehabit-export.csv")
+        return (try? Data(model.exportCSV().utf8).write(to: url, options: .atomic)) == nil ? nil : url
+    }
+
     private func writeExport() -> URL? {
         guard let data = model.exportJSON() else { return nil }
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("rehabit-export.json")
         return (try? data.write(to: url, options: .atomic)) == nil ? nil : url
+    }
+}
+
+// MARK: - Body weight chart
+
+/// Body weight over the last 90 days in the person's unit: what was typed in
+/// here and what Apple Health or a scale reported, one value a day.
+private struct BodyweightChart: View {
+    @Environment(AppModel.self) private var model
+    let unit: WeightUnit
+
+    var body: some View {
+        let today = Day(Date())
+        let points = model.bodyweightHistory.filter { $0.day >= today.adding(-90) && $0.day <= today }
+        if let first = points.first, let last = points.last {
+            // A fixed range around the readings: with one reading, or a flat run,
+            // an automatic scale has no height and draws no labels.
+            let values = points.map { $0.kg / unit.kilograms }
+            let low = values.min() ?? 0, high = values.max() ?? 0
+            let pad = max(unit == .lb ? 4 : 2, (high - low) * 0.2)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Last 90 days").font(.subheadline.weight(.semibold))
+                Chart {
+                    ForEach(points, id: \.day) { point in
+                        LineMark(x: .value("Day", Format.date(point.day), unit: .day),
+                                 y: .value("Body weight", point.kg / unit.kilograms))
+                            .interpolationMethod(.monotone)
+                        PointMark(x: .value("Day", Format.date(point.day), unit: .day),
+                                  y: .value("Body weight", point.kg / unit.kilograms))
+                            .symbolSize(points.count > 30 ? 12 : 30)
+                    }
+                }
+                .chartYScale(domain: (low - pad).rounded(.down)...(high + pad).rounded(.up))
+                .chartXScale(domain: Format.date(today.adding(-90))...Format.date(today.adding(1)))
+                .chartYAxis {
+                    AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
+                        AxisGridLine()
+                        AxisValueLabel {
+                            if let v = value.as(Double.self) { Text("\(v.formatted(.number.precision(.fractionLength(0)))) \(unit.rawValue)") }
+                        }
+                    }
+                }
+                .frame(height: 140)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Body weight chart, last 90 days")
+                .accessibilityValue(points.count == 1
+                    ? "One reading: \(Format.weight(last.kg, unit)) on \(last.day.readable)"
+                    : "\(points.count) readings, from \(Format.weight(first.kg, unit)) on \(first.day.readable) to \(Format.weight(last.kg, unit)) on \(last.day.readable)")
+                Text("Latest \(Format.weight(last.kg, unit)) on \(last.day.readable)")
+                    .font(.caption).foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+            }
+            .padding(.vertical, 4)
+        } else {
+            Text("No body weight saved in the last 90 days. Weights you save appear here as a chart.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+}
+
+// MARK: - Recently deleted
+
+/// Workouts deleted on this phone in the last 30 days, each with a way back.
+private struct RecentlyDeletedView: View {
+    @Environment(AppModel.self) private var model
+    @State private var result = ""
+
+    var body: some View {
+        let deleted = model.recentlyDeleted
+        List {
+            if !result.isEmpty {
+                Section {
+                    Text(result).font(.callout)
+                }
+            }
+            Section {
+                if deleted.isEmpty {
+                    Text("Nothing deleted").foregroundStyle(.secondary)
+                }
+                ForEach(deleted) { item in
+                    HStack(alignment: .firstTextBaseline) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(item.workout.title)
+                            Text("\(item.workout.startDay.readable) · \(Format.count(item.sets, "set"))")
+                                .font(.caption).foregroundStyle(.secondary)
+                            Text("Deleted \(item.deletedAt.formatted(.relative(presentation: .named)))")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        .accessibilityElement(children: .combine)
+                        Spacer()
+                        Button("Restore") { restore(item) }
+                            .buttonStyle(.bordered)
+                            .accessibilityLabel("Restore \(item.workout.title)")
+                    }
+                }
+            } footer: {
+                Text("Deleted workouts are kept for 30 days. A restored workout comes back with its sets, finished.")
+            }
+        }
+        .navigationTitle("Recently deleted")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func restore(_ item: DeletedWorkout) {
+        if model.restoreWorkout(id: item.id) {
+            result = "\(item.workout.title) is back in your workouts."
+        } else {
+            result = model.lastError.map { "\(item.workout.title) could not be restored: \($0)" }
+                ?? "\(item.workout.title) could not be restored. Its copy may have passed 30 days."
+        }
     }
 }
