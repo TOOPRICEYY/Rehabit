@@ -39,6 +39,8 @@ class Thresholds:
     freeze_span_days: int = 28         # ... spanning at least this long
     layoff_days: int = 7               # gap after which the load should step back
     compensation_ratio: float = 1.3    # other side's chronic load against onset
+    compensation_asymmetry: float = 1.25   # ... and against the injured side's own, on that day
+    compensation_gap_days: int = 14    # one flag per stretch: quiet this long before another
     session_jump: float = 1.5          # one session's minutes against the 28-day longest
     # Recovery and steps: the last 7 days against the 28 days before them.
     baseline_min_days: int = 14        # values needed in those 28 days
@@ -238,6 +240,10 @@ def _activity_flags(con, t: Thresholds) -> None:
 
 
 def _compensation_flags(con, t: Thresholds) -> None:
+    """The side opposite a one-sided injury carrying more than it did at onset,
+    and more than the injured side does now. Both sides rising together is
+    training going up, not one side taking over, and is not flagged. One flag
+    marks the start of a stretch, not every loaded day in it."""
     opposite = {"left": "right", "right": "left"}
     for inj in con.execute("SELECT * FROM injury"):
         if inj["side"] not in opposite:
@@ -247,24 +253,35 @@ def _compensation_flags(con, t: Thresholds) -> None:
         for tissue in json.loads(inj["tissues"]):
             # Training alone: walking loads both legs alike, so it says nothing
             # about one side taking over from the other.
-            rows = con.execute(
-                "SELECT day, dose - walking_dose AS dose, chronic - walking_chronic AS chronic"
-                " FROM tissue_load_day WHERE tissue_id = ? AND side = ?"
-                " AND day >= ? ORDER BY day", (tissue, other, onset.isoformat())).fetchall()
+            query = ("SELECT day, dose - walking_dose AS dose, chronic - walking_chronic AS chronic"
+                     " FROM tissue_load_day WHERE tissue_id = ? AND side = ? AND day >= ? ORDER BY day")
+            rows = con.execute(query, (tissue, other, onset.isoformat())).fetchall()
             if not rows or rows[0]["chronic"] <= 0:
                 continue
+            injured = {r["day"]: r["chronic"] for r in con.execute(query, (tissue, inj["side"], onset.isoformat()))}
             base = rows[0]["chronic"]
+            last: date | None = None
             for r in rows:
-                if r["dose"] > 0 and r["chronic"] > base * t.compensation_ratio:
-                    _insert(con, _d(r["day"]), "compensation", "tissue", tissue, side=other,
+                if not (r["dose"] > 0 and r["chronic"] > base * t.compensation_ratio
+                        and r["chronic"] > injured.get(r["day"], 0.0) * t.compensation_asymmetry):
+                    continue
+                day = _d(r["day"])
+                quiet = last is None or (day - last).days > t.compensation_gap_days
+                last = day
+                if quiet:
+                    _insert(con, day, "compensation", "tissue", tissue, side=other,
                             value=r["chronic"] / base, threshold=t.compensation_ratio,
-                            detail=f"{tissue} ({other}) carries {r['chronic'] / base:.2f} times its load at the onset of {inj['label']}")
+                            detail=f"{tissue} ({other}) carries {r['chronic'] / base:.2f} times its load at the onset"
+                                   f" of {inj['label']}, and more than the {inj['side']} side")
 
 
-def _metric(con, metric: str) -> dict[date, float]:
-    # One value per day; if two sources report the same day, the mean.
+def _metric(con, metric: str, largest: bool = False) -> dict[date, float]:
+    # One value per day. If two sources report the same day: the mean, or for a
+    # count such as steps the largest (a phone and a watch count the same walking,
+    # and the ledger takes the largest too).
+    how = "MAX" if largest else "AVG"
     return {_d(r["day"]): r["v"] for r in con.execute(
-        "SELECT day, AVG(value) AS v FROM daily_metric WHERE metric = ? GROUP BY day", (metric,))}
+        f"SELECT day, {how}(value) AS v FROM daily_metric WHERE metric = ? GROUP BY day", (metric,))}
 
 
 def _recent_and_baseline(series: dict[date, float], d: date, t: Thresholds):
@@ -327,7 +344,7 @@ def _recovery_flags(con, t: Thresholds) -> None:
 
 
 def _step_flags(con, t: Thresholds) -> None:
-    steps = _metric(con, "steps")
+    steps = _metric(con, "steps", largest=True)
     own = _Own(t)
     for d in sorted(steps):
         got = _recent_and_baseline(steps, d, t)

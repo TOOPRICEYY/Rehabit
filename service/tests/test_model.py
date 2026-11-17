@@ -283,3 +283,37 @@ def test_steps_count_as_walking_load_on_both_legs(con):
     assert abs(quads - 12) < 1e-9
     ledger.compute(con, ledger.Settings(count_steps=False))
     assert con.execute("SELECT COUNT(*) FROM tissue_load_day").fetchone()[0] == 0
+
+
+def test_compensation_needs_one_side_to_take_over_and_flags_a_stretch_once(con, profile):
+    seed_injuries(con, profile)                                            # left pec, 2025-03-10
+    onset = date(2025, 3, 10)
+    for week in range(1, 9):                                               # both sides alike before it
+        add_set(con, onset - timedelta(days=7 * week))
+    # After it, both sides go up together: training went up, nobody took over.
+    for i in range(0, 60, 2):
+        add_set(con, onset + timedelta(days=i), reps=30)
+    ledger.compute(con)
+    flags.compute(con)
+    assert not kinds(con, kind="compensation")
+
+    # The right side alone goes up: flagged, once for the whole stretch.
+    con.execute("DELETE FROM set_entry WHERE day >= ?", (onset.isoformat(),))
+    for i in range(0, 60, 2):
+        add_set(con, onset + timedelta(days=i), reps=30, side="right", source="right")
+    ledger.compute(con)
+    flags.compute(con)
+    found = sorted(kinds(con, kind="compensation"))
+    assert len(found) == 1 and found[0][0] > onset.isoformat()
+
+
+def test_step_flags_take_the_largest_reading_of_a_day(con):
+    for i in range(100):
+        day = START + timedelta(days=i)
+        add_metric(con, day, "steps", 5000)
+        con.execute("INSERT INTO daily_metric(day, metric, value, unit, source) VALUES (?,?,?,?,?)",
+                    (day.isoformat(), "steps", 1000, None, "phone"))      # the phone left on the desk
+    day = START + timedelta(days=100)
+    add_metric(con, day, "steps", 7000)                                    # 1.4 times: under the 1.5 jump
+    flags.compute(con)
+    assert not kinds(con, kind="step_day_jump")                           # against a mean of 3000 it would be 2.3
