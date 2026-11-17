@@ -352,6 +352,7 @@ struct ExerciseCard: View {
         case .total: what = "\(unit) total"
         case .bodyweight: what = "body weight"
         case .bodyweightPlus: what = "\(unit) added to body weight"
+        case .bodyweightMinus: what = "\(unit) of assistance taken off body weight"
         }
         return s.kind == .hold ? "\(what) · holds in seconds" : what
     }
@@ -389,6 +390,7 @@ struct ExerciseCard: View {
                     Text("Total (bar or stack)").tag(LoadConvention.total)
                     Text("Body weight").tag(LoadConvention.bodyweight)
                     Text("Body weight plus added").tag(LoadConvention.bodyweightPlus)
+                    Text("Body weight less assistance").tag(LoadConvention.bodyweightMinus)
                 }
             } label: {
                 Label("Load means: \(conventionName)", systemImage: "scalemass")
@@ -477,6 +479,7 @@ struct ExerciseCard: View {
         case .total: return "total"
         case .bodyweight: return "body weight"
         case .bodyweightPlus: return "body weight plus"
+        case .bodyweightMinus: return "body weight less assistance"
         }
     }
 
@@ -817,9 +820,9 @@ struct SetCell: View {
                         .frame(width: loadWidth)
                         .accessibilityLabel("Body weight")
                 } else {
-                    NumberField(title: Format.number(last?.loadValue).ifEmpty(draft.loadUnit.rawValue),
+                    NumberField(title: Format.number(last?.loadValue).ifEmpty(draft.convention == .bodyweightMinus ? "assist" : draft.loadUnit.rawValue),
                                 value: $draft.loadValue, width: loadWidth, step: loadStep, fieldID: draft.id + "|load")
-                        .accessibilityLabel("Set \(number)\(sideWords), \(unitWords)")
+                        .accessibilityLabel(draft.convention == .bodyweightMinus ? "Set \(number)\(sideWords), assistance in \(unitWords)" : "Set \(number)\(sideWords), \(unitWords)")
                 }
                 Text("×").foregroundStyle(.secondary).accessibilityHidden(true)
                 if draft.kind == .hold {

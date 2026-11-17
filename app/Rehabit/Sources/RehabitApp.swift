@@ -119,7 +119,8 @@ enum Format {
         if set.convention == .bodyweight {
             parts.append("body weight")
         } else if let load = set.loadValue {
-            let suffix = set.convention == .perHand ? " per hand" : (set.convention == .bodyweightPlus ? " added" : "")
+            let suffix = set.convention == .perHand ? " per hand" : set.convention == .bodyweightPlus ? " added"
+                : set.convention == .bodyweightMinus ? " assistance" : ""
             parts.append("\(number(load)) \(set.loadUnit.rawValue)\(suffix)")
         }
         if set.kind == .hold {
