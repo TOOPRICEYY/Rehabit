@@ -16,23 +16,38 @@ struct BodyHeatmapView: View {
     @AppStorage("heatReading") private var reading = HeatReading.versusUsual
     @State private var weeksAgo = 0
     @State private var selected: TissueSide?
+    /// Set once the person picks a reading here, so a short history does not override it.
+    @State private var pickedReading = false
 
     var body: some View {
         let weeks = model.tissueWeeks(weeksAgo: weeksAgo)
         let maxWeek = weeks.map(\.week).max() ?? 0
         let injured = model.injuredTissueSides
+        let compared = model.hasUsualWeek
+        // With no usual week yet, "This week" is shown first; the person can still switch.
+        let reading = compared || pickedReading ? self.reading : .thisWeek
         ScrollView {
             VStack(spacing: 14) {
-                Picker("Colour shows", selection: $reading) {
+                Picker("Colour shows", selection: Binding(get: { reading },
+                                                          set: { self.reading = $0; pickedReading = true })) {
                     Text("Versus usual").tag(HeatReading.versusUsual)
                     Text("This week").tag(HeatReading.thisWeek)
                 }
                 .pickerStyle(.segmented)
 
+                if !compared {
+                    Text("Not enough history yet to compare with a usual week")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 weekStepper
 
                 let figures = ForEach(BodyView.allCases, id: \.self) { view in
-                    FigureView(view: view, weeks: weeks, reading: reading, maxWeek: maxWeek, injured: injured) {
+                    FigureView(view: view, weeks: weeks, reading: reading, maxWeek: maxWeek, injured: injured,
+                               compared: compared) {
                         selected = $0
                     }
                 }
@@ -54,9 +69,11 @@ struct BodyHeatmapView: View {
                     }
                 }
 
-                HeatLegend(reading: reading, maxWeek: maxWeek)
+                HeatLegend(reading: reading, maxWeek: maxWeek, compared: compared)
 
-                Text(reading == .versusUsual
+                Text(reading == .versusUsual && !compared
+                     ? "Each side is this week's load in effective reps. Versus usual needs a usual week, the average of the four weeks before. Tap a muscle for its numbers. A description of load, not advice."
+                     : reading == .versusUsual
                      ? "Each side is this week's load against its own usual week, the average of the four weeks before. Tap a muscle for its numbers. A description of load, not advice."
                      : "Each side is this week's load in effective reps, against the most-loaded tissue. Tap a muscle for its numbers. A description of load, not advice.")
                     .font(.footnote)
@@ -68,7 +85,7 @@ struct BodyHeatmapView: View {
         }
         .background(Color(.systemGroupedBackground))
         .sheet(item: $selected) { choice in
-            TissueDetailSheet(choice: choice, weeksAgo: weeksAgo)
+            TissueDetailSheet(choice: choice, weeksAgo: weeksAgo, compared: compared)
                 .presentationDetents([.medium, .large])
         }
     }
@@ -119,6 +136,8 @@ struct FigureView: View {
     let reading: HeatReading
     let maxWeek: Double
     let injured: [String: Set<Side>]
+    /// False with no usual week yet: loaded regions are not marked "new".
+    var compared = true
     let onSelect: (TissueSide) -> Void
 
     var body: some View {
@@ -168,6 +187,8 @@ struct FigureView: View {
             switch level {
             case .empty:
                 shape.fill(Color(.systemBackground).opacity(0.6))
+            case .new where !compared:
+                shape.fill(HeatColor.loadedFill)
             case .new:
                 shape.fill(HeatColor.newFill)
                 Stripes().stroke(HeatColor.newStripe, lineWidth: 1.2).clipShape(shape)
@@ -207,7 +228,7 @@ struct FigureView: View {
     private func value(_ week: TissueWeek?) -> String {
         guard let week, week.week > 0 else { return "no load this week" }
         let reps = "\(Int(week.week.rounded())) effective reps"
-        guard let ratio = week.ratio else { return "new this week, \(reps)" }
+        guard let ratio = week.ratio else { return compared ? "new this week, \(reps)" : reps }
         return "\(Format.ratio(ratio)) usual, \(reps)"
     }
 }
@@ -250,6 +271,8 @@ enum HeatColor {
     static let high = (r: 0.96, g: 0.52, b: 0.10)      // orange: over usual
     static let newFill = Color.purple.opacity(0.18)
     static let newStripe = Color.purple.opacity(0.7)
+    /// Loaded, with no usual week to compare with yet.
+    static let loadedFill = Color.secondary.opacity(0.45)
 
     static func color(_ value: Double, reading: HeatReading) -> Color {
         switch reading {
@@ -275,9 +298,40 @@ extension Format {
 struct HeatLegend: View {
     let reading: HeatReading
     let maxWeek: Double
+    var compared = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            // A scale up to 0 reps says nothing; with no load, only the marks below are shown.
+            if (reading == .thisWeek && maxWeek > 0) || (reading == .versusUsual && compared) { scale }
+            HStack(spacing: 14) {
+                swatch("no load") {
+                    Capsule().fill(Color(.systemBackground)).overlay(Capsule().stroke(Color.secondary.opacity(0.6), lineWidth: 1))
+                }
+                if reading == .versusUsual {
+                    if compared {
+                        swatch("new") {
+                            ZStack {
+                                Capsule().fill(HeatColor.newFill)
+                                Stripes().stroke(HeatColor.newStripe, lineWidth: 1.2).clipShape(Capsule())
+                            }
+                        }
+                    } else {
+                        swatch("loaded") { Capsule().fill(HeatColor.loadedFill) }
+                    }
+                }
+                swatch("injured") {
+                    Capsule().stroke(Color.orange, style: StrokeStyle(lineWidth: 2, dash: [3, 2]))
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .padding(12)
+        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var scale: some View {
             GeometryReader { geometry in
                 let stops = (0...20).map { i -> Gradient.Stop in
                     let t = Double(i) / 20
@@ -305,27 +359,6 @@ struct HeatLegend: View {
             .accessibilityLabel(reading == .versusUsual
                                 ? "Scale from half a usual week, blue, through usual, grey, to double or more, orange"
                                 : "Scale from light to strong, up to \(Int(maxWeek.rounded())) effective reps")
-            HStack(spacing: 14) {
-                swatch("no load") {
-                    Capsule().fill(Color(.systemBackground)).overlay(Capsule().stroke(Color.secondary.opacity(0.6), lineWidth: 1))
-                }
-                if reading == .versusUsual {
-                    swatch("new") {
-                        ZStack {
-                            Capsule().fill(HeatColor.newFill)
-                            Stripes().stroke(HeatColor.newStripe, lineWidth: 1.2).clipShape(Capsule())
-                        }
-                    }
-                }
-                swatch("injured") {
-                    Capsule().stroke(Color.orange, style: StrokeStyle(lineWidth: 2, dash: [3, 2]))
-                }
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
-        .padding(12)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
     }
 
     private var ticks: [(label: String, at: Double)] {
@@ -352,6 +385,7 @@ struct TissueDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
     let choice: TissueSide
     let weeksAgo: Int
+    var compared = true
 
     var body: some View {
         let detail = model.tissueDetail(choice.tissue, side: choice.side, weeksAgo: weeksAgo)
@@ -369,7 +403,9 @@ struct TissueDetailSheet: View {
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
                             Text(ratioWords(detail)).font(.headline)
-                            Text("usual week \(Int(detail.usualWeek.rounded()))").font(.caption).foregroundStyle(.secondary)
+                            if compared {
+                                Text("usual week \(Int(detail.usualWeek.rounded()))").font(.caption).foregroundStyle(.secondary)
+                            }
                         }
                     }
                     .accessibilityElement(children: .combine)
@@ -406,7 +442,7 @@ struct TissueDetailSheet: View {
 
     private func ratioWords(_ detail: TissueDetail) -> String {
         if detail.week == 0 { return "no load" }
-        guard let ratio = detail.ratio else { return "new" }
+        guard let ratio = detail.ratio else { return compared ? "new" : "no usual week yet" }
         return "\(Format.ratio(ratio)) usual"
     }
 

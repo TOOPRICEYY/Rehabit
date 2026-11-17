@@ -52,11 +52,11 @@ struct SettingsView: View {
                     Text("Counts down after a set is marked done. Each exercise can have its own rest, in its menu during a workout.")
                 }
                 Section {
-                    Toggle("Ask about each injury every morning", isOn: Binding(
+                    Toggle("Daily check for each injury", isOn: Binding(
                         get: { model.profile.dailyCheckIn },
                         set: { on in var p = model.profile; p.dailyCheckIn = on; model.profile = p }))
                     if model.profile.dailyCheckIn {
-                        Picker("Morning check-in at", selection: Binding(
+                        Picker("Daily check at", selection: Binding(
                             get: { min(11, max(5, model.profile.morningHour)) },
                             set: { hour in var p = model.profile; p.morningHour = hour; model.profile = p })) {
                             ForEach(5...11, id: \.self) { hour in
@@ -68,7 +68,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Pain check-ins")
                 } footer: {
-                    Text("A morning question gives each injury a baseline to compare the after-session readings with. It is only saved when you answer it.")
+                    Text("A daily question, asked in the morning, gives each injury a baseline to compare the after-session readings with. It is only saved when you answer it.")
                 }
                 Section {
                     Button("Read from Apple Health") {

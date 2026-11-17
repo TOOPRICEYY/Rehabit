@@ -28,7 +28,7 @@ struct InjuriesView: View {
                             Text(injury.label)
                             Text("\(injury.side == .both ? "Both sides" : "\(Format.side(injury.side)) side") · \(injury.tissues.compactMap { model.library.tissue($0)?.name }.joined(separator: ", "))")
                                 .font(.caption).foregroundStyle(.secondary)
-                            Text(injury.isActive ? "Since \(Format.day(injury.onset))" : "Resolved \(injury.resolvedOn.map { Format.day($0) } ?? "")")
+                            Text(injury.isActive ? "Since \(injury.onset.readable)" : "Resolved \(injury.resolvedOn?.readable ?? "")")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                     }
@@ -150,7 +150,8 @@ struct InjuryEditorView: View {
     @Environment(\.dismiss) private var dismiss
     let injury: Injury?
     @State private var label = ""
-    @State private var side: Side = .left
+    /// Nil until the name says which side or the person picks one: never assumed.
+    @State private var side: Side?
     @State private var onset = Date()
     @State private var precision: OnsetPrecision = .day
     @State private var tissues: Set<String> = []
@@ -160,6 +161,8 @@ struct InjuryEditorView: View {
     @State private var sideChosen = false
 
     var body: some View {
+        let suggestion = model.library.suggestInjury(named: label)
+        let suggested = suggestion.tissues.filter { !tissues.contains($0) }
         NavigationStack {
             Form {
                 Section {
@@ -167,15 +170,50 @@ struct InjuryEditorView: View {
                         .onChange(of: label) { _, name in
                             // "Right rotator cuff" means the right side, until a side is picked by hand.
                             guard !sideChosen else { return }
-                            let words = name.lowercased()
-                            if words.contains("right") && !words.contains("left") { side = .right }
-                            else if words.contains("left") && !words.contains("right") { side = .left }
-                            else if words.contains("both") || words.contains("bilateral") { side = .both }
+                            side = model.library.suggestInjury(named: name).side
                         }
-                    Picker("Side", selection: Binding(get: { side }, set: { side = $0; sideChosen = true })) {
-                        Text("Left").tag(Side.left)
-                        Text("Right").tag(Side.right)
-                        Text("Both").tag(Side.both)
+                    if !suggested.isEmpty {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Tissues the name suggests. Tap to add.")
+                                .font(.caption).foregroundStyle(.secondary)
+                            WrapStack(spacing: 8) {
+                                ForEach(suggested, id: \.self) { id in
+                                    let name = model.library.tissue(id)?.name ?? id
+                                    Button {
+                                        tissues.insert(id)
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "plus").imageScale(.small)
+                                            Text(name)
+                                        }
+                                            .font(.subheadline)
+                                            .lineLimit(1)
+                                            .fixedSize()
+                                            .padding(.horizontal, 10).padding(.vertical, 6)
+                                            .background(Color.accentColor.opacity(0.12), in: Capsule())
+                                    }
+                                    .buttonStyle(.plain)
+                                    .foregroundStyle(Color.accentColor)
+                                    .accessibilityLabel("Add suggested tissue \(name)")
+                                }
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Side")
+                        Picker("Side", selection: Binding(get: { side }, set: { side = $0; sideChosen = true })) {
+                            Text("Left").tag(Side?.some(.left))
+                            Text("Right").tag(Side?.some(.right))
+                            Text("Both").tag(Side?.some(.both))
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .accessibilityLabel("Side")
+                        if side == nil {
+                            Text("Choose a side to save.")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
                     }
                     DatePicker("Onset", selection: $onset, displayedComponents: .date)
                     Picker("Date is known to the", selection: $precision) {
@@ -198,6 +236,7 @@ struct InjuryEditorView: View {
                                     if tissues.contains(tissue.id) { Image(systemName: "checkmark") }
                                 }
                             }
+                            .accessibilityAddTraits(tissues.contains(tissue.id) ? .isSelected : [])
                         }
                     }
                 }
@@ -208,7 +247,7 @@ struct InjuryEditorView: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
-                        .disabled(label.trimmingCharacters(in: .whitespaces).isEmpty || tissues.isEmpty)
+                        .disabled(label.trimmingCharacters(in: .whitespaces).isEmpty || tissues.isEmpty || side == nil)
                 }
             }
             .onAppear(perform: load)
@@ -223,6 +262,7 @@ struct InjuryEditorView: View {
     }
 
     private func save() {
+        guard let side else { return }
         var record = injury ?? Injury(label: label, side: side, onset: Day(onset), tissues: [])
         record.label = label.trimmingCharacters(in: .whitespaces)
         record.side = side

@@ -5,30 +5,55 @@ import SwiftUI
 /// Load on the injured side per day (and the other side, lighter), with the
 /// day's pain range on a 0 to 10 scale at the right and flare-ups marked.
 struct LoadPainChart: View {
+    /// What the bars count.
+    enum Measure: String, CaseIterable { case effectiveReps, weightMoved }
+
     @Environment(AppModel.self) private var model
     let injury: Injury
-    @State private var weeks = 6
+    @State private var weeks = 4
+    @State private var measure = Measure.effectiveReps
     @State private var selected: Date?
+
+    /// The day's bar on the injured side and the other, in the chosen measure.
+    private func amounts(_ d: InjuryDay) -> (injured: Double, other: Double?) {
+        switch measure {
+        case .effectiveReps: return (d.load, d.otherLoad)
+        case .weightMoved:
+            let kg = model.profile.unit.kilograms
+            return (d.volumeKg / kg, d.otherVolumeKg.map { $0 / kg })
+        }
+    }
 
     var body: some View {
         let days = model.timeline(for: injury, days: weeks * 7)
-        let top = max(days.map { max($0.load, $0.otherLoad ?? 0) }.max() ?? 0, 1)
+        let unit = model.profile.unit.rawValue
+        let top = max(days.map { let a = amounts($0); return max(a.injured, a.other ?? 0) }.max() ?? 0, 1)
         let scale = top / 10           // pain 10 sits at the top of the load axis
-        let sideName = injury.side == .both ? "Load" : "\(Format.side(injury.side)) side"
+        let sideName = injury.side == .both ? (measure == .weightMoved ? "Weight moved" : "Load") : "\(Format.side(injury.side)) side"
         VStack(alignment: .leading, spacing: 10) {
             Picker("Period", selection: $weeks) {
                 Text("2 weeks").tag(2)
-                Text("6 weeks").tag(6)
+                Text("4 weeks").tag(4)
+                Text("8 weeks").tag(8)
                 Text("12 weeks").tag(12)
             }
             .pickerStyle(.segmented)
+            Picker("Bars show", selection: $measure) {
+                Text("Effective reps").tag(Measure.effectiveReps)
+                Text("Weight moved").tag(Measure.weightMoved)
+            }
+            .pickerStyle(.segmented)
+            Text("Effective reps compare each side with its own usual weight; weight moved (\(unit), load x reps) compares the two sides directly.")
+                .font(.caption).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
             Chart {
                 ForEach(days) { d in
                     let date = Format.date(d.day)
-                    BarMark(x: .value("Day", date, unit: .day), y: .value("Load", d.load))
+                    let amount = amounts(d)
+                    BarMark(x: .value("Day", date, unit: .day), y: .value("Load", amount.injured))
                         .foregroundStyle(by: .value("Series", sideName))
                         .position(by: .value("Side", "injured"))
-                    if let other = d.otherLoad {
+                    if let other = amount.other {
                         BarMark(x: .value("Day", date, unit: .day), y: .value("Load", other))
                             .foregroundStyle(by: .value("Series", "Other side"))
                             .position(by: .value("Side", "other"))
@@ -81,7 +106,7 @@ struct LoadPainChart: View {
                 }
             }
             .frame(height: 220)
-            .accessibilityLabel("Load on the \(sideName.lowercased()) and pain over \(weeks) weeks")
+            .accessibilityLabel("\(measure == .weightMoved ? "Weight moved in \(unit)" : "Effective reps") on the \(injury.side == .both ? "injury" : sideName.lowercased()) and pain over \(weeks) weeks")
 
             dayDetail(days)
             HStack(spacing: 14) {
@@ -93,16 +118,17 @@ struct LoadPainChart: View {
                 legend(Color.orange, "flare-up", line: false)
             }
             .font(.caption)
-            Text("Load is in effective reps: reps at your usual weight, heavier sets counting more.")
-                .font(.caption).foregroundStyle(.secondary)
         }
     }
 
     @ViewBuilder private func dayDetail(_ days: [InjuryDay]) -> some View {
         if let selected, let d = days.first(where: { Calendar.current.isDate(Format.date($0.day), inSameDayAs: selected) }) {
-            var parts = ["\(Format.day(d.day))", d.trained ? "session" : "no session",
-                         "load \(Int(d.load.rounded()))"]
-            if let other = d.otherLoad { parts.append("other side \(Int(other.rounded()))") }
+            let amount = amounts(d)
+            let what = measure == .weightMoved ? "weight moved" : "effective reps"
+            let suffix = measure == .weightMoved ? " \(model.profile.unit.rawValue)" : ""
+            var parts = [d.day.readable, d.trained ? "session" : "no session",
+                         "\(what) \(Int(amount.injured.rounded()))\(suffix)"]
+            if let other = amount.other { parts.append("other side \(Int(other.rounded()))\(suffix)") }
             if let low = d.painLow, let high = d.painHigh {
                 parts.append(low == high ? "pain \(Format.number(low))" : "pain \(Format.number(low)) to \(Format.number(high))")
             }
@@ -137,6 +163,7 @@ struct TherapistReportView: View {
                     Text("2 weeks").tag(2)
                     Text("4 weeks").tag(4)
                     Text("8 weeks").tag(8)
+                    Text("12 weeks").tag(12)
                 }
                 .pickerStyle(.segmented)
                 HStack {

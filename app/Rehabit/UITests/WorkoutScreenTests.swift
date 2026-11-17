@@ -40,8 +40,9 @@ final class WorkoutScreenTests: XCTestCase {
         sleep(1)
         shot("\(tag)-03a-each-side")
         // The set menu from the set badge of the each-side exercise.
-        let badges = app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Set 2, options'"))
-        if badges.count > 1 { badges.element(boundBy: 1).tap() } else if badges.count == 1 { badges.firstMatch.tap() }
+        // A long press on the row opens the set menu (a tap on the number changes the kind of set).
+        let badges = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH 'Set 2, '"))
+        if badges.count > 1 { badges.element(boundBy: 1).press(forDuration: 1.0) } else if badges.count == 1 { badges.firstMatch.press(forDuration: 1.0) }
         sleep(1)
         shot("\(tag)-03-set-menu")
         closeMenu(app)
