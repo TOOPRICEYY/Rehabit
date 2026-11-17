@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import re
+import sqlite3
 from typing import Any
 
 from . import db, replay as replay_mod
@@ -159,10 +160,39 @@ class Tools:
         """Run one read-only SELECT against the database. Returns at most 500 rows."""
         if not _SELECT_ONLY.match(sql) or ";" in sql.strip().rstrip(";"):
             return {"error": "only a single SELECT statement is allowed"}
+        con = self._con()
+        # The connection is read-only already; this also refuses ATTACH, PRAGMA
+        # and anything but reading, and stops a query that runs away.
+        con.set_authorizer(_read_only_authorizer)
+        steps = [0]
+
+        def budget() -> int:
+            steps[0] += 1
+            return 1 if steps[0] > QUERY_BUDGET else 0
+        con.set_progress_handler(budget, 1000)
         try:
-            return db.rows(self._con(), sql)[:MAX_ROWS]
+            cur = con.execute(sql)
+            return [dict(r) for r in cur.fetchmany(MAX_ROWS)]
         except Exception as exc:  # the caller wrote the SQL, so the message is the help
+            if steps[0] > QUERY_BUDGET:
+                return {"error": "the query ran too long and was stopped"}
             return {"error": str(exc)}
+        finally:
+            con.close()
+
+
+# Progress-handler calls (every 1000 virtual machine steps) a query may use.
+QUERY_BUDGET = 20_000
+_ALLOWED_ACTIONS = {sqlite3.SQLITE_SELECT, sqlite3.SQLITE_READ, sqlite3.SQLITE_FUNCTION,
+                    getattr(sqlite3, "SQLITE_RECURSIVE", 33)}
+
+
+def _read_only_authorizer(action, arg1, arg2, db_name, source):
+    if action in _ALLOWED_ACTIONS and action != sqlite3.SQLITE_FUNCTION:
+        return sqlite3.SQLITE_OK
+    if action == sqlite3.SQLITE_FUNCTION and (arg2 or "").lower() not in {"load_extension", "readfile", "writefile"}:
+        return sqlite3.SQLITE_OK
+    return sqlite3.SQLITE_DENY
 
 
 TOOL_NAMES = ["get_overview", "list_sessions", "get_session", "query_sets", "get_tissue_load",

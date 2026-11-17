@@ -73,6 +73,8 @@ struct RootView: View {
             Reminders.sync(model.upcomingChecks, injuries: model.injuries)
         }
         .onChange(of: router.opened) { _, _ in tab = .checkIns }
+        // Records changed: leave a fresh export for the Mac a few seconds later.
+        .onChange(of: model.revision) { _, _ in MacSync.shared.changed(model) }
         .onAppear {
             NotificationRouter.shared.install()
             Reminders.sync(model.upcomingChecks, injuries: model.injuries)

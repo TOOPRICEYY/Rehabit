@@ -13,6 +13,8 @@ struct SettingsView: View {
     @State private var garminStatus = ""
     @State private var garminBusy = false
     @State private var pickingHevy = false
+    @State private var pickingSyncFolder = false
+    @State private var sync = MacSync.shared
     @State private var hevyStatus = ""
 
     var body: some View {
@@ -66,6 +68,34 @@ struct SettingsView: View {
                     Text("Hevy")
                 } footer: {
                     Text("In Hevy, open Profile, then Settings, then Export & Import Data, and export your workouts. Choose that file here. Importing the same file again adds nothing.")
+                }
+                Section {
+                    if sync.isSetUp {
+                        LabeledContent("Folder", value: sync.folderName ?? "Chosen")
+                        LabeledContent("Last synced") {
+                            if let last = sync.lastSync {
+                                Text(last, format: .relative(presentation: .named))
+                            } else {
+                                Text("Not yet")
+                            }
+                        }
+                        Button(sync.busy ? "Syncing…" : "Sync now") { sync.syncNow(model) }
+                            .disabled(sync.busy)
+                        Button("Choose another folder") { pickingSyncFolder = true }
+                        Button("Stop syncing", role: .destructive) { sync.forget() }
+                    } else {
+                        Button("Choose the Rehabit folder in iCloud Drive") { pickingSyncFolder = true }
+                    }
+                    if let error = sync.lastError {
+                        Text(error).font(.caption).foregroundStyle(.red)
+                    }
+                } header: {
+                    Text("Sync with your Mac")
+                } footer: {
+                    Text("Rehabit leaves a copy of your records in this folder after each workout, pain check-in, injury change or import. Your Mac reads it from iCloud Drive so Claude can use it. Choose iCloud Drive, then the folder named Rehabit.")
+                }
+                .fileImporter(isPresented: $pickingSyncFolder, allowedContentTypes: [.folder]) { result in
+                    if case .success(let url) = result { sync.choose(url, model: model) }
                 }
                 Section {
                     if let exportURL {

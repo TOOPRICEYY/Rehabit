@@ -36,6 +36,10 @@ public final class AppModel {
     /// or unlinked by hand. The rest follow `defaultLinked(_:)`. Not stored: it
     /// only steers how the next edit is copied.
     public var linkOverrides: [String: Bool] = [:]
+    /// Goes up whenever stored records were saved and read back (a workout
+    /// finished, a pain check answered, an injury saved, an import), so the
+    /// app knows when to write its export for the Mac again.
+    public private(set) var revision = 0
     public var profile: Profile {
         didSet {
             guard profile != oldValue else { return }
@@ -92,6 +96,7 @@ public final class AppModel {
             unreadableCount = try store.unreadable().count
             history = nil
         }
+        revision += 1
     }
 
     /// Call when time has passed without any change to the data (the app came
@@ -450,6 +455,7 @@ public final class AppModel {
             guard try await source.requestAccess() else { return nil }
             let metrics = try await source.dailyMetrics(from: today.adding(-days), through: today)
             try store.save(metrics)
+            revision += 1
             return metrics.filter { $0.value.isFinite }.count
         } catch {
             lastError = String(describing: error)
