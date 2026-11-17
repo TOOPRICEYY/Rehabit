@@ -11,14 +11,32 @@ Nothing here is clinical advice. The numbers are starting values, labelled as se
 
 ## The app
 
-`RehabitCore` holds the records (workout, set, injury, pain check), SQLite storage, a
-JSON snapshot that two devices can merge (the newer change wins, deletions included),
-the tissue ledger, the notes shown while logging a set, and the pain follow-up schedule
-(right after, that evening, next morning, 24 and 48 hours). An unanswered pain check
-stays missing; it is never stored as zero. The ledger is a port of `service/rehabit/
-ledger.py`, and a fixture written by the service holds the two to the same numbers.
+`RehabitCore` holds the records and every rule that is not a screen:
 
-    cd app/RehabitCore && swift test          # 88 tests; macOS or Linux (needs libsqlite3-dev)
+- **Logging.** Workouts, sets for each side, isometric holds timed from the clock, warm-ups,
+  drop sets and sets to failure, tempo, pain and its kind on a set, rest timers that wait
+  for both sides of a round, supersets, plate loading, units for each exercise.
+- **Starting points.** Routines (with a prescribed count and tempo where a therapist set
+  one), repeating a finished workout, loads prefilled from the same set last time.
+- **Injuries.** An injury names tissues and a side. Sessions that load it are followed by
+  pain questions (right after, that evening, next morning, 24 and 48 hours) and one daily
+  check. An unanswered question stays missing; it is never stored as zero. An injury can
+  carry a plan: pain limits, milestones, the next visit. Sessions are counted against the
+  limits as within, over or unknown.
+- **Load.** The tissue ledger turns sets and daily steps into effective reps for each tissue
+  and side, against that side's own usual weight. It is a port of `service/rehabit/
+  ledger.py`, and a fixture written by the service holds the two to the same numbers.
+- **Reading it back.** Exercise history, records, left against right, a week's summary,
+  session effort, a calendar, an injury timeline and a report in Markdown for a therapist,
+  recovery readings (heart-rate variability, resting heart rate, sleep, steps) against the
+  person's own last four weeks. These describe; none of them scores or advises.
+- **Data.** SQLite storage, a JSON snapshot two devices can merge (the newer change wins,
+  deletions included), Hevy and Garmin import, a spreadsheet export, deleted workouts kept
+  for 30 days, and inbox files prepared on the Mac that the person imports with a tap.
+  A session a watch and the phone both recorded is shown as a proposal to review, never
+  merged by rule.
+
+    cd app/RehabitCore && swift test          # macOS or Linux (needs libsqlite3-dev)
 
     brew install xcodegen                     # the app itself needs a Mac with Xcode 15+
     cd app/Rehabit && xcodegen && open Rehabit.xcodeproj
@@ -30,8 +48,9 @@ then run `app/Rehabit/scripts/testflight.sh`.
 After changing the exercise library or the ledger in the service, run
 `python3 -m rehabit.cli export-shared` from `service/` to rewrite the app's copy.
 
-Not built yet: iCloud and repository sync (the export file exists, the transport does
-not), editing a finished workout, rest timers, and Health Connect for Android.
+Not built yet: running and cycling as tissue load beyond their steps, a rest timer on the
+lock screen, load flags on the phone (the service computes them), and Health Connect for
+Android.
 
 ## What the service does
 
