@@ -14,9 +14,12 @@ public struct TissueDetail: Equatable, Sendable {
     /// last is the week itself; the four before it make the usual week.
     public let weekly: [Double]
     public let contributions: [Contribution]
+    /// How many of the 28 days before the week have any history behind them.
+    public var priorDays = 28
 
     public var week: Double { weekly.last ?? 0 }
-    public var usualWeek: Double { weekly.dropLast().reduce(0, +) / 4 }
+    /// The four weeks before as a weekly rate over the days there is history for.
+    public var usualWeek: Double { priorDays >= 7 ? weekly.dropLast().reduce(0, +) * 7 / Double(priorDays) : 0 }
     public var ratio: Double? { usualWeek > 0 ? week / usualWeek : nil }
 }
 
@@ -167,9 +170,7 @@ extension AppModel {
     public var hasUsualWeek: Bool {
         _ = tick
         let today = Day(clock, in: localZone)
-        let firstSet = storedSets.map(\.workoutDay).min()
-        let firstSteps = dailyMetrics(MetricName.steps).filter { $0.value > 0 }.map(\.day).min()
-        guard let first = [firstSet, firstSteps].compactMap({ $0 }).min() else { return false }
+        guard let first = firstRecordedDay else { return false }
         return today.days(since: first) >= 14
     }
 

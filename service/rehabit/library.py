@@ -125,6 +125,10 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
         "glute_med": (1.0, P), "glute_max": (0.3, A)}),
     "hip_adduction": ("Hip adduction", 0.0, {
         "adductors": (1.0, P)}),
+    # The leg held straight and lifted from the hip, lying down: the hip flexors
+    # move it and the quadriceps hold the knee locked. Not a trunk exercise.
+    "straight_leg_raise": ("Straight leg raise", 0.0, {
+        "hip_flexors": (1.0, P), "quads": (0.5, A), "abs": (0.25, S)}),
     # Daily steps, not a logged exercise: it is not in the picker and no
     # exercise name maps to it. Push-off loads the calf and Achilles most; the
     # thigh and hip muscles work at a small fraction of their capacity.
@@ -230,7 +234,6 @@ CATALOGUE: list[tuple[str, str, str, bool]] = [
     ("Incline Chest Press (Machine)", "press_incline", "total", False),
     ("Incline Push-Up", "push_up", "bodyweight", False),
     ("Knee Push-Up", "push_up", "bodyweight", False),
-    ("Cable Crossover", "fly", "per_hand", False),
     ("Shoulder Press (Machine)", "press_overhead", "total", False),
     ("Arnold Press (Dumbbell)", "press_overhead", "per_hand", False),
     ("Lateral Raise (Machine)", "raise_lateral", "total", False),
@@ -240,15 +243,16 @@ CATALOGUE: list[tuple[str, str, str, bool]] = [
     ("Seated Row (Machine)", "row", "total", False),
     ("Inverted Row", "row", "bodyweight", False),
     ("Neutral-Grip Pull-Up", "pull_up", "bodyweight", False),
-    ("Assisted Pull-Up (Machine)", "pull_up", "bodyweight", False),
-    ("Assisted Dip (Machine)", "dip", "bodyweight", False),
+    # The number entered is the help the machine gives: body weight minus it.
+    ("Assisted Pull-Up (Machine)", "pull_up", "bodyweight_minus", False),
+    ("Assisted Dip (Machine)", "dip", "bodyweight_minus", False),
+    ("Straight Leg Raise", "straight_leg_raise", "bodyweight", True),
     ("Bench Dip", "dip", "bodyweight", False),
     ("Triceps Kickback (Dumbbell)", "triceps_extension", "per_hand", True),
     ("Concentration Curl (Dumbbell)", "curl", "per_hand", True),
     ("Incline Curl (Dumbbell)", "curl", "per_hand", False),
     ("EZ Bar Curl", "curl", "total", False),
     ("Shrug (Barbell)", "shrug", "total", False),
-    ("Reverse Wrist Curl (Dumbbell)", "wrist_curl", "per_hand", True),
     ("Seated Leg Curl (Machine)", "leg_curl", "total", False),
     ("Hip Thrust (Machine)", "bridge", "total", False),
     ("Glute Kickback (Cable)", "bridge", "per_hand", True),
@@ -284,7 +288,19 @@ HOLDS: set[str] = {
 
 
 # First match wins, so the specific patterns come before the general ones.
+# First match wins. An empty id means "this is no loaded strength exercise":
+# the name stays unmapped, which is better than load filed under the wrong tissue.
 _PATTERNS: list[tuple[str, str]] = [
+    # Cardio machines and whole activities, stretches and mobility drills.
+    (r"rowing|\brow(er|ing)? ?erg|\berg\b|indoor row|\brower\b", ""),
+    (r"treadmill|elliptical|stair ?(master|climber|stepper)|cycling|\bbike\b|jump(ing)? rope|swimming|\byoga\b"
+     r"|^(outdoor |indoor )?(walk|walking|run|running|jog|jogging|hike|hiking)$", ""),
+    (r"stretch|mobility|foam roll|leg swings?|arm circles?|(neck|thoracic|spine|spinal|trunk) rotation", ""),
+    # The forearm tissue here is the flexors: the extensors' work has nowhere to go.
+    (r"reverse wrist", ""),
+    (r"straight[- ]leg raise|\bslr\b", "straight_leg_raise"),
+    (r"jefferson", "rdl"),
+    (r"curl[- ]?up|\bab curl|mcgill", "core"),
     (r"reverse nordic|knee extension|leg extension", "leg_extension"),
     (r"nordic|hamstring curl|leg curl|glute ham", "leg_curl"),
     (r"calf|heel raise", "calf_raise"),
@@ -303,9 +319,12 @@ _PATTERNS: list[tuple[str, str]] = [
     (r"handstand", "press_overhead"),
     (r"push[- ]?up", "push_up"),
     # "Incline bench" names the bench a curl or a row is done on as often as a press.
-    (r"incline(?!.*(curl|\brow|fly|raise)).*press|incline bench(?!.*(curl|\brow|fly|raise))", "press_incline"),
+    (r"incline(?!.*(curl|\brow|fly|raise)).*press"
+     r"|incline bench(?!.*(curl|\brow|fly|raise|step|squat|sit[- ]?up|crunch|hyperext|lunge|jump))", "press_incline"),
     (r"overhead press|shoulder press|push press|landmine press|arnold|seated dumbbell press|military", "press_overhead"),
-    (r"bench(?!.*(curl|\brow|fly|raise))|chest press|dumbbell press|floor press", "press_horizontal"),
+    # A bench is also something to step on, sit on or hook the feet under.
+    (r"bench(?!.*(curl|\brow|fly|raise|step|squat|sit[- ]?up|crunch|hyperext|lunge|jump))|chest press|dumbbell press"
+     r"|floor press", "press_horizontal"),
     (r"face pull|rear delt|reverse fly|reverse pec deck", "rear_fly"),
     (r"fly|flye|crossover|pec deck", "fly"),
     (r"external rotation|internal rotation|rotator", "shoulder_rotation"),
@@ -350,7 +369,7 @@ def match_exercise(source_name: str) -> str | None:
         return None
     for pattern, exercise_id in _COMPILED:
         if pattern.search(name):
-            return exercise_id
+            return exercise_id or None
     return None
 
 

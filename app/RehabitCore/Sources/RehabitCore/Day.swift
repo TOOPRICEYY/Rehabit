@@ -65,6 +65,14 @@ public struct Day: Hashable, Comparable, Codable, Sendable, CustomStringConverti
         return "\(months[c.month - 1]) \(c.day), \(c.year)"
     }
 
+    /// The month alone: "November 2026", for a date known only to the month.
+    public var readableMonth: String {
+        let c = components
+        let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+                      "October", "November", "December"]
+        return "\(months[c.month - 1]) \(c.year)"
+    }
+
     /// Midnight at the start of this day in a time zone.
     public func start(in zone: TimeZone = .current) -> Date {
         var calendar = Calendar(identifier: .gregorian)

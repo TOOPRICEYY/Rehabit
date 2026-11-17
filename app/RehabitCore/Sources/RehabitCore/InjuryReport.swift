@@ -26,6 +26,10 @@ public struct InjuryDay: Identifiable, Equatable, Sendable {
     public let volumeKg: Double
     /// The same for the other side. Nil for an injury on both sides.
     public let otherVolumeKg: Double?
+    /// Sets that loaded the injury that day with no weight known for them (a
+    /// body-weight movement with no share of body weight set for it, or no
+    /// body weight in the profile). They are in `load` and not in `volumeKg`.
+    public let unweighedSets: Int
     public var id: Day { day }
 }
 
@@ -65,6 +69,8 @@ public struct InjuryReport: Equatable, Sendable {
     public let weeklyVolume: [Double]
     public let weeklyOtherVolume: [Double]?
     public let unit: WeightUnit
+    /// Sets in the period that loaded the injury with no weight known: in the load, not in weight moved.
+    public let unweighedSets: Int
     public let exercises: [InjuryExerciseLine]
     public let symmetry: [SymmetryRow]
     /// Sessions that loaded the injury and have a reading before and a delayed one after.
@@ -102,13 +108,20 @@ extension AppModel {
                 }
             }
         }
-        var volume: [Day: Double] = [:], otherVolume: [Day: Double] = [:]
+        var volume: [Day: Double] = [:], otherVolume: [Day: Double] = [:], unweighed: [Day: Int] = [:]
         let finished = Set(workouts.map(\.id)), first = window.end.adding(1 - span)
         let scale = Ledger(library: library)
         for set in storedSets where finished.contains(set.workoutID) && set.workoutDay >= first && set.workoutDay <= window.end {
-            guard library.pattern(set.pattern)?.links.contains(where: { $0.share >= 0.25 && tissues.contains($0.tissue) }) == true,
-                  let kg = scale.loadKg(set, profile: profile(on: set.workoutDay)), kg > 0, kg.isFinite else { continue }
+            guard library.pattern(set.pattern)?.links.contains(where: { $0.share >= 0.25 && tissues.contains($0.tissue) }) == true
+            else { continue }
             let count = max(0, set.kind == .hold ? (set.holdSeconds ?? 0) / 5 : (set.reps ?? 0))
+            guard let kg = scale.loadKg(set, profile: profile(on: set.workoutDay)), kg > 0, kg.isFinite else {
+                // Work was done, but against a weight this record does not know.
+                if count > 0, !set.side.bodySides.filter({ injuredSides.contains($0) || $0 == otherSide }).isEmpty {
+                    unweighed[set.workoutDay, default: 0] += 1
+                }
+                continue
+            }
             // One number for the whole bar or the whole body is shared by the two sides.
             let perSide = (set.side == .both && set.convention != .perHand ? kg / 2 : kg) * count
             for side in set.side.bodySides {
@@ -127,7 +140,8 @@ extension AppModel {
             return InjuryDay(day: day, load: load[day] ?? 0, otherLoad: otherSide == nil ? nil : (other[day] ?? 0),
                              trained: trained.contains(day), painLow: answers[day]?.min(), painHigh: answers[day]?.max(),
                              flare: flares[day], setPain: underLoad[day], volumeKg: volume[day] ?? 0,
-                             otherVolumeKg: otherSide == nil ? nil : (otherVolume[day] ?? 0))
+                             otherVolumeKg: otherSide == nil ? nil : (otherVolume[day] ?? 0),
+                             unweighedSets: unweighed[day] ?? 0)
         }
     }
 
@@ -141,6 +155,7 @@ extension AppModel {
         switch set.convention {
         case .bodyweight: load = "body weight"
         case .bodyweightPlus: load = set.loadValue.map { "body weight + \(number($0)) \(set.loadUnit.rawValue)" } ?? "body weight"
+        case .bodyweightMinus: load = set.loadValue.map { "body weight less \(number($0)) \(set.loadUnit.rawValue) of assistance" } ?? "body weight"
         case .perHand: load = set.loadValue.map { "\(number($0)) \(set.loadUnit.rawValue) each hand" } ?? "no load entered"
         case .total: load = set.loadValue.map { "\(number($0)) \(set.loadUnit.rawValue)" } ?? "no load entered"
         }
@@ -165,8 +180,13 @@ extension AppModel {
                 }.compactMap(\.pain)
             return values.isEmpty ? nil : values.reduce(0, +) / Double(values.count)
         }
-        let weeks = stride(from: 0, to: span, by: 7).map { offset -> ArraySlice<InjuryDay> in
-            line[max(0, line.count - span + offset)..<min(line.count, line.count - span + offset + 7)]
+        // Whole weeks counted back from the last day. Days left over at the start
+        // of a period that is not whole weeks are in `days` and in no week:
+        // three days headed "week" beside seven would read as a fall.
+        let whole = line.count / 7
+        let weeks = (0..<whole).map { index -> ArraySlice<InjuryDay> in
+            let from = line.count - (whole - index) * 7
+            return line[from..<(from + 7)]
         }
         // Exercises that load the injury, on the injured side.
         let tissues = Set(injury.tissues)
@@ -179,12 +199,13 @@ extension AppModel {
         }
         let exercises = names.values.sorted().compactMap { name -> InjuryExerciseLine? in
             let history = exerciseHistory(name).filter { inPeriod($0.day) }
-            let own = history.filter { $0.side == injury.side || $0.side == .both }
+            // The injured side's sessions; for an injury on both sides, every session.
+            let own = history.filter { injury.side == .both || $0.side == injury.side || $0.side == .both }
             guard let first = own.first, let latest = own.last else { return nil }
             func top(_ session: ExerciseSession) -> String {
                 (session.topSet ?? session.sets.max { ($0.holdSeconds ?? 0) < ($1.holdSeconds ?? 0) }).map(describe) ?? "no working set"
             }
-            let otherSide = history.last { $0.side != injury.side && $0.side != .both }
+            let otherSide = injury.side == .both ? nil : history.last { $0.side != injury.side && $0.side != .both }
             return InjuryExerciseLine(exercise: name, sessions: Set(own.map(\.workoutID)).count, first: top(first),
                                       latest: top(latest), other: otherSide.map(top),
                                       maxPain: own.compactMap(\.maxPain).max())
@@ -217,7 +238,7 @@ extension AppModel {
             weeklyVolume: weeks.map { $0.reduce(0) { $0 + $1.volumeKg } / profile.unit.kilograms },
             weeklyOtherVolume: injury.side == .both ? nil
                 : weeks.map { $0.reduce(0) { $0 + ($1.otherVolumeKg ?? 0) } / profile.unit.kilograms },
-            unit: profile.unit,
+            unit: profile.unit, unweighedSets: line.reduce(0) { $0 + $1.unweighedSets },
             exercises: exercises, symmetry: symmetry(for: injury, days: span),
             sessionsFollowed: followed, sessionsLoading: loading, sessionsRaisedPain: raised,
             sessionsSettled: settled, medianHoursToSettle: median)
@@ -235,13 +256,28 @@ extension AppModel {
         let side = injury.side == .both ? "both sides" : "\(injury.side.rawValue) side"
         let tissues = injury.tissues.compactMap { library.tissue($0)?.name }.joined(separator: ", ")
         var out: [String] = []
-        out.append("# \(injury.label)")
+        // Text the person typed goes in as text: it cannot start a heading or a table row.
+        func plain(_ text: String) -> String {
+            text.split(separator: "\n", omittingEmptySubsequences: false).map { line -> String in
+                let trimmed = line.drop { $0 == " " || $0 == "\t" }
+                let escaped = line.replacingOccurrences(of: "|", with: "\\|")
+                return trimmed.hasPrefix("#") || trimmed.hasPrefix("|") || trimmed.hasPrefix("---") ? "\\" + escaped : escaped
+            }.joined(separator: "\n")
+        }
+        let title = injury.label.split(whereSeparator: \.isNewline).joined(separator: " ")
+        out.append("# \(title.isEmpty ? "Injury" : title)")
         out.append("")
         var facts = "\(side.prefix(1).uppercased() + side.dropFirst()); \(tissues.isEmpty ? "tissues not set" : tissues). "
-        facts += "Began \(injury.onsetPrecision == .day ? "on" : "around") \(injury.onset.readable)"
-        facts += injury.resolvedOn.map { ", marked resolved \($0.readable)." } ?? ", \(max(0, r.end.days(since: injury.onset)) / 7) weeks before this report."
+        switch injury.onsetPrecision {
+        case .day: facts += "Began on \(injury.onset.readable)"
+        case .week: facts += "Began around \(injury.onset.readable)"
+        case .month: facts += "Began in \(injury.onset.readableMonth)"
+        }
+        let since = max(0, r.end.days(since: injury.onset))
+        let ago = since < 14 ? "\(since) day\(since == 1 ? "" : "s")" : "\(since / 7) weeks"
+        facts += injury.resolvedOn.map { ", marked resolved \($0.readable)." } ?? ", \(ago) before this report."
         out.append(facts)
-        if !injury.mechanism.isEmpty { out.append("How it happened: \(injury.mechanism)") }
+        if !injury.mechanism.isEmpty { out.append("How it happened: \(plain(injury.mechanism))") }
         out.append("Period: \(r.start.readable) to \(r.end.readable) (\(r.days.count) days).")
         out.append("")
         out.append("## Pain (0 to 10)")
@@ -255,11 +291,11 @@ extension AppModel {
             out.append(counts)
             switch (r.recentPain, r.earlierPain) {
             case let (recent?, earlier?):
-                out.append("- Morning and daily readings, last 7 days: mean \(n(recent)). The 7 days before: mean \(n(earlier)).")
+                out.append("- Morning readings and daily checks, last 7 days: mean \(n(recent)). The 7 days before: mean \(n(earlier)).")
             case let (recent?, nil):
-                out.append("- Morning and daily readings, last 7 days: mean \(n(recent)). None in the 7 days before.")
+                out.append("- Morning readings and daily checks, last 7 days: mean \(n(recent)). None in the 7 days before.")
             default:
-                out.append("- No morning or daily readings in the last 7 days.")
+                out.append("- No morning reading or daily check in the last 7 days.")
             }
             let highs = r.days.compactMap { day in day.painHigh.map { (day.day, $0) } }
             if let worst = highs.max(by: { $0.1 < $1.1 }) { out.append("- Highest answer: \(n(worst.1)) on \(worst.0.readable).") }
@@ -290,12 +326,16 @@ extension AppModel {
             out.append("|---|---|---|---|---|")
         }
         for (i, load) in r.weeklyLoad.enumerated() {
-            let ending = r.start.adding(min(r.days.count, (i + 1) * 7) - 1).readable
+            let ending = r.end.adding(-7 * (r.weeklyLoad.count - 1 - i)).readable
             if let other = r.weeklyOtherLoad, let otherVolume = r.weeklyOtherVolume {
                 out.append("| \(ending) | \(n(load)) | \(n(other[i])) | \(whole(r.weeklyVolume[i])) | \(whole(otherVolume[i])) |")
             } else {
                 out.append("| \(ending) | \(n(load)) | \(whole(r.weeklyVolume[i])) |")
             }
+        }
+        if r.unweighedSets > 0 {
+            out.append("")
+            out.append("\(r.unweighedSets) set\(r.unweighedSets == 1 ? "" : "s") that loaded it had no weight known (body-weight movements): \(r.unweighedSets == 1 ? "it is" : "they are") in effective reps and not in weight moved.")
         }
         out.append("")
         out.append("## Exercises that load it")
@@ -341,7 +381,7 @@ extension AppModel {
         if !injury.notes.isEmpty {
             out.append("")
             out.append("## Notes")
-            out.append(injury.notes)
+            out.append(plain(injury.notes))
         }
         out.append("")
         out.append("Written by Rehabit from what was logged. It reports numbers and counts; it is not an assessment or advice.")

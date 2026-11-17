@@ -67,8 +67,9 @@ def test_every_link_points_at_a_known_tissue():
 
 
 def test_every_pattern_targets_a_known_exercise():
+    # An empty id is a rule that keeps a name unmapped (cardio, stretches).
     for _, exercise_id in library._PATTERNS:
-        assert exercise_id in library.EXERCISES
+        assert exercise_id == "" or exercise_id in library.EXERCISES
 
 
 def test_shared_files_are_current():

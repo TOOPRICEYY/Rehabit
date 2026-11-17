@@ -69,7 +69,9 @@ public enum ExerciseMatcher {
         let text = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !text.isEmpty, text != "unknown" else { return nil }
         let whole = NSRange(text.startIndex..., in: text)
-        return rules.first { $0.0.firstMatch(in: text, range: whole) != nil }?.1
+        // A rule with no pattern says the name is not a loaded strength exercise: it stays unmapped.
+        guard let found = rules.first(where: { $0.0.firstMatch(in: text, range: whole) != nil })?.1, !found.isEmpty else { return nil }
+        return found
     }
 
     /// The catalogue entry with this exact name if there is one, else an entry
@@ -83,9 +85,8 @@ public enum ExerciseMatcher {
         let pattern = pattern(for: clean)
         let lower = clean.lowercased()
         let bodyweight = (library.pattern(pattern)?.bodyweightShare ?? 0) > 0
-        // An assisted pull-up's number is weight taken off, not added: counted as
-        // body weight alone until assistance has a meaning of its own.
-        let convention: LoadConvention = bodyweight ? (lower.contains("assist") ? .bodyweight : .bodyweightPlus)
+        // An assisted pull-up's number is weight taken off, not added.
+        let convention: LoadConvention = bodyweight ? (lower.contains("assist") ? .bodyweightMinus : .bodyweightPlus)
             : lower.contains("dumbbell") ? .perHand : .total
         let oneSided = lower.contains("single") || lower.contains("one arm") || lower.contains("one leg")
         let hold = lower.contains("isometric") || lower.hasSuffix(" hold") || lower.contains("plank") || lower.contains("wall sit")
@@ -307,9 +308,10 @@ extension AppModel {
                     if s.side == nil, inferSide, let guess = inferredSide(pattern: match.pattern, on: workout.startDay) {
                         side = guess; guessed = true; inferred += 1
                     } else if s.side != nil { inferred += 1 }
-                    let bodyweight = match.entry.convention == .bodyweight || match.entry.convention == .bodyweightPlus
-                    let convention: LoadConvention = bodyweight ? (s.loadValue == nil ? .bodyweight : .bodyweightPlus)
-                                                                : match.entry.convention
+                    let own = match.entry.convention
+                    let bodyweight = own == .bodyweight || own == .bodyweightPlus || own == .bodyweightMinus
+                    let convention: LoadConvention = !bodyweight ? own
+                        : s.loadValue == nil ? .bodyweight : (own == .bodyweightMinus ? .bodyweightMinus : .bodyweightPlus)
                     sets.append(WorkoutSet(
                         id: id + ":" + String(position), workout: workout, position: position,
                         exercise: match.entry.name, pattern: match.pattern, side: side, sideInferred: guessed,

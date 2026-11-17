@@ -452,9 +452,12 @@ public final class AppModel {
         attempt {
             try store.save(injury)
             if !injury.isActive {
-                // A resolved injury is not asked about any more.
-                for check in checks where check.injuryID == injury.id && !check.isAnswered {
-                    try store.delete(PainCheck.self, id: check.id, at: now())
+                // A resolved injury is not asked about any more. What was skipped
+                // or left unanswered before then stays: it is part of its record.
+                let time = now()
+                for check in checks where check.injuryID == injury.id && check.isOpen
+                    && check.dueAt.addingTimeInterval(AppModel.window(check.moment)) >= time {
+                    try store.delete(PainCheck.self, id: check.id, at: time)
                 }
             }
         }
@@ -537,6 +540,21 @@ public final class AppModel {
         return (end, ledger.tissueDays(sets, through: end).filter { end.days(since: $0.day) < days && $0.day <= end })
     }
 
+    /// The first day anything was logged or counted: a set, or steps.
+    var firstRecordedDay: Day? {
+        let firstSet = allSets.map(\.workoutDay).min()
+        let firstSteps = dailyMetrics(MetricName.steps).filter { $0.value > 0 }.map(\.day).min()
+        return [firstSet, firstSteps].compactMap { $0 }.min()
+    }
+
+    /// How many of the 28 days before a week (ending `end`) have any history
+    /// behind them. The usual week is the load of those days as a weekly rate,
+    /// so three weeks of history are not read as four with one of them empty.
+    func priorDays(before end: Day) -> Int {
+        guard let first = firstRecordedDay else { return 0 }
+        return min(28, max(0, end.adding(-7).days(since: first) + 1))
+    }
+
     /// Each loaded tissue and side for the week ending `weeksAgo` weeks before
     /// today, against its own four weeks before that.
     public func tissueWeeks(weeksAgo: Int) -> [TissueWeek] {
@@ -547,9 +565,11 @@ public final class AppModel {
             sides[key] = (d.tissue, d.side)
             if window.end.days(since: d.day) < 7 { week[key, default: 0] += d.dose } else { prior[key, default: 0] += d.dose }
         }
+        let days = priorDays(before: window.end)
         return sides.compactMap { key, value in
             guard let tissue = library.tissue(value.0) else { return nil }
-            return TissueWeek(tissue: tissue, side: value.1, week: week[key] ?? 0, usualWeek: (prior[key] ?? 0) / 4)
+            return TissueWeek(tissue: tissue, side: value.1, week: week[key] ?? 0,
+                              usualWeek: days >= 7 ? (prior[key] ?? 0) * 7 / Double(days) : 0)
         }.sorted { ($0.tissue.region, $0.tissue.name, $0.side.rawValue) < ($1.tissue.region, $1.tissue.name, $1.side.rawValue) }
     }
 
@@ -573,7 +593,8 @@ public final class AppModel {
         let contributions = byExercise.filter { $0.value > 0 }
             .map { TissueDetail.Contribution(exercise: $0.key, dose: $0.value) }
             .sorted { ($0.dose, $1.exercise) > ($1.dose, $0.exercise) }
-        return TissueDetail(tissue: tissue, side: side, weekEnding: window.end, weekly: weekly, contributions: contributions)
+        return TissueDetail(tissue: tissue, side: side, weekEnding: window.end, weekly: weekly, contributions: contributions,
+                            priorDays: priorDays(before: window.end))
     }
 
     /// The sides of each tissue with an active injury.

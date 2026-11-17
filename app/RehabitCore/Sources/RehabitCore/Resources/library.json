@@ -926,6 +926,28 @@
    ]
   },
   {
+   "id": "straight_leg_raise",
+   "name": "Straight leg raise",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "hip_flexors",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "quads",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "abs",
+     "share": 0.25,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
    "id": "walking",
    "name": "Walking (daily steps)",
    "bodyweightShare": 0.0,
@@ -1614,13 +1636,6 @@
    "kind": "reps"
   },
   {
-   "name": "Cable Crossover",
-   "pattern": "fly",
-   "convention": "per_hand",
-   "unilateral": false,
-   "kind": "reps"
-  },
-  {
    "name": "Shoulder Press (Machine)",
    "pattern": "press_overhead",
    "convention": "total",
@@ -1686,15 +1701,22 @@
   {
    "name": "Assisted Pull-Up (Machine)",
    "pattern": "pull_up",
-   "convention": "bodyweight",
+   "convention": "bodyweight_minus",
    "unilateral": false,
    "kind": "reps"
   },
   {
    "name": "Assisted Dip (Machine)",
    "pattern": "dip",
-   "convention": "bodyweight",
+   "convention": "bodyweight_minus",
    "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Straight Leg Raise",
+   "pattern": "straight_leg_raise",
+   "convention": "bodyweight",
+   "unilateral": true,
    "kind": "reps"
   },
   {
@@ -1737,13 +1759,6 @@
    "pattern": "shrug",
    "convention": "total",
    "unilateral": false,
-   "kind": "reps"
-  },
-  {
-   "name": "Reverse Wrist Curl (Dumbbell)",
-   "pattern": "wrist_curl",
-   "convention": "per_hand",
-   "unilateral": true,
    "kind": "reps"
   },
   {
@@ -1896,6 +1911,34 @@
  ],
  "matchers": [
   [
+   "rowing|\\brow(er|ing)? ?erg|\\berg\\b|indoor row|\\brower\\b",
+   ""
+  ],
+  [
+   "treadmill|elliptical|stair ?(master|climber|stepper)|cycling|\\bbike\\b|jump(ing)? rope|swimming|\\byoga\\b|^(outdoor |indoor )?(walk|walking|run|running|jog|jogging|hike|hiking)$",
+   ""
+  ],
+  [
+   "stretch|mobility|foam roll|leg swings?|arm circles?|(neck|thoracic|spine|spinal|trunk) rotation",
+   ""
+  ],
+  [
+   "reverse wrist",
+   ""
+  ],
+  [
+   "straight[- ]leg raise|\\bslr\\b",
+   "straight_leg_raise"
+  ],
+  [
+   "jefferson",
+   "rdl"
+  ],
+  [
+   "curl[- ]?up|\\bab curl|mcgill",
+   "core"
+  ],
+  [
    "reverse nordic|knee extension|leg extension",
    "leg_extension"
   ],
@@ -1964,7 +2007,7 @@
    "push_up"
   ],
   [
-   "incline(?!.*(curl|\\brow|fly|raise)).*press|incline bench(?!.*(curl|\\brow|fly|raise))",
+   "incline(?!.*(curl|\\brow|fly|raise)).*press|incline bench(?!.*(curl|\\brow|fly|raise|step|squat|sit[- ]?up|crunch|hyperext|lunge|jump))",
    "press_incline"
   ],
   [
@@ -1972,7 +2015,7 @@
    "press_overhead"
   ],
   [
-   "bench(?!.*(curl|\\brow|fly|raise))|chest press|dumbbell press|floor press",
+   "bench(?!.*(curl|\\brow|fly|raise|step|squat|sit[- ]?up|crunch|hyperext|lunge|jump))|chest press|dumbbell press|floor press",
    "press_horizontal"
   ],
   [

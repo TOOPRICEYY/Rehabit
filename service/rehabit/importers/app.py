@@ -49,6 +49,9 @@ def _load_kg(s: dict, bodyweight_kg: float) -> float | None:
         return bodyweight_kg * share if share > 0 else None
     if convention == "bodyweight_plus":
         return bodyweight_kg * share + (kg or 0.0)
+    if convention == "bodyweight_minus":
+        # The number is the help an assisted machine gives; what is left is lifted.
+        return max(0.0, bodyweight_kg * share - (kg or 0.0)) if share > 0 else None
     return kg
 
 

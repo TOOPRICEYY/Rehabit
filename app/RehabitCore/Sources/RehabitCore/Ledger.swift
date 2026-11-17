@@ -96,6 +96,10 @@ public struct Ledger: Sendable {
             // 10 added then 15 added look like a 50 percent jump.
             guard let body = profile.bodyweightKg else { return nil }
             return body * share + (entered ?? 0)
+        case .bodyweightMinus:
+            // The number is the help: more of it is less lifted. Never below nothing.
+            guard let body = profile.bodyweightKg, share > 0 else { return nil }
+            return max(0, body * share - (entered ?? 0))
         }
     }
 

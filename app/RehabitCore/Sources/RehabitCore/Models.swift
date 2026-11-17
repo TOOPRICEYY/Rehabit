@@ -18,6 +18,7 @@ public enum LoadConvention: String, Codable, CaseIterable, Sendable {
     case total                           // the whole bar or stack
     case bodyweight                      // no added load
     case bodyweightPlus = "bodyweight_plus"  // body weight plus the number entered
+    case bodyweightMinus = "bodyweight_minus"  // body weight less the help an assisted machine gives
 }
 
 public enum WeightUnit: String, Codable, CaseIterable, Sendable {

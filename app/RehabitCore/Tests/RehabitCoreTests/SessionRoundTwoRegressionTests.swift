@@ -2,7 +2,7 @@ import XCTest
 @testable import RehabitCore
 
 /// Adversarial probes on doing a workout after the round 2 core change.
-/// Each test fails because of one defect; see its message.
+/// Each test failed because of one defect when it was written; see its message.
 final class SessionRoundTwoRegressionTests: XCTestCase {
     let zone = TimeZone(identifier: "America/Detroit")!
     var clock = Date(timeIntervalSince1970: 1_790_000_000)

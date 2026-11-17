@@ -10,6 +10,12 @@ extension AppModel {
         let name = routine.name.trimmingCharacters(in: .whitespacesAndNewlines)
         routine.name = name.isEmpty ? "Routine" : name
         routine.items = routine.items.map(\.clamped)
+        // A superset of one is no superset.
+        var members: [Int: Int] = [:]
+        for item in routine.items { if let group = item.group { members[group, default: 0] += 1 } }
+        for i in routine.items.indices where routine.items[i].group.map({ (members[$0] ?? 0) < 2 }) ?? false {
+            routine.items[i].group = nil
+        }
         routine.updatedAt = clock
         attempt { try storeRoutine(routine) }
         reload()

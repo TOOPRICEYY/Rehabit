@@ -161,7 +161,8 @@ final class RoundTwoTests: XCTestCase {
         XCTAssertEqual(suggest("Upper back spasm").1, ["mid_back"])
         XCTAssertEqual(suggest("Lower back").1, ["erectors"])
         XCTAssertEqual(suggest("Right hip flexor").1, ["hip_flexors"])
-        XCTAssertEqual(suggest("Tennis elbow (left)").1, ["forearm"])
+        XCTAssertEqual(suggest("Tennis elbow (left)").1, [])              // the extensors have no tissue here: none beats the flexors
+        XCTAssertEqual(suggest("Golfer's elbow").1, ["forearm"])
         XCTAssertEqual(suggest("Something odd").1, [])
         XCTAssertNil(suggest("Flat feet").0)                              // no "l" inside a word is a side
     }
