@@ -86,10 +86,12 @@ public struct Milestone: Codable, Equatable, Identifiable, Sendable {
 
     public init(id: String = UUID().uuidString, title: String, exercise: String? = nil, loadValue: Double? = nil,
                 loadUnit: WeightUnit = .lb, count: Double? = nil, maxPain: Double? = nil, doneOn: Day? = nil) {
-        func real(_ value: Double?) -> Double? { value.flatMap { $0.isFinite && $0 > 0 ? $0 : nil } }
-        let name = exercise?.trimmingCharacters(in: .whitespacesAndNewlines)
+        // A number no set could reach is a slip of the hand, not a milestone.
+        func real(_ value: Double?, most: Double) -> Double? { value.flatMap { $0.isFinite && $0 > 0 && $0 <= most ? $0 : nil } }
+        // The name on one line: it is matched against set names and written into the report.
+        let name = exercise?.split(whereSeparator: \.isNewline).joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
         self.id = id; self.title = title; self.exercise = name.flatMap { $0.isEmpty ? nil : $0 }
-        self.loadValue = real(loadValue); self.loadUnit = loadUnit; self.count = real(count)
+        self.loadValue = real(loadValue, most: 10_000); self.loadUnit = loadUnit; self.count = real(count, most: 86_400)
         self.maxPain = maxPain.flatMap { $0.isFinite ? min(10, max(0, $0)) : nil }; self.doneOn = doneOn
     }
 
@@ -116,17 +118,39 @@ public struct InjuryPlan: Codable, Equatable, Sendable {
     public var nextVisit: Day?
 
     public init(rule: PainRule? = nil, milestones: [Milestone] = [], setBy: String = "", nextVisit: Day? = nil) {
-        self.rule = rule.flatMap { $0.isEmpty ? nil : $0 }; self.milestones = milestones
+        self.rule = rule.flatMap { $0.isEmpty ? nil : $0 }
+        // Each milestone is told from the others by its id: one repeated gets
+        // the same new id every time it is read.
+        var seen = Set<String>(), unique: [Milestone] = []
+        for var milestone in milestones {
+            var copy = 2
+            let base = milestone.id
+            while seen.contains(milestone.id) { milestone.id = "\(base)#\(copy)"; copy += 1 }
+            seen.insert(milestone.id)
+            unique.append(milestone)
+        }
+        self.milestones = unique
         self.setBy = setBy; self.nextVisit = nextVisit
     }
 
     private enum CodingKeys: String, CodingKey { case rule, milestones, setBy, nextVisit }
 
-    /// A part that cannot be read is left out; it must not cost the injury.
+    /// Stands in for an entry that could not be read, so the reading moves past it.
+    private struct Unreadable: Decodable {}
+
+    /// A part that cannot be read is left out; it must not cost the injury,
+    /// and one milestone that cannot be read must not cost the others. A plan
+    /// that is not a record at all reads as no plan.
     public init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        self.init(rule: try? c.decodeIfPresent(PainRule.self, forKey: .rule),
-                  milestones: (try? c.decodeIfPresent([Milestone].self, forKey: .milestones)) ?? [],
+        guard let c = try? decoder.container(keyedBy: CodingKeys.self) else { self.init(); return }
+        var milestones: [Milestone] = []
+        if var list = try? c.nestedUnkeyedContainer(forKey: .milestones) {
+            while !list.isAtEnd {
+                if let milestone = try? list.decode(Milestone.self) { milestones.append(milestone) }
+                else if (try? list.decode(Unreadable.self)) == nil { break }
+            }
+        }
+        self.init(rule: try? c.decodeIfPresent(PainRule.self, forKey: .rule), milestones: milestones,
                   setBy: (try? c.decodeIfPresent(String.self, forKey: .setBy)) ?? "",
                   nextVisit: try? c.decodeIfPresent(Day.self, forKey: .nextVisit))
     }
@@ -180,7 +204,14 @@ public struct MilestoneProgress: Identifiable, Equatable, Sendable {
 extension AppModel {
     private static func plain(_ value: Double) -> String {
         let rounded = (value * 10).rounded() / 10
+        guard rounded.isFinite, abs(rounded) < 1e15 else { return String(value) }
         return rounded == rounded.rounded() ? String(Int(rounded)) : String(rounded)
+    }
+
+    /// "1 hour", "24 hours", "1.5 hours".
+    private static func counted(_ value: Double, _ unit: String) -> String {
+        let number = plain(value)
+        return "\(number) \(unit)\(number == "1" ? "" : "s")"
     }
 
     // MARK: Limits
@@ -191,7 +222,10 @@ extension AppModel {
         guard let rule = injury.plan?.rule, !rule.isEmpty else { return [] }
         let today = Day(clock, in: localZone), first = today.adding(-max(1, days) + 1)
         var out: [RuleCheck] = []
-        for workout in workouts where workout.startDay >= first && workout.startDay <= today {
+        // Newest first by when they began: two sessions of one day are in the order they were done.
+        let recent = workouts.filter { $0.startDay >= first && $0.startDay <= today }
+            .sorted { ($0.start, $0.id) > ($1.start, $1.id) }
+        for workout in recent {
             guard let end = workout.end, let settling = settling(for: workout).first(where: { $0.injury.id == injury.id })
             else { continue }
             var words: [String] = []
@@ -213,19 +247,21 @@ extension AppModel {
                 settleOutcome = .unknown
                 if let baseline = settling.baseline {
                     // A reading at or past the limit that is still above the level before shows it had not settled by then.
+                    // A flare-up is a bad moment, not a reading of how the injury is, and is no such evidence.
                     let late = settling.readings.first { check in
+                        guard check.moment != .flare else { return false }
                         let at = (check.answeredAt ?? check.dueAt).timeIntervalSince(end) / 3600
                         return at >= limit && (check.pain ?? 0) > baseline + 0.5
                     }
                     if let late {
                         settleOutcome = .over
                         let at = (late.answeredAt ?? late.dueAt).timeIntervalSince(end) / 3600
-                        words.append("Still above the level before at \(AppModel.plain(at.rounded())) hours; the time set is \(AppModel.plain(limit)).")
+                        words.append("Still above the level before at \(AppModel.counted(at.rounded(), "hour")); the time set is \(AppModel.counted(limit, "hour")).")
                     } else if let hours, hours <= limit {
                         settleOutcome = .within
-                        words.append("Back to the level before by \(AppModel.plain(hours.rounded())) hours, inside the \(AppModel.plain(limit)) set.")
+                        words.append("Back to the level before by \(AppModel.counted(hours.rounded(), "hour")), inside the \(AppModel.counted(limit, "hour")) set.")
                     } else {
-                        words.append("The readings do not show whether it settled within \(AppModel.plain(limit)) hours.")
+                        words.append("The readings do not show whether it settled within \(AppModel.counted(limit, "hour")).")
                     }
                 } else {
                     words.append("No reading before the session to settle back to.")
@@ -235,7 +271,7 @@ extension AppModel {
                                  during: settling.during, duringOutcome: duringOutcome, hoursToSettle: hours,
                                  settleOutcome: settleOutcome, sentence: words.joined(separator: " ")))
         }
-        return out.sorted { ($0.day, $0.workoutID) > ($1.day, $1.workoutID) }
+        return out
     }
 
     public func ruleSummary(for injury: Injury, days: Int = 28) -> RuleSummary? {
@@ -252,7 +288,7 @@ extension AppModel {
         guard let rule = injury.plan?.rule, !rule.isEmpty else { return nil }
         var parts: [String] = []
         if let limit = rule.duringMax { parts.append("pain during sets no higher than \(AppModel.plain(limit))") }
-        if let hours = rule.settleHours { parts.append("back to the level before within \(AppModel.plain(hours)) hours") }
+        if let hours = rule.settleHours { parts.append("back to the level before within \(AppModel.counted(hours, "hour"))") }
         let text = parts.joined(separator: ", and ")
         return text.prefix(1).uppercased() + text.dropFirst() + "."
     }
@@ -270,12 +306,18 @@ extension AppModel {
             return MilestoneProgress(milestone: milestone, reachedOn: milestone.doneOn, set: nil, sentence: sentence)
         }
         let finished = Set(workouts.map(\.id))
+        var began = Dictionary(workouts.map { ($0.id, $0.start) }, uniquingKeysWith: { a, _ in a })
+        if let active { began[active.id] = active.start }
         // The injured side's own sets, and sets done with both sides together, since the injury may have begun.
         let candidates = sets(named: exercise).filter { set in
             guard !set.isWarmup, set.workoutDay >= injury.earliestOnset, let count = set.count, count > 0 else { return false }
             guard finished.contains(set.workoutID) || set.isDone else { return false }
             return injury.side == .both || set.side == .both || set.side == injury.side
-        }.sorted { ($0.workoutDay, $0.position) < ($1.workoutDay, $1.position) }
+        }.sorted { a, b in
+            // In the order they were done: by day, then by when the session began, then by place in it.
+            let x = began[a.workoutID] ?? .distantPast, y = began[b.workoutID] ?? .distantPast
+            return (a.workoutDay, x, a.position) < (b.workoutDay, y, b.position)
+        }
         func loadMet(_ set: WorkoutSet) -> Bool {
             guard let need = milestone.loadValue else { return true }
             guard let load = set.loadValue else { return false }
@@ -289,8 +331,12 @@ extension AppModel {
             return text
         }
         if let met = candidates.first(where: { loadMet($0) && countMet($0) && painMet($0) }) {
-            let day = min(met.workoutDay, milestone.doneOn ?? met.workoutDay)
-            return MilestoneProgress(milestone: milestone, reachedOn: day, set: met,
+            // Ticked by hand before any set met it: reached the day it was ticked.
+            if let ticked = milestone.doneOn, ticked < met.workoutDay {
+                return MilestoneProgress(milestone: milestone, reachedOn: ticked, set: met,
+                                         sentence: "Ticked on \(ticked.readable). First met by a set on \(met.workoutDay.readable): \(said(met)).")
+            }
+            return MilestoneProgress(milestone: milestone, reachedOn: met.workoutDay, set: met,
                                      sentence: "Reached on \(met.workoutDay.readable): \(said(met)).")
         }
         // Closest: the most parts met, then the heavier, then the longer.
@@ -304,7 +350,7 @@ extension AppModel {
         }
         guard let closest else {
             return MilestoneProgress(milestone: milestone, reachedOn: nil, set: nil,
-                                     sentence: "\(exercise) has not been logged on this side since the injury began.")
+                                     sentence: "\(exercise) has not been logged \(injury.side == .both ? "" : "on this side ")since the injury began.")
         }
         return MilestoneProgress(milestone: milestone, reachedOn: nil, set: closest,
                                  sentence: "Closest so far: \(said(closest)) on \(closest.workoutDay.readable).")
@@ -321,7 +367,7 @@ extension AppModel {
             parts.append(hold ? "\(AppModel.plain(load)) \(milestone.loadUnit.rawValue) held \(AppModel.plain(count)) s"
                               : "\(AppModel.plain(load)) \(milestone.loadUnit.rawValue) x \(AppModel.plain(count))")
         case let (load?, nil): parts.append("\(AppModel.plain(load)) \(milestone.loadUnit.rawValue)")
-        case let (nil, count?): parts.append(hold ? "held \(AppModel.plain(count)) s" : "\(AppModel.plain(count)) reps")
+        case let (nil, count?): parts.append(hold ? "held \(AppModel.plain(count)) s" : AppModel.counted(count, "rep"))
         default: break
         }
         if let pain = milestone.maxPain { parts.append("pain \(AppModel.plain(pain)) or less") }
@@ -355,7 +401,8 @@ extension AppModel {
     /// Saves how hard a finished session felt, 0 to 10 in half points. Nil clears it.
     public func setEffort(_ effort: Double?, for workout: Workout) {
         guard var current = workouts.first(where: { $0.id == workout.id }) else { return }
-        current.effort = effort.flatMap { $0.isFinite ? min(10, max(0, ($0 * 2).rounded() / 2)) : nil }
+        // Plus zero: a small negative number rounds to minus zero, which reads "-0.0".
+        current.effort = effort.flatMap { $0.isFinite ? min(10, max(0, ($0 * 2).rounded() / 2)) + 0 : nil }
         update(current)
     }
 }

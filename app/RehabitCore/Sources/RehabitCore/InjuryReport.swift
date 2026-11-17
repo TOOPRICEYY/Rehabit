@@ -383,7 +383,7 @@ extension AppModel {
             out.append("## Plan")
             if !plan.setBy.isEmpty { out.append("Set by: \(plain(plan.setBy.split(whereSeparator: \.isNewline).joined(separator: " ")))") }
             if let visit = plan.nextVisit { out.append("Next visit: \(visit.readable).") }
-            if let limits = ruleText(for: injury), let summary = ruleSummary(for: injury, days: days) {
+            if let limits = ruleText(for: injury), let summary = ruleSummary(for: injury, days: r.days.count) {
                 out.append("- Limits: \(limits)")
                 if summary.sessions == 0 {
                     out.append("- No session loaded this injury in the period.")
@@ -402,7 +402,8 @@ extension AppModel {
                 for item in progress {
                     let title = plain(item.milestone.title.split(whereSeparator: \.isNewline).joined(separator: " "))
                     let asks = item.milestone.exercise == nil ? "" : " (\(plain(milestoneText(item.milestone))))"
-                    out.append("  - \(title.isEmpty ? "Milestone" : title)\(asks). \(item.sentence)")
+                    let stands = plain(item.sentence.split(whereSeparator: \.isNewline).joined(separator: " "))
+                    out.append("  - \(title.isEmpty ? "Milestone" : title)\(asks). \(stands)")
                 }
             }
         }

@@ -111,13 +111,13 @@ public struct Workout: Record, Equatable {
     public var updatedAt: Date
     public var parentID: String? { nil }
     public var day: Day? { startDay }
-    /// Whole minutes from start to end. Nil while in progress or when the end is not known.
+    /// Minutes from start to end. Nil while in progress, or when the end is not known or not after the start.
     public var minutes: Double? {
         guard let end, end > start else { return nil }
         return end.timeIntervalSince(start) / 60
     }
     /// Effort times minutes: one number for how much a session took, in its
-    /// own units. Nil without both. A session from another app has no effort.
+    /// own units. Nil without both. A session from another app has no effort until one is given.
     public var sessionLoad: Double? {
         guard let effort, let minutes else { return nil }
         return effort * minutes

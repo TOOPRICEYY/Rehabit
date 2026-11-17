@@ -280,6 +280,8 @@ public final class AppModel {
         allSets.removeAll { $0.id == id }
         activeSets.removeAll { $0.id == id }
         history = nil; nameIndex = nil
+        if holdRun?.setID == id { holdRun = nil }
+        if lastMarkedDone == id { lastMarkedDone = nil }
     }
 
     /// The sets of the most recent finished session of this exercise on this side.
@@ -357,7 +359,7 @@ public final class AppModel {
         for set in activeSets where set.isBlank { removeSet(id: set.id) }
         pruneSupersets()
         guard var workout = active else { return [] }
-        restSkippedAt = nil; restAdjust = nil; restSkippedFor = nil; lastMarkedDone = nil
+        restSkippedAt = nil; restAdjust = nil; restSkippedFor = nil; lastMarkedDone = nil; holdRun = nil
         if activeSets.isEmpty {
             discardWorkout()
             return []
@@ -418,6 +420,7 @@ public final class AppModel {
     /// workout with anything logged in it can be restored for 30 days.
     public func deleteWorkout(_ workout: Workout) {
         let worthKeeping = allSets.contains { $0.workoutID == workout.id && !$0.isBlank }
+        if workout.id == active?.id { holdRun = nil; lastMarkedDone = nil; restAdjust = nil; restSkippedFor = nil }
         attempt {
             try store.deleteWorkout(id: workout.id, at: now(), keeping: worthKeeping)
             for check in checks where check.workoutID == workout.id && !check.isAnswered {

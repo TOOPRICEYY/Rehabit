@@ -21,6 +21,8 @@ public struct RestAdjust: Equatable, Sendable {
 /// A hold being timed: which set, since when, and how long it is meant to be.
 public struct HoldRun: Equatable, Sendable {
     public let setID: String
+    /// The exercise the set was of when the hold began: a set since changed to another is not this hold's.
+    public let exercise: String
     public let startedAt: Date
     /// The seconds planned for the set when the hold began. Nil when none were.
     public let target: Double?
@@ -40,7 +42,8 @@ extension AppModel {
     public func startHold(_ set: WorkoutSet) -> Bool {
         guard let current = activeSets.first(where: { $0.id == set.id }) else { return false }
         let planned = current.kind == .hold ? current.holdSeconds.flatMap { $0 > 0 && $0.isFinite ? $0 : nil } : nil
-        holdRun = HoldRun(setID: current.id, startedAt: clock, target: current.isDone ? nil : planned)
+        holdRun = HoldRun(setID: current.id, exercise: current.exercise, startedAt: clock,
+                          target: current.isDone ? nil : planned)
         return true
     }
 
@@ -52,11 +55,12 @@ extension AppModel {
     public func stopHold(asPlanned: Bool = true) -> Bool {
         guard let run = holdRun else { return false }
         holdRun = nil
-        guard let set = activeSets.first(where: { $0.id == run.setID }) else { return false }
+        // The set must still be there and still be of the exercise that was being held.
+        guard let set = activeSets.first(where: { $0.id == run.setID }), set.exercise == run.exercise else { return false }
         var held = min(run.elapsed(at: clock), 3600)
         if asPlanned, let target = run.target, held >= target, held <= target + 5 { held = target }
         finishHold(set, seconds: held)
-        return held > 0
+        return activeSets.first { $0.id == set.id }?.isDone ?? false
     }
 
     /// Drops the hold being timed without saving anything.
@@ -69,7 +73,18 @@ extension AppModel {
     public var nextUp: WorkoutSet? {
         guard usesDoneMarks else { return nil }
         let ordered = activeSets.sorted { $0.position < $1.position }
-        if let last = lastMarkedDone.flatMap({ id in ordered.first { $0.id == id } }) {
+        // A mark since taken off again points nowhere.
+        if let last = lastMarkedDone.flatMap({ id in ordered.first { $0.id == id && $0.isDone } }) {
+            let other: Side? = last.side == .left ? .right : last.side == .right ? .left : nil
+            let round = block(last.exercise).rounds.first { $0.members.contains { $0.id == last.id } }
+            if let partner = other.flatMap({ round?.set(on: $0) }), !partner.isDone {
+                // The other half of the round first, unless the person does one side at a time:
+                // then the same side's next set, and the other side when this one is through.
+                if waitsForOtherSide(last) { return partner }
+                if let same = ordered.first(where: { $0.exercise == last.exercise && $0.side == last.side
+                    && $0.position > last.position && !$0.isDone }) { return same }
+                return partner
+            }
             if let next = supersetNext(after: last) { return next }
             if let next = ordered.first(where: { $0.position > last.position && !$0.isDone }) { return next }
         }
@@ -118,7 +133,10 @@ extension AppModel {
         // A hold stopped before it began was not done.
         current.completedAt = held > 0 ? clock : nil
         update(current)
-        if held > 0 { lastMarkedDone = current.id }
+        // A rest ended or changed by hand belonged to the mark before this one.
+        if restAdjust?.setID == current.id { restAdjust = nil }
+        if restSkippedFor == current.id { restSkippedFor = nil }
+        if held > 0 { lastMarkedDone = current.id } else if lastMarkedDone == current.id { lastMarkedDone = nil }
     }
 
     /// Sets of the workout in progress not marked done, when some are. With
