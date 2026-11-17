@@ -167,6 +167,8 @@ public enum HevyCSV {
         let cEnd = column("end_time"), cDescription = column("description"), cNotes = column("exercise_notes")
         let cType = column("set_type"), cReps = column("reps"), cDuration = column("duration_seconds"), cRPE = column("rpe")
         let cLb = column("weight_lbs"), cKg = column("weight_kg")
+        // Columns Rehabit's own export adds; a Hevy file has neither.
+        let cSide = column("side"), cPain = column("pain")
 
         var order: [String] = [], found: [String: ImportedWorkout] = [:]
         for (index, line) in lines.enumerated() {
@@ -199,7 +201,8 @@ public enum HevyCSV {
                 kind = .hold; hold = seconds; reps = nil
             }
             if kind == .hold { reps = nil } else { hold = nil }
-            let side = side(inNote: note)
+            let named = Side(rawValue: cell(cSide).lowercased())
+            let side = named == .left || named == .right ? named : side(inNote: note)
             let rpe = number(cRPE)
             let type = cell(cType).lowercased()
             found[key]?.sets.append(ImportedSet(
@@ -207,7 +210,7 @@ public enum HevyCSV {
                 loadValue: number(cLb) ?? number(cKg), loadUnit: number(cLb) == nil && number(cKg) != nil ? .kg : .lb,
                 isWarmup: type == "warmup" || type == "warm_up",
                 repsInReserve: rpe.map { max(0, 10 - $0) },
-                pain: firstGroup(painNote, note).flatMap(Double.init).flatMap { (0...10).contains($0) ? $0 : nil },
+                pain: (number(cPain) ?? firstGroup(painNote, note).flatMap(Double.init)).flatMap { (0...10).contains($0) ? $0 : nil },
                 notes: note))
         }
         return order.compactMap { found[$0] }

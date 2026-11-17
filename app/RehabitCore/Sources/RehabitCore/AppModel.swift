@@ -77,6 +77,8 @@ public final class AppModel {
     /// needed and thrown away with `history`: lowercasing twelve thousand names
     /// on every keystroke is what made a long history slow.
     private var nameIndex: [String: [WorkoutSet]]?
+    /// Body weight by day, oldest first, one value a day. Built when first needed.
+    private var massSeries: [(day: Day, kg: Double)]?
 
     /// How long each kind of question stays on the list before it counts as missed.
     /// "Right after the session" answered the next day would be a different reading.
@@ -153,7 +155,7 @@ public final class AppModel {
                 ($0.lastUsed ?? .distantPast, $1.name.lowercased()) > ($1.lastUsed ?? .distantPast, $0.name.lowercased())
             }
             unreadableCount = try store.unreadable().count
-            history = nil; nameIndex = nil
+            history = nil; nameIndex = nil; massSeries = nil
         }
         revision += 1
     }
@@ -316,7 +318,7 @@ public final class AppModel {
         // only planned so far are not load yet. With nothing marked, all count.
         let ticking = activeSets.contains { $0.isDone }
         let built = allSets.filter { existing.contains($0.workoutID) && !(ticking && $0.workoutID == active?.id && !$0.isDone) }
-            .map { (id: $0.id, set: ledger.ledgerSet($0, profile: profile)) }
+            .map { (id: $0.id, set: ledger.ledgerSet($0, profile: profile(on: $0.workoutDay))) }
         history = built
         return built
     }
@@ -334,7 +336,8 @@ public final class AppModel {
     public func advice(for set: WorkoutSet) -> [Advice] {
         let others = ledgerHistory().filter { $0.id != set.id }.map(\.set)
         let step = loadStep(for: set.exercise, unit: set.loadUnit) * set.loadUnit.kilograms
-        return advisor.advice(for: ledger.ledgerSet(set, profile: profile), history: others, injuries: injuries, stepKg: step)
+        return advisor.advice(for: ledger.ledgerSet(set, profile: profile(on: set.workoutDay)), history: others,
+                              injuries: injuries, stepKg: step)
     }
 
     /// Ends the workout and schedules pain checks for each injury it loaded.
@@ -401,15 +404,36 @@ public final class AppModel {
     }
 
     /// Deletes a workout, its sets, and the pain questions that were still to
-    /// be asked about it. Answers already given stay: the pain was real.
+    /// be asked about it. Answers already given stay: the pain was real. A
+    /// workout with anything logged in it can be restored for 30 days.
     public func deleteWorkout(_ workout: Workout) {
+        let worthKeeping = allSets.contains { $0.workoutID == workout.id && !$0.isBlank }
         attempt {
-            try store.deleteWorkout(id: workout.id, at: now())
+            try store.deleteWorkout(id: workout.id, at: now(), keeping: worthKeeping)
             for check in checks where check.workoutID == workout.id && !check.isAnswered {
                 try store.delete(PainCheck.self, id: check.id, at: now())
             }
         }
         reload()
+    }
+
+    /// Workouts deleted on this phone in the last 30 days, newest first.
+    public var recentlyDeleted: [DeletedWorkout] {
+        _ = revision; _ = tick
+        return ((try? store.deletedWorkouts(at: now())) ?? []).map {
+            DeletedWorkout(workout: $0.workout, sets: $0.sets.count, deletedAt: $0.deletedAt)
+        }
+    }
+
+    /// Brings a deleted workout back with its sets. One that was thrown away
+    /// in progress comes back finished. Its pain questions are not asked again.
+    @discardableResult
+    public func restoreWorkout(id: String) -> Bool {
+        var restored = false
+        attempt { restored = try store.restoreWorkout(id: id, at: now()) }
+        reload()
+        if restored { reapplyImportedSides() }
+        return restored
     }
 
     // MARK: Injuries and pain
@@ -566,6 +590,7 @@ public final class AppModel {
             guard try await source.requestAccess() else { return nil }
             let metrics = try await source.dailyMetrics(from: today.adding(-days), through: today)
             try store.save(metrics)
+            history = nil; massSeries = nil
             revision += 1
             return metrics.filter { $0.value.isFinite }.count
         } catch {
@@ -575,6 +600,61 @@ public final class AppModel {
     }
 
     public func dailyMetrics(_ metric: String) -> [DailyMetric] { (try? store.dailyMetrics(metric)) ?? [] }
+
+    // MARK: Body weight
+
+    /// Body weight by day, oldest first: one value a day, the one typed in if
+    /// there is one, else the mean of what devices reported.
+    public var bodyweightHistory: [(day: Day, kg: Double)] {
+        if let massSeries { return massSeries }
+        var typed: [Day: Double] = [:], measured: [Day: [Double]] = [:]
+        for m in dailyMetrics(MetricName.bodyMass) where m.value > 0 && m.value.isFinite {
+            if m.source == MetricName.manualSource { typed[m.day] = m.value } else { measured[m.day, default: []].append(m.value) }
+        }
+        var byDay = measured.mapValues { $0.reduce(0, +) / Double($0.count) }
+        for (day, kg) in typed { byDay[day] = kg }
+        let series = byDay.sorted { $0.key < $1.key }.map { (day: $0.key, kg: $0.value) }
+        massSeries = series
+        return series
+    }
+
+    /// Body weight on a day: the latest reading on or before it; before the
+    /// first reading, that first one; with no readings, the weight in the
+    /// profile. So a weight entered today does not rewrite what a push-up
+    /// weighed last spring once there are readings from then.
+    public func bodyweightKg(on day: Day) -> Double? {
+        let series = bodyweightHistory
+        guard let first = series.first else { return profile.bodyweightKg }
+        var low = 0, high = series.count - 1, found = first.kg
+        while low <= high {
+            let mid = (low + high) / 2
+            if series[mid].day <= day { found = series[mid].kg; low = mid + 1 } else { high = mid - 1 }
+        }
+        return found
+    }
+
+    /// The profile as it was on a day: its body weight is that day's.
+    func profile(on day: Day) -> Profile {
+        var dated = profile
+        dated.bodyweightKg = bodyweightKg(on: day)
+        return dated
+    }
+
+    /// Records body weight for a day (today if none is given). The latest
+    /// reading is also the profile's weight, which other devices and the Mac read.
+    public func logBodyweight(_ kg: Double, on day: Day? = nil) {
+        guard kg.isFinite, kg > 0, kg < 500 else {
+            lastError = "That body weight is not a usable number."
+            return
+        }
+        let day = day ?? Day(now(), in: zone)
+        attempt { try store.save([DailyMetric(day: day, metric: MetricName.bodyMass, value: kg, source: MetricName.manualSource)]) }
+        massSeries = nil; history = nil
+        if let latest = bodyweightHistory.last, latest.day <= day || profile.bodyweightKg == nil {
+            profile.bodyweightKg = latest.kg
+        }
+        revision += 1
+    }
 
     public func exportJSON() -> Data? { try? store.snapshotJSON(at: now()) }
 
@@ -623,6 +703,14 @@ public final class AppModel {
         reapplyImportedSides()
         return changed
     }
+}
+
+/// A workout deleted on this phone and still held, so it can be restored.
+public struct DeletedWorkout: Identifiable, Equatable, Sendable {
+    public let workout: Workout
+    public let sets: Int
+    public let deletedAt: Date
+    public var id: String { workout.id }
 }
 
 /// Records prepared away from the phone (by Claude on the Mac, for one) and

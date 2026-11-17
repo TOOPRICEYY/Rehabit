@@ -261,3 +261,17 @@ def test_app_sets_reach_the_ledger_and_pain_tool(con, profile, tmp_path):
     tools = Tools(db_path)
     assert len(tools.get_pain_checks("2026-11-01", "2026-11-30")) == 2
     assert [c["pain"] for c in tools.get_pain_checks("2026-11-01", "2026-11-30", answered_only=True)] == [2.0]
+
+
+def test_app_export_uses_the_body_weight_of_the_day(con, profile, tmp_path):
+    from rehabit import library
+    from rehabit.importers import app
+    metrics = [{"day": "2026-11-01", "metric": "body_mass_kg", "value": 90, "source": "apple_health"},
+               {"day": "2026-11-01", "metric": "body_mass_kg", "value": 88, "source": "manual"},
+               {"day": "2026-11-12", "metric": "body_mass_kg", "value": 70, "source": "manual"}]
+    app.import_export(con, _app_export(tmp_path, dailyMetrics=metrics), profile)
+    push_up = _sets(con, "exercise_id = 'push_up'")[0]
+    # Logged on Nov 10: the reading typed in on Nov 1, not the device's and not the later one.
+    assert abs(push_up["load_kg"] - 88.0 * library.EXERCISES["push_up"][1]) < 1e-9
+    assert app._bodyweight_on(app._bodyweight_by_day({"dailyMetrics": metrics}), "2026-10-01", 80.0) == 88
+    assert app._bodyweight_on([], "2026-10-01", 80.0) == 80.0

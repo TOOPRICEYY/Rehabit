@@ -160,6 +160,13 @@ public final class Store {
               PRIMARY KEY (day, metric, source))
             """)
         try db.run("CREATE TABLE IF NOT EXISTS setting (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+        // Workouts deleted on this device, kept for a while so a slip can be undone.
+        // Local only: a tombstone that travels between devices holds an id and a time, nothing more.
+        try db.run("""
+            CREATE TABLE IF NOT EXISTS trash (
+              kind TEXT NOT NULL, id TEXT NOT NULL, workout_id TEXT NOT NULL, body TEXT NOT NULL,
+              deleted_at INTEGER NOT NULL, PRIMARY KEY (kind, id))
+            """)
     }
 
     // MARK: Records
@@ -274,9 +281,55 @@ public final class Store {
         }
     }
 
-    /// Deletes a workout together with its sets.
-    public func deleteWorkout(id: String, at time: Date = Date()) throws {
+    /// Deletes a workout together with its sets. With `keeping`, a copy is
+    /// held on this device for `Store.trashDays` days, so it can be restored.
+    public func deleteWorkout(id: String, at time: Date = Date(), keeping: Bool = false) throws {
+        if keeping {
+            try db.run("""
+                INSERT OR REPLACE INTO trash(kind, id, workout_id, body, deleted_at)
+                SELECT kind, id, ?, body, ? FROM record
+                WHERE deleted = 0 AND ((kind = ? AND id = ?) OR (kind = ? AND parent_id = ?))
+                """, [.text(id), .integer(Stamp.millis(time)), .text(Workout.kind), .text(id),
+                      .text(WorkoutSet.kind), .text(id)])
+        }
         try delete(Workout.self, id: id, at: time)
+    }
+
+    public static let trashDays = 30
+
+    /// Workouts deleted here in the last `trashDays` days and still deleted, newest first.
+    /// Older copies are dropped as this is read.
+    public func deletedWorkouts(at time: Date = Date()) throws -> [(workout: Workout, sets: [WorkoutSet], deletedAt: Date)] {
+        try db.run("DELETE FROM trash WHERE deleted_at < ?",
+                   [.integer(Stamp.millis(time) - Int64(Store.trashDays) * 86_400_000)])
+        var out: [(workout: Workout, sets: [WorkoutSet], deletedAt: Date)] = []
+        for r in try db.run("SELECT id, body, deleted_at FROM trash WHERE kind = ? ORDER BY deleted_at DESC, id", [.text(Workout.kind)]) {
+            guard let id = r["id"]?.string, let workout = decode(Workout.self, r["body"]?.string),
+                  let at = r["deleted_at"]?.double, try row(kind: Workout.kind, id: id)?.deleted == true else { continue }
+            let sets = try db.run("SELECT body FROM trash WHERE kind = ? AND workout_id = ?", [.text(WorkoutSet.kind), .text(id)])
+                .compactMap { decode(WorkoutSet.self, $0["body"]?.string) }.sorted { $0.position < $1.position }
+            out.append((workout, sets, Stamp.date(Int64(at))))
+        }
+        return out
+    }
+
+    /// Brings a deleted workout back with its sets, as a change made now, so
+    /// it also returns on the other devices. False if no copy is held.
+    public func restoreWorkout(id: String, at time: Date = Date()) throws -> Bool {
+        guard let held = try deletedWorkouts(at: time).first(where: { $0.workout.id == id }) else { return false }
+        var workout = held.workout
+        // A workout thrown away while in progress comes back as one that ended when it was thrown away.
+        if workout.end == nil { workout.end = max(held.deletedAt, workout.start) }
+        workout.updatedAt = time
+        try db.transaction {
+            try save(workout)
+            for var set in held.sets {
+                set.updatedAt = time
+                try save(set)
+            }
+            try db.run("DELETE FROM trash WHERE workout_id = ?", [.text(id)])
+        }
+        return true
     }
 
     /// Nothing outlives its parent: the sets of a deleted workout and the pain

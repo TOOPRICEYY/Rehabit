@@ -283,7 +283,7 @@ extension AppModel {
 
     private func setFacts(_ set: WorkoutSet) -> SetFacts {
         // The ledger only reads the library to turn an entry into kilograms.
-        SetFacts(set, loadKg: Ledger(library: library).loadKg(set, profile: profile))
+        SetFacts(set, loadKg: Ledger(library: library).loadKg(set, profile: profile(on: set.workoutDay)))
     }
 
     /// The estimated one-rep max of one set in kg, body-weight share included.
