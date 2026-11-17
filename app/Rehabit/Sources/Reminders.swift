@@ -3,33 +3,35 @@ import Observation
 import RehabitCore
 import UserNotifications
 
-/// Local notifications for the delayed pain check-ins.
+/// Local notifications for the pain check-ins: one per round of questions,
+/// not one per question.
 enum Reminders {
-    /// Makes the pending reminders match the questions still to come: those no
-    /// longer wanted (answered, or their workout or injury is gone) are
-    /// withdrawn, and the rest are scheduled. Permission is only asked for when
-    /// there is something to remind about.
-    static func sync(_ checks: [PainCheck], injuries: [Injury]) {
+    static let thread = "pain-check-ins"
+
+    /// Makes the pending reminders match the rounds still to come: those no
+    /// longer wanted are withdrawn and the rest scheduled (a round's id is the
+    /// notification's id, so scheduling twice replaces it). Permission is only
+    /// asked for when there is something to remind about.
+    static func sync(_ rounds: [ReminderRound]) {
         let center = UNUserNotificationCenter.current()
-        let wanted = Set(checks.map(\.id))
+        let wanted = Set(rounds.map(\.id))
         center.getPendingNotificationRequests { pending in
             let stale = pending.map(\.identifier).filter { !wanted.contains($0) }
             center.removePendingNotificationRequests(withIdentifiers: stale)
         }
-        guard !checks.isEmpty else { return }
+        guard !rounds.isEmpty else { return }
         center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
             guard granted else { return }
-            for check in checks {
-                let delay = check.dueAt.timeIntervalSinceNow
+            for round in rounds {
+                let delay = round.fireAt.timeIntervalSinceNow
                 guard delay > 1 else { continue }
                 let content = UNMutableNotificationContent()
-                let label = injuries.first { $0.id == check.injuryID }?.label ?? "your injury"
-                content.title = "How is \(label)?"
-                content.body = "\(Format.moment(check.moment)). A ten-second pain check."
+                content.title = round.title
+                content.body = round.body
                 content.sound = .default
-                // The check's id is the notification's id, so scheduling twice replaces it.
+                content.threadIdentifier = thread
                 center.add(UNNotificationRequest(
-                    identifier: check.id, content: content,
+                    identifier: round.id, content: content,
                     trigger: UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)))
             }
         }

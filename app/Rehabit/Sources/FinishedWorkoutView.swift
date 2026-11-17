@@ -46,6 +46,7 @@ struct WorkoutDetailView: View {
                     }
                 }
             }
+            SettlingSection(workout: workout)
             ForEach(ExerciseBlock.blocks(sets)) { block in
                 Section {
                     let ordered = block.sets.sorted { $0.position < $1.position }
@@ -73,7 +74,16 @@ struct WorkoutDetailView: View {
                         }
                     }
                 } header: {
-                    Text(block.exercise).font(.headline).foregroundStyle(Color(uiColor: .label)).textCase(nil)
+                    NavigationLink {
+                        ExerciseHistoryView(exercise: block.exercise)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(block.exercise).font(.headline).foregroundStyle(Color(uiColor: .label))
+                            Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
+                        }
+                    }
+                    .textCase(nil)
+                    .accessibilityHint("Shows the history and records for this exercise")
                 }
             }
             if editing {
