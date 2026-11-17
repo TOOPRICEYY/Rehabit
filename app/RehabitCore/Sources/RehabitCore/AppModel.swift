@@ -474,6 +474,15 @@ public final class AppModel {
         return (end, sets, days)
     }
 
+    /// Daily tissue load, walking included, for the `days` days ending today.
+    func tissueDays(last days: Int) -> (end: Day, days: [TissueDay]) {
+        _ = tick
+        let end = loadToday
+        let from = end.adding(-days - ledger.settings.referenceWindowDays)
+        let sets = (ledgerHistory().map(\.set) + walkingHistory()).filter { $0.day >= from && $0.day <= end }
+        return (end, ledger.tissueDays(sets, through: end).filter { end.days(since: $0.day) < days && $0.day <= end })
+    }
+
     /// Each loaded tissue and side for the week ending `weeksAgo` weeks before
     /// today, against its own four weeks before that.
     public func tissueWeeks(weeksAgo: Int) -> [TissueWeek] {
