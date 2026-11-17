@@ -107,7 +107,7 @@ extension AppModel {
         let scale = Ledger(library: library)
         for set in storedSets where finished.contains(set.workoutID) && set.workoutDay >= first && set.workoutDay <= window.end {
             guard library.pattern(set.pattern)?.links.contains(where: { $0.share >= 0.25 && tissues.contains($0.tissue) }) == true,
-                  let kg = scale.loadKg(set, profile: profile), kg > 0, kg.isFinite else { continue }
+                  let kg = scale.loadKg(set, profile: profile(on: set.workoutDay)), kg > 0, kg.isFinite else { continue }
             let count = max(0, set.kind == .hold ? (set.holdSeconds ?? 0) / 5 : (set.reps ?? 0))
             // One number for the whole bar or the whole body is shared by the two sides.
             let perSide = (set.side == .both && set.convention != .perHand ? kg / 2 : kg) * count

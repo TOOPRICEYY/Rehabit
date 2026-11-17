@@ -52,6 +52,36 @@ def _load_kg(s: dict, bodyweight_kg: float) -> float | None:
     return kg
 
 
+def _bodyweight_by_day(raw: dict) -> list[tuple[str, float]]:
+    """Body weight readings in the export, one a day, oldest first: the value
+    typed in if there is one, else the mean of what devices reported."""
+    typed: dict[str, float] = {}
+    measured: dict[str, list[float]] = {}
+    for m in raw.get("dailyMetrics", []):
+        if m.get("metric") != "body_mass_kg" or not isinstance(m.get("value"), (int, float)) or m["value"] <= 0:
+            continue
+        if m.get("source") == "manual":
+            typed[m["day"]] = float(m["value"])
+        else:
+            measured.setdefault(m["day"], []).append(float(m["value"]))
+    by_day = {day: sum(v) / len(v) for day, v in measured.items()}
+    by_day.update(typed)
+    return sorted(by_day.items())
+
+
+def _bodyweight_on(series: list[tuple[str, float]], day: str, fallback: float) -> float:
+    """The latest reading on or before the day; before the first, the first;
+    with none, the profile's weight. The phone applies the same rule."""
+    if not series:
+        return fallback
+    found = series[0][1]
+    for d, kg in series:
+        if d > day:
+            break
+        found = kg
+    return found
+
+
 def import_export(con: sqlite3.Connection, path: str | Path, profile: Profile,
                   skip_prefixes: tuple[str, ...] = ()) -> dict:
     raw = json.loads(Path(path).read_text())
@@ -64,6 +94,7 @@ def import_export(con: sqlite3.Connection, path: str | Path, profile: Profile,
     con.execute("DELETE FROM injury WHERE id LIKE 'app:%'")
 
     bodyweight_kg = (raw.get("profile") or {}).get("bodyweightKg") or profile.bodyweight_kg
+    weights = _bodyweight_by_day(raw)
     counts = {"sessions": 0, "sets": 0, "unmapped": 0, "skipped_sessions": 0, "in_progress": 0,
               "injuries": 0, "pain_checks": 0, "daily_metrics": 0}
     kept: set[str] = set()
@@ -89,7 +120,7 @@ def import_export(con: sqlite3.Connection, path: str | Path, profile: Profile,
         pattern = s.get("pattern") if s.get("pattern") in library.EXERCISES else None
         if pattern is None:
             counts["unmapped"] += 1
-        kg = _load_kg(s, bodyweight_kg)
+        kg = _load_kg(s, _bodyweight_on(weights, s["workoutDay"], bodyweight_kg))
         rir = s.get("repsInReserve")
         con.execute(
             "INSERT INTO set_entry(id, session_id, day, position, exercise_id, source_exercise,"

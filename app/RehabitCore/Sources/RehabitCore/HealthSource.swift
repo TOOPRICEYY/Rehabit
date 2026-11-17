@@ -23,4 +23,8 @@ public enum MetricName {
     public static let restingHeartRate = "resting_hr"
     public static let sleepMinutes = "sleep_minutes"
     public static let steps = "steps"
+    /// Body weight in kilograms on a day, from a scale, a watch or typed in.
+    public static let bodyMass = "body_mass_kg"
+    /// The source name of a value the person typed in. It wins over a device's value for the same day.
+    public static let manualSource = "manual"
 }
