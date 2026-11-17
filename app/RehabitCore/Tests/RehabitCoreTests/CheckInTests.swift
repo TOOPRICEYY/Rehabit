@@ -83,20 +83,27 @@ final class CheckInTests: XCTestCase {
 
         clock = at("2026-11-17 10:30")
         session(m, "Single-Leg Extension (Machine)", side: .right)
-        // The first session's 48-hour question falls on Wednesday at 10:00. The second session's
-        // next-morning (8:00) and 24-hour (10:30) questions are the same reading, so Wednesday
-        // morning asks about the quad once.
-        let wednesday = m.checks.filter { $0.dueDay == Day("2026-11-18") }
-        XCTAssertEqual(wednesday.map(\.moment), [.hours48])
-        XCTAssertEqual(wednesday.map(\.dueAt), [at("2026-11-18 10:00")])
-        XCTAssertEqual(m.checks.filter { $0.dueDay == Day("2026-11-19") }.map(\.dueAt), [at("2026-11-19 10:30")])
-
-        // Wednesday 10:05: one question about the quad.
-        clock = at("2026-11-18 10:05")
-        XCTAssertEqual(m.dueChecks.map(\.moment), [.hours48])
-        // And no separate daily question that morning: the follow-up is the day's reading.
-        XCTAssertFalse(m.upcomingChecks.contains { $0.dueDay == Day("2026-11-18") && $0.moment == .baseline })
+        // The first session's 48-hour question falls on Wednesday at 10:00, the second's next
+        // morning at 8:00 and 24 hours at 10:30. They are one reading: Wednesday asks about the
+        // quad once, at 8:00, and the day's own morning question is not asked on top.
+        let wednesday = m.upcomingChecks.filter { $0.dueDay == Day("2026-11-18") }
+        XCTAssertEqual(wednesday.map(\.moment), [.nextMorning])
+        XCTAssertEqual(wednesday.map(\.dueAt), [at("2026-11-18 08:00")])
+        // Thursday's 48-hour question (10:30) is the same reading as that day's morning question.
+        XCTAssertEqual(m.upcomingChecks.filter { $0.dueDay == Day("2026-11-19") }.map(\.dueAt), [at("2026-11-19 08:00")])
+        XCTAssertEqual(m.reminderRounds.prefix(3).map(\.fireAt),
+                       [at("2026-11-17 16:30"), at("2026-11-18 08:00"), at("2026-11-19 08:00")])
         XCTAssertTrue(m.upcomingChecks.contains { $0.dueDay == Day("2026-11-20") && $0.moment == .baseline })
+
+        // Wednesday 10:05, not yet answered: still one question about the quad.
+        clock = at("2026-11-18 10:05")
+        XCTAssertEqual(m.dueChecks.map(\.moment), [.nextMorning])
+        m.answer(m.dueChecks[0], pain: 2)
+        XCTAssertTrue(m.dueChecks.isEmpty)
+        XCTAssertFalse(m.upcomingChecks.contains { $0.dueDay == Day("2026-11-18") })
+        // With the morning question off, Thursday's 48-hour question stands by itself.
+        m.profile.dailyCheckIn = false
+        XCTAssertEqual(m.upcomingChecks.filter { $0.dueDay == Day("2026-11-19") }.map(\.dueAt), [at("2026-11-19 10:30")])
         XCTAssertEqual(first.id, m.workouts.last?.id)
     }
 

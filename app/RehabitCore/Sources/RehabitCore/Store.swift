@@ -466,7 +466,24 @@ public final class Store {
             try take(other.workouts)
             try take(other.sets)
             try take(other.injuries)
-            try take(other.painChecks)
+            // A pain reading is never lost to a skip of the same question made on a
+            // device that had not seen the answer, whichever came later.
+            var checks: [PainCheck] = []
+            for check in other.painChecks {
+                guard let mine = try row(kind: PainCheck.kind, id: check.id), !mine.deleted,
+                      let held = decode(PainCheck.self, mine.body) else { checks.append(check); continue }
+                let arrivingSkip = check.pain == nil && check.skippedAt != nil
+                let heldSkip = held.pain == nil && held.skippedAt != nil
+                if arrivingSkip && held.pain != nil { continue }
+                if heldSkip && check.pain != nil {
+                    try write(kind: PainCheck.kind, id: check.id, parent: check.parentID, day: check.day?.description,
+                              updated: Stamp.millis(check.updatedAt), deleted: false, body: try encode(check))
+                    changed += 1
+                    continue
+                }
+                checks.append(check)
+            }
+            try take(checks)
             for raw in other.unreadable {
                 let updated = Stamp.millis(raw.updatedAt)
                 if try arrivingWins(kind: raw.kind, id: raw.id, updated: updated, deleted: false, body: raw.body) {

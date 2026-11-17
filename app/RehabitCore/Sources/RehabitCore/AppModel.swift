@@ -401,36 +401,11 @@ public final class AppModel {
         reapplyImportedSides()
     }
 
-    /// The questions to answer now: at most one for each injury, the latest
-    /// whose time has come. An earlier one it replaces, or one left too long,
-    /// drops off the list and stays recorded as missing, never as zero.
-    public var dueChecks: [PainCheck] {
-        _ = tick
-        let time = now()
-        var latest: [String: PainCheck] = [:]
-        for check in checks + dailyChecks(from: Day(time, in: zone).adding(-1), days: 2) where check.dueAt <= time {
-            if let held = latest[check.injuryID], held.dueAt > check.dueAt { continue }
-            latest[check.injuryID] = check
-        }
-        return latest.values
-            .filter { $0.isOpen && time.timeIntervalSince($0.dueAt) <= AppModel.window($0.moment) }
-            .sorted { ($0.dueAt, $0.id) < ($1.dueAt, $1.id) }
-    }
-
-    /// Questions still to come, for scheduling reminders: those stored, and the
-    /// morning questions of the next week.
-    public var upcomingChecks: [PainCheck] {
-        _ = tick
-        let time = now()
-        return (checks + dailyChecks(from: Day(time, in: zone), days: 8))
-            .filter { $0.isOpen && $0.dueAt > time }
-            .sorted { ($0.dueAt, $0.id) < ($1.dueAt, $1.id) }
-    }
-
     /// Pain is 0 to 10 in half points. Anything else typed or dragged is pulled into that range.
     static func cleanPain(_ pain: Double) -> Double? {
         guard pain.isFinite else { return nil }
-        return min(10, max(0, (pain * 2).rounded() / 2))
+        let clamped = min(10, max(0, (pain * 2).rounded() / 2))
+        return clamped == 0 ? 0 : clamped      // never the negative zero that -0.2 rounds to
     }
 
     public func answer(_ check: PainCheck, pain: Double, type: PainType? = nil, notes: String = "") {
@@ -438,16 +413,7 @@ public final class AppModel {
             lastError = "That pain value is not a number."
             return
         }
-        var check = check
-        check.pain = clean
-        check.painType = type
-        check.notes = notes
-        check.source = nil
-        check.skippedAt = nil
-        check.answeredAt = now()
-        check.updatedAt = now()
-        attempt { try store.save(check) }
-        reload()
+        answer([(check: check, pain: clean, type: type, notes: notes)])
     }
 
     /// Records a baseline reading for an injury with no session attached.
@@ -459,6 +425,7 @@ public final class AppModel {
         let check = PainCheck(injuryID: injury.id, workoutID: nil, moment: .baseline, dueAt: now(), zone: zone,
                               updatedAt: now())
         attempt { try store.save(check) }
+        checks.append(check)
         answer(check, pain: pain, type: type, notes: notes)
     }
 

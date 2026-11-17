@@ -38,6 +38,19 @@ public struct PainSchedule: Sendable {
         }
     }
 
+    /// A time moved out of the night: before the morning hour it becomes that
+    /// morning, and from the latest evening hour on, an hour before it.
+    func waking(_ time: Date, _ calendar: Calendar) -> Date {
+        let hour = calendar.component(.hour, from: time)
+        if hour < morningHour {
+            return calendar.date(bySettingHour: morningHour, minute: 0, second: 0, of: time) ?? time
+        }
+        if hour >= latestEveningHour, latestEveningHour > morningHour {
+            return calendar.date(bySettingHour: latestEveningHour - 1, minute: 0, second: 0, of: time) ?? time
+        }
+        return time
+    }
+
     /// The checks to schedule for one injury when a workout ends.
     public func checks(for injury: Injury, workout: Workout, endedAt end: Date) -> [PainCheck] {
         var calendar = Calendar(identifier: .gregorian)
@@ -58,18 +71,18 @@ public struct PainSchedule: Sendable {
         }
         let morningDay = endsInSmallHours ? calendar.startOfDay(for: end)
             : calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: end))!
+        // Two questions about one injury close together are one reading. The
+        // earlier is kept: "right after" over a morning minutes later, and the
+        // morning (the same hour after every session) over "24 hours after".
+        func add(_ moment: PainCheckMoment, _ due: Date) {
+            if out.contains(where: { abs($0.dueAt.timeIntervalSince(due)) < PainSchedule.sameReading }) { return }
+            out.append(check(moment, due))
+        }
         if let morning = calendar.date(bySettingHour: morningHour, minute: 0, second: 0, of: morningDay) {
-            out.append(check(.nextMorning, morning))
+            add(.nextMorning, morning)
         }
-        // After a morning session "the next morning" and "24 hours after" fall
-        // close together. One reading serves for both; the morning one is kept,
-        // because it comes at the same hour after every session.
-        let day = end.addingTimeInterval(24 * 3600)
-        let morning = out.last { $0.moment == .nextMorning }?.dueAt
-        if morning.map({ abs($0.timeIntervalSince(day)) >= PainSchedule.sameReading }) ?? true {
-            out.append(check(.hours24, day))
-        }
-        out.append(check(.hours48, end.addingTimeInterval(48 * 3600)))
+        add(.hours24, waking(end.addingTimeInterval(24 * 3600), calendar))
+        add(.hours48, waking(end.addingTimeInterval(48 * 3600), calendar))
         return out
     }
 }
@@ -88,7 +101,7 @@ public struct SettlingSummary: Equatable, Sendable {
     /// the previous settled value). Settled means back to within half a point of it.
     public init(checks: [PainCheck], baseline: Double, sessionEnd: Date) {
         let answeredChecks = checks.filter { $0.pain != nil }.sorted { $0.dueAt < $1.dueAt }
-        asked = checks.count
+        asked = checks.filter { $0.moment != .flare }.count
         answered = answeredChecks.count
         peak = answeredChecks.compactMap(\.pain).max()
         // Settled at the first reading that is back near baseline with no later reading above it.
