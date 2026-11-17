@@ -20,8 +20,21 @@ def connect(path: str | Path, read_only: bool = False) -> sqlite3.Connection:
     return con
 
 
+# Columns added after a database may already exist. CREATE TABLE IF NOT EXISTS
+# leaves an older table as it is, so each is added here when missing.
+ADDED_COLUMNS = (
+    ("session", "effort", "REAL"),        # how hard the session felt, 0..10
+    ("set_entry", "tempo", "TEXT"),       # seconds per phase of a rep, "3-1-1-0"
+    ("injury", "plan", "TEXT"),           # JSON: the limits and milestones set for it
+)
+
+
 def init(con: sqlite3.Connection) -> None:
     con.executescript(SCHEMA_PATH.read_text())
+    for table, column, kind in ADDED_COLUMNS:
+        have = {r[1] for r in con.execute(f"PRAGMA table_info({table})")}
+        if column not in have:
+            con.execute(f"ALTER TABLE {table} ADD COLUMN {column} {kind}")
     con.execute(
         "INSERT OR REPLACE INTO meta(key, value) VALUES ('schema_version', ?)",
         (SCHEMA_VERSION,),

@@ -114,6 +114,7 @@ extension WorkoutSet {
     public mutating func copyPrescription(from other: WorkoutSet) {
         loadValue = other.loadValue; reps = other.reps; holdSeconds = other.holdSeconds
         kind = other.kind; convention = other.convention; loadUnit = other.loadUnit
+        tempo = other.tempo
     }
 }
 

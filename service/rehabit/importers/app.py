@@ -72,6 +72,13 @@ def _bodyweight_by_day(raw: dict) -> list[tuple[str, float]]:
     return sorted(by_day.items())
 
 
+def _number(value, low: float, high: float) -> float | None:
+    """A number inside its range, else nothing: a typed-in value from a file is not trusted."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or value != value:
+        return None
+    return float(value) if low <= value <= high else None
+
+
 def _bodyweight_on(series: list[tuple[str, float]], day: str, fallback: float) -> float:
     """The latest reading on or before the day; before the first, the first;
     with none, the profile's weight. The phone applies the same rule."""
@@ -111,10 +118,10 @@ def import_export(con: sqlite3.Connection, path: str | Path, profile: Profile,
         kept.add(w["id"])
         con.execute(
             "INSERT INTO session(id, start, end, day, kind, title, minutes, notes, source,"
-            " source_id, imported_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            " source_id, imported_at, effort) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             ("app:" + w["id"], _local(w["start"]), _local(w.get("end")), w["startDay"], "gym",
              w.get("title"), _minutes(w["start"], w.get("end")), w.get("notes") or None,
-             SOURCE, w["id"], db.now()))
+             SOURCE, w["id"], db.now(), _number(w.get("effort"), 0, 10)))
         counts["sessions"] += 1
 
     for s in raw.get("sets", []):
@@ -128,25 +135,27 @@ def import_export(con: sqlite3.Connection, path: str | Path, profile: Profile,
         con.execute(
             "INSERT INTO set_entry(id, session_id, day, position, exercise_id, source_exercise,"
             " granularity, side, side_inferred, kind, set_count, reps, hold_seconds, load_value, load_unit,"
-            " load_convention, load_kg, load_max_kg, set_type, rpe, pain, notes, source)"
-            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            " load_convention, load_kg, load_max_kg, set_type, rpe, pain, notes, source, tempo)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             ("app:" + s["id"], "app:" + s["workoutID"], s["workoutDay"], s.get("position", 0),
              pattern, s["exercise"], "set", s.get("side", "both"), 1 if s.get("sideInferred") else 0,
              s.get("kind", "reps"), 1,
              s.get("reps"), s.get("holdSeconds"), s.get("loadValue"),
              s.get("loadUnit") if s.get("loadValue") is not None else None, s.get("convention"),
              kg, kg, "warmup" if s.get("isWarmup") else (s.get("tag") or "normal"),
-             None if rir is None else 10 - rir, s.get("pain"), s.get("notes") or None, SOURCE))
+             None if rir is None else 10 - rir, s.get("pain"), s.get("notes") or None, SOURCE,
+             s.get("tempo") if isinstance(s.get("tempo"), str) else None))
         counts["sets"] += 1
 
     for inj in raw.get("injuries", []):
         con.execute(
             "INSERT OR REPLACE INTO injury(id, label, side, onset, onset_precision, onset_recalled,"
-            " mechanism, stage, tissues, activity_types, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            " mechanism, stage, tissues, activity_types, notes, plan) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             ("app:" + inj["id"], inj["label"], inj["side"], inj["onset"],
              inj.get("onsetPrecision", "day"), 1, inj.get("mechanism") or None,
              "resolved" if inj.get("resolvedOn") else None, json.dumps(inj.get("tissues", [])),
-             "[]", inj.get("notes") or None))
+             "[]", inj.get("notes") or None,
+             json.dumps(inj["plan"]) if isinstance(inj.get("plan"), dict) else None))
         counts["injuries"] += 1
 
     for c in raw.get("painChecks", []):

@@ -18,7 +18,64 @@ public struct RestAdjust: Equatable, Sendable {
 }
 
 /// Doing a workout: marking sets done, resting, stepping the load, warming up.
+/// A hold being timed: which set, since when, and how long it is meant to be.
+public struct HoldRun: Equatable, Sendable {
+    public let setID: String
+    public let startedAt: Date
+    /// The seconds planned for the set when the hold began. Nil when none were.
+    public let target: Double?
+    public func elapsed(at time: Date) -> TimeInterval { max(0, time.timeIntervalSince(startedAt)) }
+    /// Seconds left to the target, never below zero. Nil without a target.
+    public func remaining(at time: Date) -> TimeInterval? { target.map { max(0, $0 - elapsed(at: time)) } }
+    public func reachedTarget(at time: Date) -> Bool { target.map { elapsed(at: time) >= $0 } ?? false }
+}
+
 extension AppModel {
+    // MARK: Holds
+
+    /// Starts timing a hold of the workout in progress. The seconds already
+    /// on the set are the target to count down to. A hold already being timed
+    /// is dropped unsaved. False if the set is not in the workout.
+    @discardableResult
+    public func startHold(_ set: WorkoutSet) -> Bool {
+        guard let current = activeSets.first(where: { $0.id == set.id }) else { return false }
+        let planned = current.kind == .hold ? current.holdSeconds.flatMap { $0 > 0 && $0.isFinite ? $0 : nil } : nil
+        holdRun = HoldRun(setID: current.id, startedAt: clock, target: current.isDone ? nil : planned)
+        return true
+    }
+
+    /// Ends the hold being timed and saves the seconds actually held, to the
+    /// half second. Kept from the clock, so time spent with the phone locked counts.
+    /// `asPlanned` saves the target instead when the hold ran at least that long:
+    /// stopping a 45 second hold a moment late is still a 45 second hold.
+    @discardableResult
+    public func stopHold(asPlanned: Bool = true) -> Bool {
+        guard let run = holdRun else { return false }
+        holdRun = nil
+        guard let set = activeSets.first(where: { $0.id == run.setID }) else { return false }
+        var held = min(run.elapsed(at: clock), 3600)
+        if asPlanned, let target = run.target, held >= target, held <= target + 5 { held = target }
+        finishHold(set, seconds: held)
+        return held > 0
+    }
+
+    /// Drops the hold being timed without saving anything.
+    public func cancelHold() { holdRun = nil }
+
+    /// The set to do next in the workout in progress: in a superset the next
+    /// exercise's turn, otherwise the first set not done after the one last
+    /// marked done, otherwise the first not done at all. Nil when the person
+    /// is not using done marks or nothing is left.
+    public var nextUp: WorkoutSet? {
+        guard usesDoneMarks else { return nil }
+        let ordered = activeSets.sorted { $0.position < $1.position }
+        if let last = lastMarkedDone.flatMap({ id in ordered.first { $0.id == id } }) {
+            if let next = supersetNext(after: last) { return next }
+            if let next = ordered.first(where: { $0.position > last.position && !$0.isDone }) { return next }
+        }
+        return ordered.first { !$0.isDone }
+    }
+
     // MARK: Done
 
     /// Marks a set done now, or back to planned. A set marked done keeps the

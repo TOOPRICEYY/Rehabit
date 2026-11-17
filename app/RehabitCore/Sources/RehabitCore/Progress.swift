@@ -143,6 +143,10 @@ public struct WeekSummary: Equatable, Sendable {
     /// Working sets per body region (Library's tissue regions). A set counts
     /// once for each region whose tissues its pattern loads as a prime mover.
     public let setsByRegion: [String: Int]
+    /// Sessions of the week with an effort given, and their effort x minutes
+    /// added up. Sessions with no effort are in neither.
+    public let effortSessions: Int
+    public let sessionLoad: Double
 }
 
 /// The numbers one set contributes, worked out once.
@@ -421,8 +425,10 @@ extension AppModel {
                 regions[region, default: 0] += 1
             }
         }
+        let loads = workouts.filter { inWeek.contains($0.id) }.compactMap(\.sessionLoad)
         return WeekSummary(start: start, end: end, sessions: inWeek.count, workingSets: sets,
-                           volumeKg: volume, setsByRegion: regions)
+                           volumeKg: volume, setsByRegion: regions,
+                           effortSessions: loads.count, sessionLoad: loads.reduce(0, +))
     }
 
     /// How many seven-day windows in a row, the latest ending today, each had

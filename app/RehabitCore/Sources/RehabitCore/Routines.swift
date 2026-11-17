@@ -106,6 +106,11 @@ extension AppModel {
                         filled.copyPrescription(from: previous[round])
                         filled.tag = previous[round].tag
                     }
+                    // What the routine prescribes stands over what was done last time.
+                    if let target = item.targetCount {
+                        if filled.kind == .hold { filled.holdSeconds = target } else { filled.reps = target }
+                    }
+                    if let tempo = item.tempo { filled.tempo = tempo }
                     update(filled)
                 }
             }

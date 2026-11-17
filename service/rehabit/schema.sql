@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS session (
   source TEXT NOT NULL,
   source_id TEXT NOT NULL,
   imported_at TEXT NOT NULL,
+  effort REAL,                   -- how hard the session felt, 0..10, when the person said
   UNIQUE (source, source_id)
 );
 CREATE INDEX IF NOT EXISTS session_day ON session(day);

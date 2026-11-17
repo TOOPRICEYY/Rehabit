@@ -378,6 +378,34 @@ extension AppModel {
                 }
             }
         }
+        if let plan = injury.plan, !plan.isEmpty {
+            out.append("")
+            out.append("## Plan")
+            if !plan.setBy.isEmpty { out.append("Set by: \(plain(plan.setBy.split(whereSeparator: \.isNewline).joined(separator: " ")))") }
+            if let visit = plan.nextVisit { out.append("Next visit: \(visit.readable).") }
+            if let limits = ruleText(for: injury), let summary = ruleSummary(for: injury, days: days) {
+                out.append("- Limits: \(limits)")
+                if summary.sessions == 0 {
+                    out.append("- No session loaded this injury in the period.")
+                } else {
+                    if plan.rule?.duringMax != nil {
+                        out.append("- Pain during sets: over the limit in \(summary.duringOver) of \(summary.duringKnown) session\(summary.duringKnown == 1 ? "" : "s") with pain recorded on a set (\(summary.sessions) loaded it).")
+                    }
+                    if plan.rule?.settleHours != nil {
+                        out.append("- Settling: past the time set in \(summary.settleOver) of \(summary.settleKnown) session\(summary.settleKnown == 1 ? "" : "s") where the readings show it either way (\(summary.sessions) loaded it).")
+                    }
+                }
+            }
+            let progress = milestones(for: injury)
+            if !progress.isEmpty {
+                out.append("- Milestones reached: \(progress.filter(\.isReached).count) of \(progress.count).")
+                for item in progress {
+                    let title = plain(item.milestone.title.split(whereSeparator: \.isNewline).joined(separator: " "))
+                    let asks = item.milestone.exercise == nil ? "" : " (\(plain(milestoneText(item.milestone))))"
+                    out.append("  - \(title.isEmpty ? "Milestone" : title)\(asks). \(item.sentence)")
+                }
+            }
+        }
         if !injury.notes.isEmpty {
             out.append("")
             out.append("## Notes")

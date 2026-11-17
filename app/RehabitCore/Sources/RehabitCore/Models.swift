@@ -106,9 +106,22 @@ public struct Workout: Record, Equatable {
     /// True for a workout laid out ahead from a routine or a repeat: its sets
     /// are a plan until marked done, even before the first is.
     public var planned: Bool?
+    /// How hard the whole session felt, 0 to 10 in half points. Nil when not asked or not said.
+    public var effort: Double?
     public var updatedAt: Date
     public var parentID: String? { nil }
     public var day: Day? { startDay }
+    /// Whole minutes from start to end. Nil while in progress or when the end is not known.
+    public var minutes: Double? {
+        guard let end, end > start else { return nil }
+        return end.timeIntervalSince(start) / 60
+    }
+    /// Effort times minutes: one number for how much a session took, in its
+    /// own units. Nil without both. A session from another app has no effort.
+    public var sessionLoad: Double? {
+        guard let effort, let minutes else { return nil }
+        return effort * minutes
+    }
 
     public init(id: String = UUID().uuidString, title: String = "Workout", start: Date = Date(),
                 end: Date? = nil, zone: TimeZone = .current, notes: String = "") {
@@ -153,6 +166,9 @@ public struct WorkoutSet: Record, Equatable {
     public var pairID: String?
     /// A drop set or a set to failure. Nil for an ordinary set; a warm-up is `isWarmup`.
     public var tag: SetTag?
+    /// Seconds for each phase of a rep, as written: "3-1-1-0" is three down,
+    /// one held, one up, none at the top. Nil when no tempo was set.
+    public var tempo: String?
     public var notes: String
     public var updatedAt: Date
     public var parentID: String? { workoutID }
@@ -201,13 +217,20 @@ public struct RoutineItem: Codable, Equatable, Identifiable, Sendable {
     /// Items with the same number are done back to back, as a superset.
     public var group: Int?
     public var notes: String
+    /// The reps, or for a hold the seconds, each working set is to be: a
+    /// prescription ("5 holds of 45 seconds"). Nil to start from last time.
+    public var targetCount: Double?
+    /// The tempo each working set starts with. Nil for none.
+    public var tempo: String?
 
     public init(id: String = UUID().uuidString, exercise: String, pattern: String?, convention: LoadConvention = .total,
                 unilateral: Bool = false, kind: SetKind = .reps, mode: String = "together", rounds: Int = 3,
-                warmups: Int = 0, restSeconds: Int? = nil, group: Int? = nil, notes: String = "") {
+                warmups: Int = 0, restSeconds: Int? = nil, group: Int? = nil, notes: String = "",
+                targetCount: Double? = nil, tempo: String? = nil) {
         self.id = id; self.exercise = exercise; self.pattern = pattern; self.convention = convention
         self.unilateral = unilateral; self.kind = kind; self.mode = mode; self.rounds = rounds
         self.warmups = warmups; self.restSeconds = restSeconds; self.group = group; self.notes = notes
+        self.targetCount = targetCount; self.tempo = tempo
         self = clamped
     }
 
@@ -218,6 +241,9 @@ public struct RoutineItem: Codable, Equatable, Identifiable, Sendable {
         item.warmups = min(20, max(0, warmups))
         item.rounds = min(20, max(item.warmups > 0 ? 0 : 1, rounds))
         if let rest = restSeconds { item.restSeconds = min(3600, max(0, rest)) }
+        // A target of nothing, or not a number, is no target.
+        if let target = targetCount { item.targetCount = target.isFinite && target > 0 ? min(target, 3600) : nil }
+        item.tempo = tempo.flatMap { Tempo($0)?.text }
         return item
     }
 }
@@ -225,6 +251,7 @@ public struct RoutineItem: Codable, Equatable, Identifiable, Sendable {
 extension RoutineItem {
     private enum CodingKeys: String, CodingKey {
         case id, exercise, pattern, convention, unilateral, kind, mode, rounds, warmups, restSeconds, group, notes
+        case targetCount, tempo
     }
 
     /// Counts read from a file are held to the same limits as counts typed in.
@@ -240,7 +267,9 @@ extension RoutineItem {
                   warmups: (try? c.decode(Int.self, forKey: .warmups)) ?? 0,
                   restSeconds: try? c.decodeIfPresent(Int.self, forKey: .restSeconds),
                   group: try? c.decodeIfPresent(Int.self, forKey: .group),
-                  notes: (try? c.decode(String.self, forKey: .notes)) ?? "")
+                  notes: (try? c.decode(String.self, forKey: .notes)) ?? "",
+                  targetCount: try? c.decodeIfPresent(Double.self, forKey: .targetCount),
+                  tempo: try? c.decodeIfPresent(String.self, forKey: .tempo))
     }
 }
 
@@ -278,6 +307,8 @@ public struct Injury: Record, Equatable {
     public var notes: String
     /// Set when the injury no longer needs follow-up.
     public var resolvedOn: Day?
+    /// The limits and milestones set for this injury by the person or their therapist.
+    public var plan: InjuryPlan?
     public var updatedAt: Date
     public var parentID: String? { nil }
     public var day: Day? { onset }
@@ -389,15 +420,22 @@ public struct Profile: Codable, Equatable, Sendable {
     public var defaultRestSeconds: Int
     /// Rest for single exercises, by lowercased name, where it differs from the default.
     public var restSeconds: [String: Int]
+    /// A standing note for an exercise, by lowercased name: a cue, a seat
+    /// height, what the therapist said. Shown whenever the exercise is.
+    public var exerciseNotes: [String: String]
+    /// Ask how hard the session felt when it is finished.
+    public var askEffort: Bool
     public init(bodyweightKg: Double? = nil, unit: WeightUnit = .lb, dailyCheckIn: Bool = true, morningHour: Int = 8,
-                defaultRestSeconds: Int = 120, restSeconds: [String: Int] = [:]) {
+                defaultRestSeconds: Int = 120, restSeconds: [String: Int] = [:], exerciseNotes: [String: String] = [:],
+                askEffort: Bool = true) {
         self.bodyweightKg = bodyweightKg; self.unit = unit
         self.dailyCheckIn = dailyCheckIn; self.morningHour = min(23, max(0, morningHour))
         self.defaultRestSeconds = max(0, defaultRestSeconds); self.restSeconds = restSeconds
+        self.exerciseNotes = exerciseNotes; self.askEffort = askEffort
     }
 
     private enum CodingKeys: String, CodingKey {
-        case bodyweightKg, unit, dailyCheckIn, morningHour, defaultRestSeconds, restSeconds
+        case bodyweightKg, unit, dailyCheckIn, morningHour, defaultRestSeconds, restSeconds, exerciseNotes, askEffort
     }
 
     /// An unrecognised unit falls back to pounds; it must not cost the body weight.
@@ -409,5 +447,7 @@ public struct Profile: Codable, Equatable, Sendable {
         morningHour = min(23, max(0, (try? c.decodeIfPresent(Int.self, forKey: .morningHour)) ?? 8))
         defaultRestSeconds = max(0, (try? c.decodeIfPresent(Int.self, forKey: .defaultRestSeconds)) ?? 120)
         restSeconds = (try? c.decodeIfPresent([String: Int].self, forKey: .restSeconds)) ?? [:]
+        exerciseNotes = (try? c.decodeIfPresent([String: String].self, forKey: .exerciseNotes)) ?? [:]
+        askEffort = (try? c.decodeIfPresent(Bool.self, forKey: .askEffort)) ?? true
     }
 }

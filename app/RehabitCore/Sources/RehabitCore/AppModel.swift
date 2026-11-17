@@ -51,6 +51,8 @@ public final class AppModel {
     public var restSkippedAt: Date?
     /// Seconds added to or taken from the rest running now. Not stored.
     public var restAdjust: RestAdjust?
+    /// The hold being timed now, if one is. Not stored: it is a few seconds long.
+    public internal(set) var holdRun: HoldRun?
     /// The set whose rest was dismissed, and the set most recently marked done. Not stored.
     var restSkippedFor: String?
     var lastMarkedDone: String?
