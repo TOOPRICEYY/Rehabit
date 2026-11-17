@@ -435,20 +435,6 @@ extension WorkoutSet {
     static let placeholder = WorkoutSet(workout: Workout(), position: 0, exercise: "", pattern: nil)
 }
 
-extension AppModel {
-    func addWarmupRound(to block: ExerciseBlock) {
-        let working = block.sets.first { !$0.isWarmup } ?? block.sample
-        for set in addRound(to: block) {
-            var warm = set
-            if let working { warm.copyPrescription(from: working) }
-            // About half the working load, to the nearest 2.5.
-            if let load = warm.loadValue { warm.loadValue = (load / 2 / 2.5).rounded() * 2.5 }
-            warm.isWarmup = true
-            update(warm)
-        }
-    }
-}
-
 /// What was done last time for this exercise and side.
 struct PreviousSetsNote: View {
     @Environment(AppModel.self) private var model
