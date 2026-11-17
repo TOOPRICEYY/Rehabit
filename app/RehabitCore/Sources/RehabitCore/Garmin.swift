@@ -15,6 +15,7 @@ public struct HTTPReply: Sendable {
 
 public struct GarminError: Error, CustomStringConvertible, Equatable {
     public let description: String
+    public init(description: String) { self.description = description }
 }
 
 /// Garmin's Personal API: each person makes a key in their own Garmin Connect
