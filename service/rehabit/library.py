@@ -106,6 +106,25 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
         "calf": (1.0, P), "achilles": (1.0, P)}),
     "core": ("Trunk exercise", 0.0, {
         "abs": (1.0, P), "obliques": (0.5, A), "hip_flexors": (0.5, A)}),
+    "dip": ("Dip", 1.0, {
+        "triceps": (1.0, P), "pec_major": (0.8, P), "front_delt": (0.5, A),
+        "rotator_cuff": (0.25, S)}),
+    "rear_fly": ("Reverse fly or face pull", 0.0, {
+        "rear_delt": (1.0, P), "mid_back": (0.6, A), "rotator_cuff": (0.4, A),
+        "upper_traps": (0.3, A)}),
+    "shoulder_rotation": ("Shoulder rotation", 0.0, {
+        "rotator_cuff": (1.0, P), "rear_delt": (0.3, A)}),
+    "shrug": ("Shrug", 0.0, {
+        "upper_traps": (1.0, P), "forearm": (0.4, A)}),
+    "wrist_curl": ("Wrist curl or grip work", 0.0, {
+        "forearm": (1.0, P)}),
+    "bridge": ("Glute bridge or hip thrust", 0.0, {
+        "glute_max": (1.0, P), "hamstrings": (0.5, A), "glute_med": (0.3, S),
+        "erectors": (0.3, S)}),
+    "hip_abduction": ("Hip abduction", 0.0, {
+        "glute_med": (1.0, P), "glute_max": (0.3, A)}),
+    "hip_adduction": ("Hip adduction", 0.0, {
+        "adductors": (1.0, P)}),
     # Daily steps, not a logged exercise: it is not in the picker and no
     # exercise name maps to it. Push-off loads the calf and Achilles most; the
     # thigh and hip muscles work at a small fraction of their capacity.
@@ -176,6 +195,84 @@ CATALOGUE: list[tuple[str, str, str, bool]] = [
     ("Plank", "core", "bodyweight", False),
     ("Crunch", "core", "bodyweight", False),
     ("Hanging Leg Raise", "core", "bodyweight", False),
+    ("Side Plank", "core", "bodyweight", True),
+    ("Dip", "dip", "bodyweight", False),
+    ("Face Pull (Cable)", "rear_fly", "total", False),
+    ("Reverse Fly (Dumbbell)", "rear_fly", "per_hand", False),
+    ("External Rotation (Cable)", "shoulder_rotation", "per_hand", True),
+    ("External Rotation (Band)", "shoulder_rotation", "bodyweight", True),
+    ("Shrug (Dumbbell)", "shrug", "per_hand", False),
+    ("Wrist Curl (Dumbbell)", "wrist_curl", "per_hand", True),
+    ("Nordic Hamstring Curl", "leg_curl", "bodyweight", False),
+    ("Seated Calf Raise (Machine)", "calf_raise", "total", False),
+    ("Calf Raise (Bodyweight)", "calf_raise", "bodyweight", False),
+    ("Single-Leg Calf Raise (Bodyweight)", "calf_raise", "bodyweight", True),
+    ("Hip Thrust (Barbell)", "bridge", "total", False),
+    ("Glute Bridge", "bridge", "bodyweight", False),
+    ("Single-Leg Glute Bridge", "bridge", "bodyweight", True),
+    ("Hip Abduction (Machine)", "hip_abduction", "total", False),
+    ("Side-Lying Hip Abduction", "hip_abduction", "bodyweight", True),
+    ("Clamshell (Band)", "hip_abduction", "bodyweight", True),
+    ("Hip Adduction (Machine)", "hip_adduction", "total", False),
+    # Isometric holds, logged in seconds (see HOLDS).
+    ("Wall Sit", "squat_bodyweight", "bodyweight", False),
+    ("Spanish Squat (Band)", "squat_bodyweight", "bodyweight", False),
+    ("Isometric Leg Extension (Machine)", "leg_extension", "total", True),
+    ("Isometric Leg Curl (Machine)", "leg_curl", "total", True),
+    ("Calf Raise Hold", "calf_raise", "bodyweight_plus", True),
+    ("Isometric Chest Press (Machine)", "press_horizontal", "total", False),
+    ("Isometric Chest Fly (Cable)", "fly", "per_hand", True),
+    ("Isometric Biceps Curl (Dumbbell)", "curl", "per_hand", True),
+    ("Isometric Triceps Pushdown (Cable)", "triceps_extension", "per_hand", True),
+    ("Glute Bridge Hold", "bridge", "bodyweight", False),
+    ("Single-Leg Glute Bridge Hold", "bridge", "bodyweight", True),
+    ("Copenhagen Plank", "hip_adduction", "bodyweight", True),
+    ("Dead Hang", "pull_up", "bodyweight", False),
+]
+
+# Catalogue exercises that are held for time instead of counted in reps.
+HOLDS: set[str] = {
+    "Plank", "Side Plank", "Wall Sit", "Spanish Squat (Band)", "Isometric Leg Extension (Machine)",
+    "Isometric Leg Curl (Machine)", "Calf Raise Hold", "Isometric Chest Press (Machine)",
+    "Isometric Chest Fly (Cable)", "Isometric Biceps Curl (Dumbbell)",
+    "Isometric Triceps Pushdown (Cable)", "Glute Bridge Hold", "Single-Leg Glute Bridge Hold",
+    "Copenhagen Plank", "Dead Hang",
+}
+
+
+# First match wins, so the specific patterns come before the general ones.
+_PATTERNS: list[tuple[str, str]] = [
+    (r"nordic|hamstring curl|leg curl", "leg_curl"),
+    (r"leg extension", "leg_extension"),
+    (r"leg press|calf press", "leg_press"),
+    (r"calf", "calf_raise"),
+    (r"hip thrust|bridge|glute kickback|donkey kick|hip extension", "bridge"),
+    (r"abduct|clamshell|side[- ]lying leg|band walk|monster walk", "hip_abduction"),
+    (r"adduct|copenhagen", "hip_adduction"),
+    (r"\bdips?\b", "dip"),
+    (r"skull|tricep|pressdown|push ?down|kickback", "triceps_extension"),
+    (r"upright", "upright_row"),
+    (r"lat pull ?down|pulldown", "pulldown"),
+    (r"pull[- ]?up|chin[- ]?up|dead hang", "pull_up"),
+    (r"push[- ]?up", "push_up"),
+    (r"incline.*press|incline bench", "press_incline"),
+    (r"overhead press|shoulder press|arnold|seated dumbbell press|military", "press_overhead"),
+    (r"bench|chest press|dumbbell press|floor press", "press_horizontal"),
+    (r"face pull|rear delt|reverse fly|reverse pec deck", "rear_fly"),
+    (r"fly|flye|crossover|pec deck", "fly"),
+    (r"external rotation|internal rotation|rotator", "shoulder_rotation"),
+    (r"shrug", "shrug"),
+    (r"leg raise|knee raise", "core"),
+    (r"lateral raise|front raise|raise", "raise_lateral"),
+    (r"wrist", "wrist_curl"),
+    (r"curl", "curl"),
+    (r"row", "row"),
+    (r"romanian|rdl|hyperext|back extension|good morning", "rdl"),
+    (r"deadlift", "deadlift"),
+    (r"lunge|split squat|step[- ]?up", "lunge"),
+    (r"squat \(bodyweight\)|bodyweight squat|air squat|wall sit|spanish squat", "squat_bodyweight"),
+    (r"squat", "squat"),
+    (r"sit[- ]?up|crunch|plank|ab wheel|twist|scissor|rotation", "core"),
 ]
 
 
@@ -187,36 +284,14 @@ def export() -> dict:
             {"id": i, "name": n, "bodyweightShare": bw,
              "links": [{"tissue": t, "share": sh, "role": role} for t, (sh, role) in links.items()]}
             for i, (n, bw, links) in EXERCISES.items()],
-        "catalogue": [{"name": n, "pattern": p, "convention": c, "unilateral": u}
+        "catalogue": [{"name": n, "pattern": p, "convention": c, "unilateral": u,
+                       "kind": "hold" if n in HOLDS else "reps"}
                       for n, p, c, u in CATALOGUE],
+        # The app maps imported exercise names with the same rules, in this order.
+        "matchers": [[pattern, exercise_id] for pattern, exercise_id in _PATTERNS],
     }
 
 
-# First match wins, so the specific patterns come before the general ones.
-_PATTERNS: list[tuple[str, str]] = [
-    (r"leg curl", "leg_curl"),
-    (r"leg extension", "leg_extension"),
-    (r"leg press|calf press", "leg_press"),
-    (r"calf", "calf_raise"),
-    (r"skull|tricep|pressdown|push ?down|kickback", "triceps_extension"),
-    (r"upright", "upright_row"),
-    (r"lat pull ?down|pulldown", "pulldown"),
-    (r"pull[- ]?up|chin[- ]?up", "pull_up"),
-    (r"push[- ]?up", "push_up"),
-    (r"incline.*press|incline bench", "press_incline"),
-    (r"overhead press|shoulder press|arnold|seated dumbbell press|military", "press_overhead"),
-    (r"bench|chest press|dumbbell press|floor press", "press_horizontal"),
-    (r"fly|flye|crossover|pec deck", "fly"),
-    (r"lateral raise|front raise|raise", "raise_lateral"),
-    (r"curl", "curl"),
-    (r"row", "row"),
-    (r"romanian|rdl|hyperext|back extension|good morning", "rdl"),
-    (r"deadlift", "deadlift"),
-    (r"squat \(bodyweight\)|bodyweight squat|air squat", "squat_bodyweight"),
-    (r"squat", "squat"),
-    (r"lunge|split squat|step[- ]?up", "lunge"),
-    (r"sit[- ]?up|crunch|plank|ab wheel|twist|scissor|rotation|leg raise", "core"),
-]
 _COMPILED = [(re.compile(p), ex) for p, ex in _PATTERNS]
 
 

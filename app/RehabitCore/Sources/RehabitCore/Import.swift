@@ -57,32 +57,13 @@ public struct ImportError: Error, CustomStringConvertible, Equatable {
 }
 
 /// Maps another app's exercise name to a movement pattern. The rules are the
-/// service's (`library.match_exercise`), in the same order: first match wins.
+/// service's (`library.match_exercise`), read from the shared library file so
+/// the two cannot drift: first match wins.
 public enum ExerciseMatcher {
-    private static let rules: [(NSRegularExpression, String)] = [
-        ("leg curl", "leg_curl"),
-        ("leg extension", "leg_extension"),
-        ("leg press|calf press", "leg_press"),
-        ("calf", "calf_raise"),
-        ("skull|tricep|pressdown|push ?down|kickback", "triceps_extension"),
-        ("upright", "upright_row"),
-        ("lat pull ?down|pulldown", "pulldown"),
-        ("pull[- ]?up|chin[- ]?up", "pull_up"),
-        ("push[- ]?up", "push_up"),
-        ("incline.*press|incline bench", "press_incline"),
-        ("overhead press|shoulder press|arnold|seated dumbbell press|military", "press_overhead"),
-        ("bench|chest press|dumbbell press|floor press", "press_horizontal"),
-        ("fly|flye|crossover|pec deck", "fly"),
-        ("lateral raise|front raise|raise", "raise_lateral"),
-        ("curl", "curl"),
-        ("row", "row"),
-        ("romanian|rdl|hyperext|back extension|good morning", "rdl"),
-        ("deadlift", "deadlift"),
-        ("squat \\(bodyweight\\)|bodyweight squat|air squat", "squat_bodyweight"),
-        ("squat", "squat"),
-        ("lunge|split squat|step[- ]?up", "lunge"),
-        ("sit[- ]?up|crunch|plank|ab wheel|twist|scissor|rotation|leg raise", "core"),
-    ].map { (try! NSRegularExpression(pattern: $0.0), $0.1) }
+    private static let rules: [(NSRegularExpression, String)] = Library.standard.matchers.compactMap { rule in
+        guard rule.count == 2, let regex = try? NSRegularExpression(pattern: rule[0]) else { return nil }
+        return (regex, rule[1])
+    }
 
     public static func pattern(for name: String) -> String? {
         let text = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -104,7 +85,9 @@ public enum ExerciseMatcher {
         let bodyweight = (library.pattern(pattern)?.bodyweightShare ?? 0) > 0
         let convention: LoadConvention = bodyweight ? .bodyweightPlus : lower.contains("dumbbell") ? .perHand : .total
         let oneSided = lower.contains("single") || lower.contains("one arm") || lower.contains("one leg")
-        return (CatalogueExercise(name: clean, pattern: pattern ?? "", convention: convention, unilateral: oneSided), pattern)
+        let hold = lower.contains("isometric") || lower.hasSuffix(" hold") || lower.contains("plank") || lower.contains("wall sit")
+        return (CatalogueExercise(name: clean, pattern: pattern ?? "", convention: convention, unilateral: oneSided,
+                                  kind: hold ? .hold : .reps), pattern)
     }
 }
 

@@ -434,9 +434,13 @@ public final class Store {
     }
 
     /// The records in a list that would add to or replace what is held here.
-    public func arriving<R: Record>(_ records: [R]) throws -> [R] {
+    /// With `reviving` false, a record deleted here stays deleted however new
+    /// the arriving copy is: a file prepared elsewhere proposes records, and
+    /// cannot undo a deletion made by hand.
+    public func arriving<R: Record>(_ records: [R], reviving: Bool = true) throws -> [R] {
         try records.filter {
-            try arrivingWins(kind: R.kind, id: $0.id, updated: Stamp.millis($0.updatedAt), deleted: false,
+            if !reviving, try row(kind: R.kind, id: $0.id)?.deleted == true { return false }
+            return try arrivingWins(kind: R.kind, id: $0.id, updated: Stamp.millis($0.updatedAt), deleted: false,
                              body: try encode($0))
         }
     }

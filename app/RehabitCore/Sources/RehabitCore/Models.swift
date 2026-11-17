@@ -70,6 +70,9 @@ public struct Workout: Record, Equatable {
     public var end: Date?
     public var startDay: Day
     public var notes: String
+    /// Exercises whose left and right sides were linked or unlinked by hand
+    /// in this workout. Kept so a relaunch mid-workout does not forget it.
+    public var linkOverrides: [String: Bool]?
     public var updatedAt: Date
     public var parentID: String? { nil }
     public var day: Day? { startDay }
@@ -108,9 +111,13 @@ public struct WorkoutSet: Record, Equatable {
     public var painType: PainType?
     public var range: RangeOfMotion?
     public var isWarmup: Bool
+    /// When the set was marked done. Nil for a set only planned so far, and
+    /// for records from before this was kept or from another app.
+    public var completedAt: Date?
     public var notes: String
     public var updatedAt: Date
     public var parentID: String? { workoutID }
+    public var isDone: Bool { completedAt != nil }
     public var day: Day? { workoutDay }
 
     public init(id: String = UUID().uuidString, workout: Workout, position: Int, exercise: String,
@@ -119,13 +126,13 @@ public struct WorkoutSet: Record, Equatable {
                 holdSeconds: Double? = nil, loadValue: Double? = nil, loadUnit: WeightUnit = .lb,
                 convention: LoadConvention = .total, repsInReserve: Double? = nil, pain: Double? = nil,
                 painType: PainType? = nil, range: RangeOfMotion? = nil, isWarmup: Bool = false,
-                notes: String = "", updatedAt: Date = Date()) {
+                completedAt: Date? = nil, notes: String = "", updatedAt: Date = Date()) {
         self.id = id; self.workoutID = workout.id; self.workoutDay = workout.startDay
         self.position = position; self.exercise = exercise; self.pattern = pattern; self.side = side
         self.sideInferred = sideInferred; self.kind = kind; self.reps = reps; self.holdSeconds = holdSeconds; self.loadValue = loadValue
         self.loadUnit = loadUnit; self.convention = convention; self.repsInReserve = repsInReserve
         self.pain = pain; self.painType = painType; self.range = range; self.isWarmup = isWarmup
-        self.notes = notes; self.updatedAt = updatedAt
+        self.completedAt = completedAt; self.notes = notes; self.updatedAt = updatedAt
     }
 }
 
@@ -250,12 +257,20 @@ public struct Profile: Codable, Equatable, Sendable {
     public var dailyCheckIn: Bool
     /// The local hour of the morning questions, 0 to 23.
     public var morningHour: Int
-    public init(bodyweightKg: Double? = nil, unit: WeightUnit = .lb, dailyCheckIn: Bool = true, morningHour: Int = 8) {
+    /// Seconds of rest counted down after a set is marked done. 0 turns the timer off.
+    public var defaultRestSeconds: Int
+    /// Rest for single exercises, by lowercased name, where it differs from the default.
+    public var restSeconds: [String: Int]
+    public init(bodyweightKg: Double? = nil, unit: WeightUnit = .lb, dailyCheckIn: Bool = true, morningHour: Int = 8,
+                defaultRestSeconds: Int = 120, restSeconds: [String: Int] = [:]) {
         self.bodyweightKg = bodyweightKg; self.unit = unit
         self.dailyCheckIn = dailyCheckIn; self.morningHour = min(23, max(0, morningHour))
+        self.defaultRestSeconds = max(0, defaultRestSeconds); self.restSeconds = restSeconds
     }
 
-    private enum CodingKeys: String, CodingKey { case bodyweightKg, unit, dailyCheckIn, morningHour }
+    private enum CodingKeys: String, CodingKey {
+        case bodyweightKg, unit, dailyCheckIn, morningHour, defaultRestSeconds, restSeconds
+    }
 
     /// An unrecognised unit falls back to pounds; it must not cost the body weight.
     public init(from decoder: Decoder) throws {
@@ -264,5 +279,7 @@ public struct Profile: Codable, Equatable, Sendable {
         unit = (try? c.decode(WeightUnit.self, forKey: .unit)) ?? .lb
         dailyCheckIn = (try? c.decodeIfPresent(Bool.self, forKey: .dailyCheckIn)) ?? true
         morningHour = min(23, max(0, (try? c.decodeIfPresent(Int.self, forKey: .morningHour)) ?? 8))
+        defaultRestSeconds = max(0, (try? c.decodeIfPresent(Int.self, forKey: .defaultRestSeconds)) ?? 120)
+        restSeconds = (try? c.decodeIfPresent([String: Int].self, forKey: .restSeconds)) ?? [:]
     }
 }

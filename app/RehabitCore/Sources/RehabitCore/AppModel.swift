@@ -33,9 +33,20 @@ public final class AppModel {
     /// Bumped when the clock should be read again; see `refreshClock()`.
     public private(set) var tick = 0
     /// Exercises in the workout in progress whose left and right sides were linked
-    /// or unlinked by hand. The rest follow `defaultLinked(_:)`. Not stored: it
-    /// only steers how the next edit is copied.
-    public var linkOverrides: [String: Bool] = [:]
+    /// or unlinked by hand. The rest follow `defaultLinked(_:)`. Kept with the
+    /// workout, so leaving the app mid-workout does not forget it.
+    public var linkOverrides: [String: Bool] {
+        get { active?.linkOverrides ?? [:] }
+        set {
+            guard var workout = active, (workout.linkOverrides ?? [:]) != newValue else { return }
+            workout.linkOverrides = newValue.isEmpty ? nil : newValue
+            workout.updatedAt = now()
+            attempt { try store.save(workout) }
+            active = workout
+        }
+    }
+    /// When the rest countdown was last dismissed by hand. Not stored.
+    public var restSkippedAt: Date?
     /// Goes up whenever stored records were saved and read back (a workout
     /// finished, a pain check answered, an injury saved, an import), so the
     /// app knows when to write its export for the Mac again.
@@ -160,20 +171,30 @@ public final class AppModel {
         let chosen = side ?? (exercise.unilateral ? likelySide(for: exercise) : .both)
         let position = (current.map(\.position).max() ?? -1) + 1
         var set: WorkoutSet
-        if let last = current.last(where: { $0.exercise == exercise.name && $0.side == chosen }) {
+        let sameSide = current.filter { $0.exercise == exercise.name && $0.side == chosen }
+        if let last = sameSide.last {
             set = last
             set.id = UUID().uuidString
             set.position = position
             set.pain = nil; set.painType = nil; set.repsInReserve = nil; set.notes = ""
+            set.completedAt = nil
+            // The set after a warm-up is a working set: it takes the numbers of the
+            // working set before it, or of last session's, never the warm-up's light load.
+            if last.isWarmup {
+                set.isWarmup = false
+                let source = sameSide.last { !$0.isWarmup }
+                    ?? prefillSets(for: exercise, side: chosen).first { !$0.isWarmup }
+                if let source { set.copyPrescription(from: source) }
+            }
             // Chosen here, never worked out by rule, whatever the set it copies was.
             set.sideInferred = workoutID == nil ? set.sideInferred.map { _ in false } : false
         } else {
             set = WorkoutSet(workout: workout, position: position, exercise: exercise.name,
                              pattern: exercise.pattern.isEmpty ? nil : exercise.pattern, side: chosen,
-                             loadUnit: profile.unit, convention: exercise.convention)
+                             kind: exercise.kind, loadUnit: profile.unit, convention: exercise.convention)
             if !isActive { set.sideInferred = false }
             // Prefill from the first working set of last time, not a warm-up.
-            let previous = previousSets(exercise: exercise.name, side: chosen)
+            let previous = prefillSets(for: exercise, side: chosen)
             if let first = previous.first(where: { !$0.isWarmup }) ?? previous.first {
                 set.kind = first.kind; set.reps = first.reps; set.holdSeconds = first.holdSeconds
                 set.loadValue = first.loadValue; set.loadUnit = first.loadUnit
@@ -202,8 +223,10 @@ public final class AppModel {
         attempt { try store.save(set) }
         // Patched in place: this runs on every keystroke, and reading the whole
         // database back each time is what made typing lag on a long history.
+        let moved = allSets[index].position != set.position
         allSets[index] = set
         if let i = activeSets.firstIndex(where: { $0.id == set.id }) { activeSets[i] = set }
+        if moved { activeSets.sort { $0.position < $1.position } }      // kept in the order shown
         history = nil
     }
 
@@ -255,7 +278,10 @@ public final class AppModel {
         if let history { return history }
         var existing = Set(workouts.map(\.id))
         if let active { existing.insert(active.id) }
-        let built = allSets.filter { existing.contains($0.workoutID) }
+        // In the workout in progress, once any set has been marked done, the sets
+        // only planned so far are not load yet. With nothing marked, all count.
+        let ticking = activeSets.contains { $0.isDone }
+        let built = allSets.filter { existing.contains($0.workoutID) && !(ticking && $0.workoutID == active?.id && !$0.isDone) }
             .map { (id: $0.id, set: ledger.ledgerSet($0, profile: profile)) }
         history = built
         return built
@@ -279,8 +305,10 @@ public final class AppModel {
     /// Ends the workout and schedules pain checks for each injury it loaded.
     /// Returns the checks that are due now (the after-session ones).
     @discardableResult
-    public func finishWorkout() -> [PainCheck] {
+    public func finishWorkout(removingUnfinished: Bool = false) -> [PainCheck] {
+        if removingUnfinished { for set in unfinishedSets { removeSet(id: set.id) } }
         guard var workout = active else { return [] }
+        restSkippedAt = nil
         if activeSets.isEmpty {
             discardWorkout()
             return []
@@ -552,10 +580,10 @@ public final class AppModel {
     /// Nothing is stored. Throws if the file cannot be read as Rehabit records.
     public func incoming(_ data: Data) throws -> IncomingRecords {
         let file = try Store.decodeSnapshot(data)
-        return IncomingRecords(injuries: try store.arriving(file.injuries),
-                               workouts: try store.arriving(file.workouts),
-                               sets: try store.arriving(file.sets).count,
-                               painChecks: try store.arriving(file.painChecks).count,
+        return IncomingRecords(injuries: try store.arriving(file.injuries, reviving: false),
+                               workouts: try store.arriving(file.workouts, reviving: false),
+                               sets: try store.arriving(file.sets, reviving: false).count,
+                               painChecks: try store.arriving(file.painChecks, reviving: false).count,
                                unreadable: file.unreadable.count)
     }
 
@@ -570,8 +598,11 @@ public final class AppModel {
             let file = try Store.decodeSnapshot(data)
             changed = try store.merge(Snapshot(
                 schemaVersion: file.schemaVersion, exportedAt: file.exportedAt, profile: profile,
-                workouts: file.workouts, sets: file.sets, injuries: file.injuries,
-                painChecks: file.painChecks, dailyMetrics: [], tombstones: []))
+                workouts: try store.arriving(file.workouts, reviving: false),
+                sets: try store.arriving(file.sets, reviving: false),
+                injuries: try store.arriving(file.injuries, reviving: false),
+                painChecks: try store.arriving(file.painChecks, reviving: false),
+                dailyMetrics: [], tombstones: []))
         }
         reload()
         reapplyImportedSides()

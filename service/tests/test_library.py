@@ -20,6 +20,21 @@ from rehabit import library
     ("Seated Calf Raise", "calf_raise"),
     ("Calf Press on Seated Leg Press", "leg_press"),
     ("dumbbell flye", "fly"),
+    ("Hanging Leg Raise", "core"),
+    ("Nordic Hamstring Curl", "leg_curl"),
+    ("Wrist Curl", "wrist_curl"),
+    ("Hip Thrust (Barbell)", "bridge"),
+    ("Glute Kickback (Cable)", "bridge"),
+    ("Triceps Kickback (Dumbbell)", "triceps_extension"),
+    ("Hip Abduction (Machine)", "hip_abduction"),
+    ("Hip Adduction (Machine)", "hip_adduction"),
+    ("Face Pull", "rear_fly"),
+    ("Reverse Fly (Dumbbell)", "rear_fly"),
+    ("Chest Dip", "dip"),
+    ("External Rotation (Cable)", "shoulder_rotation"),
+    ("Lateral Raise (Dumbbell)", "raise_lateral"),
+    ("Wall Sit", "squat_bodyweight"),
+    ("Russian Twist", "core"),
     ("unknown", None),
     ("Underwater Basket Weaving", None),
 ])
@@ -52,3 +67,8 @@ def test_catalogue_points_at_real_patterns():
     assert all(pattern in library.EXERCISES for _, pattern, _, _ in library.CATALOGUE)
     names = [name for name, *_ in library.CATALOGUE]
     assert len(names) == len(set(names))
+    assert library.HOLDS <= set(names)
+    # A catalogue name maps to its own pattern by the rules too, so a set logged
+    # in the app and the same name imported from elsewhere load the same tissues.
+    for name, pattern, _, _ in library.CATALOGUE:
+        assert library.match_exercise(name) == pattern, name

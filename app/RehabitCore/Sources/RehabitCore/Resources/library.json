@@ -770,6 +770,162 @@
    ]
   },
   {
+   "id": "dip",
+   "name": "Dip",
+   "bodyweightShare": 1.0,
+   "links": [
+    {
+     "tissue": "triceps",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "pec_major",
+     "share": 0.8,
+     "role": "prime"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "rotator_cuff",
+     "share": 0.25,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "rear_fly",
+   "name": "Reverse fly or face pull",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "rear_delt",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "mid_back",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "rotator_cuff",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "upper_traps",
+     "share": 0.3,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "shoulder_rotation",
+   "name": "Shoulder rotation",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "rotator_cuff",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "rear_delt",
+     "share": 0.3,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "shrug",
+   "name": "Shrug",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "upper_traps",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "forearm",
+     "share": 0.4,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "wrist_curl",
+   "name": "Wrist curl or grip work",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "forearm",
+     "share": 1.0,
+     "role": "prime"
+    }
+   ]
+  },
+  {
+   "id": "bridge",
+   "name": "Glute bridge or hip thrust",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "glute_max",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "glute_med",
+     "share": 0.3,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "erectors",
+     "share": 0.3,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "hip_abduction",
+   "name": "Hip abduction",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "glute_med",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.3,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "hip_adduction",
+   "name": "Hip adduction",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "adductors",
+     "share": 1.0,
+     "role": "prime"
+    }
+   ]
+  },
+  {
    "id": "walking",
    "name": "Walking (daily steps)",
    "bodyweightShare": 0.0,
@@ -817,349 +973,757 @@
    "name": "Bench Press (Barbell)",
    "pattern": "press_horizontal",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Bench Press (Dumbbell)",
    "pattern": "press_horizontal",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Single-Arm Bench Press (Dumbbell)",
    "pattern": "press_horizontal",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Chest Press (Machine)",
    "pattern": "press_horizontal",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Floor Press (Dumbbell)",
    "pattern": "press_horizontal",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Incline Bench Press (Barbell)",
    "pattern": "press_incline",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Incline Bench Press (Dumbbell)",
    "pattern": "press_incline",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Push-Up",
    "pattern": "push_up",
    "convention": "bodyweight",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Chest Fly (Dumbbell)",
    "pattern": "fly",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Chest Fly (Cable)",
    "pattern": "fly",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Pec Deck (Machine)",
    "pattern": "fly",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Overhead Press (Barbell)",
    "pattern": "press_overhead",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Shoulder Press (Dumbbell)",
    "pattern": "press_overhead",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Lateral Raise (Dumbbell)",
    "pattern": "raise_lateral",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Lateral Raise (Cable)",
    "pattern": "raise_lateral",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Front Raise (Dumbbell)",
    "pattern": "raise_lateral",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Upright Row (Cable)",
    "pattern": "upright_row",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Triceps Pushdown (Cable)",
    "pattern": "triceps_extension",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Single-Arm Triceps Pushdown (Cable)",
    "pattern": "triceps_extension",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Overhead Triceps Extension (Dumbbell)",
    "pattern": "triceps_extension",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Skullcrusher (EZ Bar)",
    "pattern": "triceps_extension",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Biceps Curl (Dumbbell)",
    "pattern": "curl",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Biceps Curl (Barbell)",
    "pattern": "curl",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Biceps Curl (Cable)",
    "pattern": "curl",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Hammer Curl (Dumbbell)",
    "pattern": "curl",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Preacher Curl (Machine)",
    "pattern": "curl",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Bent Over Row (Barbell)",
    "pattern": "row",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Single-Arm Row (Dumbbell)",
    "pattern": "row",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Seated Row (Cable)",
    "pattern": "row",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Chest Supported Row (Machine)",
    "pattern": "row",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Pull-Up",
    "pattern": "pull_up",
    "convention": "bodyweight",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Chin-Up",
    "pattern": "pull_up",
    "convention": "bodyweight",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Weighted Pull-Up",
    "pattern": "pull_up",
    "convention": "bodyweight_plus",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Lat Pulldown (Cable)",
    "pattern": "pulldown",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Single-Arm Lat Pulldown (Cable)",
    "pattern": "pulldown",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Deadlift (Barbell)",
    "pattern": "deadlift",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Trap Bar Deadlift",
    "pattern": "deadlift",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Romanian Deadlift (Barbell)",
    "pattern": "rdl",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Romanian Deadlift (Dumbbell)",
    "pattern": "rdl",
    "convention": "per_hand",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Single-Leg Romanian Deadlift (Dumbbell)",
    "pattern": "rdl",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Back Extension",
    "pattern": "rdl",
    "convention": "bodyweight_plus",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Squat (Barbell)",
    "pattern": "squat",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Goblet Squat (Dumbbell)",
    "pattern": "squat",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Squat (Bodyweight)",
    "pattern": "squat_bodyweight",
    "convention": "bodyweight",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Lunge (Dumbbell)",
    "pattern": "lunge",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Bulgarian Split Squat (Dumbbell)",
    "pattern": "lunge",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Step-Up (Dumbbell)",
    "pattern": "lunge",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Leg Press (Machine)",
    "pattern": "leg_press",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Single-Leg Press (Machine)",
    "pattern": "leg_press",
    "convention": "total",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Leg Extension (Machine)",
    "pattern": "leg_extension",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Single-Leg Extension (Machine)",
    "pattern": "leg_extension",
    "convention": "total",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Leg Curl (Machine)",
    "pattern": "leg_curl",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Single-Leg Curl (Machine)",
    "pattern": "leg_curl",
    "convention": "total",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Calf Raise (Machine)",
    "pattern": "calf_raise",
    "convention": "total",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Single-Leg Calf Raise (Dumbbell)",
    "pattern": "calf_raise",
    "convention": "per_hand",
-   "unilateral": true
+   "unilateral": true,
+   "kind": "reps"
   },
   {
    "name": "Plank",
    "pattern": "core",
    "convention": "bodyweight",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "hold"
   },
   {
    "name": "Crunch",
    "pattern": "core",
    "convention": "bodyweight",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
   },
   {
    "name": "Hanging Leg Raise",
    "pattern": "core",
    "convention": "bodyweight",
-   "unilateral": false
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Side Plank",
+   "pattern": "core",
+   "convention": "bodyweight",
+   "unilateral": true,
+   "kind": "hold"
+  },
+  {
+   "name": "Dip",
+   "pattern": "dip",
+   "convention": "bodyweight",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Face Pull (Cable)",
+   "pattern": "rear_fly",
+   "convention": "total",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Reverse Fly (Dumbbell)",
+   "pattern": "rear_fly",
+   "convention": "per_hand",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "External Rotation (Cable)",
+   "pattern": "shoulder_rotation",
+   "convention": "per_hand",
+   "unilateral": true,
+   "kind": "reps"
+  },
+  {
+   "name": "External Rotation (Band)",
+   "pattern": "shoulder_rotation",
+   "convention": "bodyweight",
+   "unilateral": true,
+   "kind": "reps"
+  },
+  {
+   "name": "Shrug (Dumbbell)",
+   "pattern": "shrug",
+   "convention": "per_hand",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Wrist Curl (Dumbbell)",
+   "pattern": "wrist_curl",
+   "convention": "per_hand",
+   "unilateral": true,
+   "kind": "reps"
+  },
+  {
+   "name": "Nordic Hamstring Curl",
+   "pattern": "leg_curl",
+   "convention": "bodyweight",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Seated Calf Raise (Machine)",
+   "pattern": "calf_raise",
+   "convention": "total",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Calf Raise (Bodyweight)",
+   "pattern": "calf_raise",
+   "convention": "bodyweight",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Single-Leg Calf Raise (Bodyweight)",
+   "pattern": "calf_raise",
+   "convention": "bodyweight",
+   "unilateral": true,
+   "kind": "reps"
+  },
+  {
+   "name": "Hip Thrust (Barbell)",
+   "pattern": "bridge",
+   "convention": "total",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Glute Bridge",
+   "pattern": "bridge",
+   "convention": "bodyweight",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Single-Leg Glute Bridge",
+   "pattern": "bridge",
+   "convention": "bodyweight",
+   "unilateral": true,
+   "kind": "reps"
+  },
+  {
+   "name": "Hip Abduction (Machine)",
+   "pattern": "hip_abduction",
+   "convention": "total",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Side-Lying Hip Abduction",
+   "pattern": "hip_abduction",
+   "convention": "bodyweight",
+   "unilateral": true,
+   "kind": "reps"
+  },
+  {
+   "name": "Clamshell (Band)",
+   "pattern": "hip_abduction",
+   "convention": "bodyweight",
+   "unilateral": true,
+   "kind": "reps"
+  },
+  {
+   "name": "Hip Adduction (Machine)",
+   "pattern": "hip_adduction",
+   "convention": "total",
+   "unilateral": false,
+   "kind": "reps"
+  },
+  {
+   "name": "Wall Sit",
+   "pattern": "squat_bodyweight",
+   "convention": "bodyweight",
+   "unilateral": false,
+   "kind": "hold"
+  },
+  {
+   "name": "Spanish Squat (Band)",
+   "pattern": "squat_bodyweight",
+   "convention": "bodyweight",
+   "unilateral": false,
+   "kind": "hold"
+  },
+  {
+   "name": "Isometric Leg Extension (Machine)",
+   "pattern": "leg_extension",
+   "convention": "total",
+   "unilateral": true,
+   "kind": "hold"
+  },
+  {
+   "name": "Isometric Leg Curl (Machine)",
+   "pattern": "leg_curl",
+   "convention": "total",
+   "unilateral": true,
+   "kind": "hold"
+  },
+  {
+   "name": "Calf Raise Hold",
+   "pattern": "calf_raise",
+   "convention": "bodyweight_plus",
+   "unilateral": true,
+   "kind": "hold"
+  },
+  {
+   "name": "Isometric Chest Press (Machine)",
+   "pattern": "press_horizontal",
+   "convention": "total",
+   "unilateral": false,
+   "kind": "hold"
+  },
+  {
+   "name": "Isometric Chest Fly (Cable)",
+   "pattern": "fly",
+   "convention": "per_hand",
+   "unilateral": true,
+   "kind": "hold"
+  },
+  {
+   "name": "Isometric Biceps Curl (Dumbbell)",
+   "pattern": "curl",
+   "convention": "per_hand",
+   "unilateral": true,
+   "kind": "hold"
+  },
+  {
+   "name": "Isometric Triceps Pushdown (Cable)",
+   "pattern": "triceps_extension",
+   "convention": "per_hand",
+   "unilateral": true,
+   "kind": "hold"
+  },
+  {
+   "name": "Glute Bridge Hold",
+   "pattern": "bridge",
+   "convention": "bodyweight",
+   "unilateral": false,
+   "kind": "hold"
+  },
+  {
+   "name": "Single-Leg Glute Bridge Hold",
+   "pattern": "bridge",
+   "convention": "bodyweight",
+   "unilateral": true,
+   "kind": "hold"
+  },
+  {
+   "name": "Copenhagen Plank",
+   "pattern": "hip_adduction",
+   "convention": "bodyweight",
+   "unilateral": true,
+   "kind": "hold"
+  },
+  {
+   "name": "Dead Hang",
+   "pattern": "pull_up",
+   "convention": "bodyweight",
+   "unilateral": false,
+   "kind": "hold"
   }
+ ],
+ "matchers": [
+  [
+   "nordic|hamstring curl|leg curl",
+   "leg_curl"
+  ],
+  [
+   "leg extension",
+   "leg_extension"
+  ],
+  [
+   "leg press|calf press",
+   "leg_press"
+  ],
+  [
+   "calf",
+   "calf_raise"
+  ],
+  [
+   "hip thrust|bridge|glute kickback|donkey kick|hip extension",
+   "bridge"
+  ],
+  [
+   "abduct|clamshell|side[- ]lying leg|band walk|monster walk",
+   "hip_abduction"
+  ],
+  [
+   "adduct|copenhagen",
+   "hip_adduction"
+  ],
+  [
+   "\\bdips?\\b",
+   "dip"
+  ],
+  [
+   "skull|tricep|pressdown|push ?down|kickback",
+   "triceps_extension"
+  ],
+  [
+   "upright",
+   "upright_row"
+  ],
+  [
+   "lat pull ?down|pulldown",
+   "pulldown"
+  ],
+  [
+   "pull[- ]?up|chin[- ]?up|dead hang",
+   "pull_up"
+  ],
+  [
+   "push[- ]?up",
+   "push_up"
+  ],
+  [
+   "incline.*press|incline bench",
+   "press_incline"
+  ],
+  [
+   "overhead press|shoulder press|arnold|seated dumbbell press|military",
+   "press_overhead"
+  ],
+  [
+   "bench|chest press|dumbbell press|floor press",
+   "press_horizontal"
+  ],
+  [
+   "face pull|rear delt|reverse fly|reverse pec deck",
+   "rear_fly"
+  ],
+  [
+   "fly|flye|crossover|pec deck",
+   "fly"
+  ],
+  [
+   "external rotation|internal rotation|rotator",
+   "shoulder_rotation"
+  ],
+  [
+   "shrug",
+   "shrug"
+  ],
+  [
+   "leg raise|knee raise",
+   "core"
+  ],
+  [
+   "lateral raise|front raise|raise",
+   "raise_lateral"
+  ],
+  [
+   "wrist",
+   "wrist_curl"
+  ],
+  [
+   "curl",
+   "curl"
+  ],
+  [
+   "row",
+   "row"
+  ],
+  [
+   "romanian|rdl|hyperext|back extension|good morning",
+   "rdl"
+  ],
+  [
+   "deadlift",
+   "deadlift"
+  ],
+  [
+   "lunge|split squat|step[- ]?up",
+   "lunge"
+  ],
+  [
+   "squat \\(bodyweight\\)|bodyweight squat|air squat|wall sit|spanish squat",
+   "squat_bodyweight"
+  ],
+  [
+   "squat",
+   "squat"
+  ],
+  [
+   "sit[- ]?up|crunch|plank|ab wheel|twist|scissor|rotation",
+   "core"
+  ]
  ]
 }

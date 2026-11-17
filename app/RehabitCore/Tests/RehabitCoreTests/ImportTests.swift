@@ -214,6 +214,10 @@ final class ImportTests: XCTestCase {
         XCTAssertTrue(try m.incoming(file).isEmpty)
         XCTAssertEqual(m.takeIn(file), 0)
         XCTAssertEqual(m.injuries.map(\.id), ["chest-left"])
+        // Nor from a newer file: a deletion made by hand is not undone by a file.
+        let newer = Data(String(decoding: file, as: UTF8.self)
+            .replacingOccurrences(of: "2026-11-17T17:00:00.000Z", with: "2031-01-01T00:00:00.000Z").utf8)
+        XCTAssertEqual(try m.incoming(newer).injuries.map(\.id), ["chest-left"])
         // One changed on the phone keeps the phone's version.
         var chest = try XCTUnwrap(m.injuries.first)
         chest.label = "Left pec"

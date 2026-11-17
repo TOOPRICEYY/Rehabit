@@ -28,9 +28,23 @@ public struct CatalogueExercise: Codable, Hashable, Sendable {
     public let pattern: String
     public let convention: LoadConvention
     public let unilateral: Bool
+    /// Counted in reps, or held for time (an isometric).
+    public let kind: SetKind
 
-    public init(name: String, pattern: String, convention: LoadConvention, unilateral: Bool) {
+    public init(name: String, pattern: String, convention: LoadConvention, unilateral: Bool, kind: SetKind = .reps) {
         self.name = name; self.pattern = pattern; self.convention = convention; self.unilateral = unilateral
+        self.kind = kind
+    }
+
+    private enum CodingKeys: String, CodingKey { case name, pattern, convention, unilateral, kind }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        name = try c.decode(String.self, forKey: .name)
+        pattern = try c.decode(String.self, forKey: .pattern)
+        convention = try c.decode(LoadConvention.self, forKey: .convention)
+        unilateral = try c.decode(Bool.self, forKey: .unilateral)
+        kind = (try? c.decodeIfPresent(SetKind.self, forKey: .kind)) ?? .reps
     }
 }
 
@@ -40,6 +54,9 @@ public struct Library: Codable, Sendable {
     public let tissues: [Tissue]
     public let patterns: [Pattern]
     public let catalogue: [CatalogueExercise]
+    /// Rules that map another app's exercise name to a pattern: a regular
+    /// expression and a pattern id each, first match wins.
+    public let matchers: [[String]]
     private let patternIndex: [String: Pattern]
     private let tissueIndex: [String: Tissue]
 
@@ -47,10 +64,10 @@ public struct Library: Codable, Sendable {
     /// which is worked out from daily steps and never logged as a set.
     public var exercisePatterns: [Pattern] { patterns.filter { $0.id != Ledger.walkingPattern } }
 
-    private enum CodingKeys: String, CodingKey { case tissues, patterns, catalogue }
+    private enum CodingKeys: String, CodingKey { case tissues, patterns, catalogue, matchers }
 
-    public init(tissues: [Tissue], patterns: [Pattern], catalogue: [CatalogueExercise]) {
-        self.tissues = tissues; self.patterns = patterns; self.catalogue = catalogue
+    public init(tissues: [Tissue], patterns: [Pattern], catalogue: [CatalogueExercise], matchers: [[String]] = []) {
+        self.tissues = tissues; self.patterns = patterns; self.catalogue = catalogue; self.matchers = matchers
         patternIndex = Dictionary(patterns.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         tissueIndex = Dictionary(tissues.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
     }
@@ -59,7 +76,8 @@ public struct Library: Codable, Sendable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         self.init(tissues: try c.decode([Tissue].self, forKey: .tissues),
                   patterns: try c.decode([Pattern].self, forKey: .patterns),
-                  catalogue: try c.decode([CatalogueExercise].self, forKey: .catalogue))
+                  catalogue: try c.decode([CatalogueExercise].self, forKey: .catalogue),
+                  matchers: (try? c.decodeIfPresent([[String]].self, forKey: .matchers)) ?? [])
     }
 
     public static let standard: Library = {
