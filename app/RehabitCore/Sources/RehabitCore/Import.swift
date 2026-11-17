@@ -272,15 +272,15 @@ extension AppModel {
     /// on, after the injuries changed. A Hevy log is read as the injured side's
     /// log, so its sides depend on which injuries are known; entering an injury
     /// after the import would otherwise leave those sets filed under both sides.
-    /// A side named in the set's own note is kept. Imported workouts cannot be
-    /// edited in the app, so no choice made by hand is overwritten here.
+    /// A side named in the set's own note is kept, and so is a side chosen by
+    /// hand (`sideInferred == false`) or a set added by hand to the workout.
     /// Returns how many sets changed.
     @discardableResult
     public func reapplyImportedSides() -> Int {
         let prefix = HevyCSV.source + ":"
         var changed: [WorkoutSet] = []
         for workout in workouts where workout.id.hasPrefix(prefix) {
-            for var set in sets(of: workout) {
+            for var set in sets(of: workout) where set.id.hasPrefix(workout.id + ":") && set.sideInferred != false {
                 let noted = HevyCSV.side(inNote: set.notes)
                 let guess = noted == nil ? inferredSide(pattern: set.pattern, on: workout.startDay) : nil
                 let side = noted ?? guess ?? .both

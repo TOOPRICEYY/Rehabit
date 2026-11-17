@@ -226,3 +226,55 @@ final class ImportTests: XCTestCase {
         XCTAssertThrowsError(try m.incoming(Data("{\"schemaVersion\": 99}".utf8)))
     }
 }
+
+final class EditFinishedWorkoutTests: XCTestCase {
+    let zone = TimeZone(identifier: "America/Detroit")!
+    let header = "\"title\",\"start_time\",\"end_time\",\"description\",\"exercise_title\",\"superset_id\",\"exercise_notes\",\"set_index\",\"set_type\",\"weight_lbs\",\"reps\",\"distance_miles\",\"duration_seconds\",\"rpe\"\n"
+
+    func testImportedWorkoutsCanBeEditedAndTheSideRuleLeavesHandChoicesAlone() throws {
+        let m = AppModel(store: try Store(path: ":memory:"), zone: zone, now: { Date(timeIntervalSince1970: 1_795_000_000) })
+        m.save(Injury(label: "Chest", side: .left, onset: Day("2026-06-01")!, tissues: ["pec_major"]))
+        let csv = header + """
+        "Rehab","23 Oct 2026, 16:58","23 Oct 2026, 17:09","","Bench Press (Dumbbell)",,"",0,"normal",15,10,,,
+        "Rehab","23 Oct 2026, 16:58","23 Oct 2026, 17:09","","Bench Press (Dumbbell)",,"",1,"normal",15,10,,,
+        """
+        m.importWorkouts(try HevyCSV.parse(csv, zone: zone), source: HevyCSV.source)
+        var workout = try XCTUnwrap(m.workouts.first)
+        XCTAssertEqual(m.sets(of: workout).map(\.side), [.left, .left])
+
+        // Change one set's side and weight by hand.
+        var first = m.sets(of: workout)[0]
+        first.side = .right; first.loadValue = 25
+        m.update(first)
+        XCTAssertEqual(m.sets(of: workout)[0].sideInferred, false)
+
+        // Add a set afterwards, and remove one.
+        let press = try XCTUnwrap(m.library.catalogue.first { $0.name == "Bench Press (Dumbbell)" })
+        let added = try XCTUnwrap(m.addSet(press, side: .both, to: workout.id))
+        XCTAssertEqual(added.workoutID, workout.id); XCTAssertEqual(added.position, 2)
+        XCTAssertEqual(added.sideInferred, false)
+        XCTAssertNil(m.active)
+        m.removeSet(id: m.sets(of: workout)[1].id)
+
+        // A later injury change reworks only the sides nobody chose.
+        m.save(Injury(label: "Other", side: .right, onset: Day("2026-01-01")!, tissues: ["quads"]))
+        XCTAssertEqual(m.sets(of: workout).map(\.side), [.right, .both])
+        XCTAssertEqual(m.sets(of: workout).map(\.loadValue), [25, nil])   // nothing earlier on both sides to prefill from
+
+        // Rename and move it a day earlier: the sets move with it.
+        workout.title = "  Chest rehab "
+        workout.start = workout.start.addingTimeInterval(-86_400)
+        workout.end = workout.start.addingTimeInterval(-60)          // before the start: taken as the start
+        m.update(workout)
+        workout = try XCTUnwrap(m.workouts.first)
+        XCTAssertEqual(workout.title, "Chest rehab")
+        XCTAssertEqual(workout.startDay, Day("2026-10-22"))
+        XCTAssertEqual(workout.end, workout.start)
+        XCTAssertEqual(Set(m.sets(of: workout).map(\.workoutDay)), [Day("2026-10-22")!])
+
+        // Reading the same file again changes none of it.
+        XCTAssertEqual(m.importWorkouts(try HevyCSV.parse(csv, zone: zone), source: HevyCSV.source).workoutsAdded, 0)
+        XCTAssertEqual(m.sets(of: workout).map(\.side), [.right, .both])
+        XCTAssertNil(m.lastError)
+    }
+}

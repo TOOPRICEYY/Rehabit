@@ -136,21 +136,30 @@ public final class AppModel {
     /// same side copies the set before it (never its pain); a first set is
     /// prefilled from the last finished session. With no side given, a
     /// two-sided exercise is logged as both and a one-sided one on `likelySide`.
+    ///
+    /// With `workoutID` it adds to a finished workout instead, the same way:
+    /// a set added afterwards to a workout already done (an imported one too).
     @discardableResult
-    public func addSet(_ exercise: CatalogueExercise, side: Side? = nil) -> WorkoutSet? {
-        guard let workout = active else { return nil }
+    public func addSet(_ exercise: CatalogueExercise, side: Side? = nil, to workoutID: String? = nil) -> WorkoutSet? {
+        let target = workoutID.map { id in workouts.first { $0.id == id } } ?? active
+        guard let workout = target else { return nil }
+        let isActive = workout.id == active?.id
+        let current = isActive ? activeSets : sets(of: workout)
         let chosen = side ?? (exercise.unilateral ? likelySide(for: exercise) : .both)
-        let position = (activeSets.map(\.position).max() ?? -1) + 1
+        let position = (current.map(\.position).max() ?? -1) + 1
         var set: WorkoutSet
-        if let last = activeSets.last(where: { $0.exercise == exercise.name && $0.side == chosen }) {
+        if let last = current.last(where: { $0.exercise == exercise.name && $0.side == chosen }) {
             set = last
             set.id = UUID().uuidString
             set.position = position
             set.pain = nil; set.painType = nil; set.repsInReserve = nil; set.notes = ""
+            // Chosen here, never worked out by rule, whatever the set it copies was.
+            set.sideInferred = workoutID == nil ? set.sideInferred.map { _ in false } : false
         } else {
             set = WorkoutSet(workout: workout, position: position, exercise: exercise.name,
                              pattern: exercise.pattern.isEmpty ? nil : exercise.pattern, side: chosen,
                              loadUnit: profile.unit, convention: exercise.convention)
+            if !isActive { set.sideInferred = false }
             // Prefill from the first working set of last time, not a warm-up.
             let previous = previousSets(exercise: exercise.name, side: chosen)
             if let first = previous.first(where: { !$0.isWarmup }) ?? previous.first {
@@ -162,7 +171,7 @@ public final class AppModel {
         set.updatedAt = now()
         attempt { try store.save(set) }
         allSets.append(set)
-        activeSets.append(set)
+        if isActive { activeSets.append(set) }
         history = nil
         return set
     }
@@ -174,6 +183,8 @@ public final class AppModel {
               set.workoutID == active?.id || workouts.contains(where: { $0.id == set.workoutID }) else { return }
         var set = set
         if let pain = set.pain { set.pain = AppModel.cleanPain(pain) }
+        // A side changed by hand is the person's, and is never worked out again by rule.
+        if set.side != allSets[index].side { set.sideInferred = false }
         guard set != allSets[index] else { return }
         set.updatedAt = now()
         attempt { try store.save(set) }
@@ -270,6 +281,31 @@ public final class AppModel {
         }
         reload()
         return created.filter { $0.moment == .afterSession }
+    }
+
+    /// Saves a change to a finished workout: its title, notes, start or end.
+    /// The start keeps its day as a fixed date, so moving it to another day
+    /// moves the sets with it. An end before the start is taken as the start.
+    public func update(_ workout: Workout) {
+        guard let old = workouts.first(where: { $0.id == workout.id }) else { return }
+        var workout = workout
+        let name = workout.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        workout.title = name.isEmpty ? "Workout" : name
+        if let end = workout.end, end < workout.start { workout.end = workout.start }
+        if workout.end == nil { workout.end = old.end ?? workout.start }   // a finished workout stays finished
+        workout.startDay = Day(workout.start, in: zone)
+        guard workout != old else { return }
+        workout.updatedAt = now()
+        attempt {
+            try store.save(workout)
+            if workout.startDay != old.startDay {
+                var moved = sets(of: old)
+                for i in moved.indices { moved[i].workoutDay = workout.startDay; moved[i].updatedAt = workout.updatedAt }
+                try store.saveAll(moved)
+            }
+        }
+        reload()
+        reapplyImportedSides()   // a Hevy session moved to another day may fall in another injury's span
     }
 
     public func discardWorkout() {
