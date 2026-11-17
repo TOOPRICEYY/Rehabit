@@ -1,7 +1,7 @@
 // Settings shared by every build. Anything tied to one person's Apple account
 // (the team and the bundle identifier) goes in Local.xcconfig beside this file,
 // which is not committed. Copy Local.example.xcconfig to create it.
-PRODUCT_BUNDLE_IDENTIFIER = app.rehabit.Rehabit
+PRODUCT_BUNDLE_IDENTIFIER = com.gabrielprice.rehabit
 MARKETING_VERSION = 0.1.0
 CURRENT_PROJECT_VERSION = 1
 CODE_SIGN_STYLE = Automatic

@@ -24,7 +24,7 @@ ledger.py`, and a fixture written by the service holds the two to the same numbe
     cd app/Rehabit && xcodegen && open Rehabit.xcodeproj
 
 To send a build to TestFlight from a Mac: copy `app/Rehabit/Config/Local.example.xcconfig`
-to `Local.xcconfig`, fill in the team and bundle identifier (that file is not committed),
+to `Local.xcconfig`, fill in the team (that file is not committed),
 then run `app/Rehabit/scripts/testflight.sh`.
 
 After changing the exercise library or the ledger in the service, run

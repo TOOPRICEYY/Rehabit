@@ -3,8 +3,7 @@
 #
 # Needs, once: Xcode signed in to the developer account (Settings > Accounts),
 # an app record in App Store Connect for the bundle identifier, and
-# app/Rehabit/Config/Local.xcconfig with DEVELOPMENT_TEAM and
-# PRODUCT_BUNDLE_IDENTIFIER. Pass --archive-only to stop before the upload.
+# app/Rehabit/Config/Local.xcconfig with DEVELOPMENT_TEAM. Pass --archive-only to stop before the upload.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
