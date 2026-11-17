@@ -107,6 +107,24 @@ enum DemoData {
         for _ in 0..<3 { fill(model.addExercise(entry("Single-Leg Calf Raise (Dumbbell)"), mode: .perSide)[0], 20, 15) }
         fill(model.addExercise(bench, mode: .together)[0], 30, 8)
         model.finishWorkout()
+        if args.contains("-demo-overlap") {
+            // With -demo-overlap: yesterday's visit recorded twice, on the phone and
+            // by a watch, so the overlap review has a proposal and repeated sets.
+            clock.offset = -86_400
+            model.startWorkout(title: "Leg day")
+            for _ in 0..<3 { fill(model.addExercise(legExt, mode: .leftOnly)[0], 15, 10) }
+            for _ in 0..<2 { fill(model.addExercise(squat, mode: .together)[0], 35, 10) }
+            model.finishWorkout()
+            let watchStart = Date().addingTimeInterval(clock.offset - 5 * 60)
+            model.importWorkouts([ImportedWorkout(sourceID: "demo-watch", title: "Strength", start: watchStart,
+                                                  end: watchStart.addingTimeInterval(40 * 60), sets: [
+                ImportedSet(exercise: "Single-Leg Extension (Machine)", reps: 10, loadValue: 15),
+                ImportedSet(exercise: "Single-Leg Extension (Machine)", reps: 10, loadValue: 15),
+                ImportedSet(exercise: "Single-Leg Extension (Machine)", reps: 10, loadValue: 15),
+                ImportedSet(exercise: "Goblet Squat (Dumbbell)", reps: 10, loadValue: 35),
+                ImportedSet(exercise: "Goblet Squat (Dumbbell)", reps: 10, loadValue: 35),
+            ])], source: GarminSource.sourceName, inferSide: false)
+        }
         clock.offset = 0
         // Steps for the last five weeks, so walking shows as leg load.
         Task { @MainActor in await model.importHealth(from: DemoHealth(), days: 40) }
