@@ -52,7 +52,7 @@ struct ExercisePickerView: View {
                     Section {
                         Picker("Movement", selection: $customPattern) {
                             Text("None of these").tag("")
-                            ForEach(model.library.patterns) { Text($0.name).tag($0.id) }
+                            ForEach(model.library.exercisePatterns) { Text($0.name).tag($0.id) }
                         }
                         Toggle("Done one side at a time", isOn: $customOneSided)
                         Button("Add \"\(search.trimmingCharacters(in: .whitespaces))\"") {

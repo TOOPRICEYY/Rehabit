@@ -43,6 +43,10 @@ public struct Library: Codable, Sendable {
     private let patternIndex: [String: Pattern]
     private let tissueIndex: [String: Tissue]
 
+    /// The movement patterns a logged exercise can have: all but walking,
+    /// which is worked out from daily steps and never logged as a set.
+    public var exercisePatterns: [Pattern] { patterns.filter { $0.id != Ledger.walkingPattern } }
+
     private enum CodingKeys: String, CodingKey { case tissues, patterns, catalogue }
 
     public init(tissues: [Tissue], patterns: [Pattern], catalogue: [CatalogueExercise]) {
