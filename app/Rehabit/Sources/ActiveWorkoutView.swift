@@ -74,12 +74,12 @@ struct ActiveWorkoutView: View {
                         // Close the keyboard first so a field still being typed in hands over its value.
                         dismissKeyboard()
                         model.renameActive(title)
-                        if model.unfinishedSets.isEmpty { finish(removing: false) } else { confirmingUnfinished = true }
+                        if model.unfinishedSets.filter { !$0.isBlank }.isEmpty { finish(removing: false) } else { confirmingUnfinished = true }
                     }
                     .fontWeight(.semibold)
                 }
             }
-            .confirmationDialog("\(model.unfinishedSets.count) sets not marked done", isPresented: $confirmingUnfinished,
+            .confirmationDialog("\(model.unfinishedSets.filter { !$0.isBlank }.count) sets not marked done", isPresented: $confirmingUnfinished,
                                 titleVisibility: .visible) {
                 Button("Keep them") { finish(removing: false) }
                 Button("Remove them", role: .destructive) { finish(removing: true) }

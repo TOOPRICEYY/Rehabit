@@ -42,6 +42,12 @@ struct LoadPainChart: View {
                             .symbolSize(30)
                             .foregroundStyle(Color.pink)
                     }
+                    if let during = d.setPain {
+                        PointMark(x: .value("Day", date, unit: .day), y: .value("Pain", during * scale))
+                            .symbol(.triangle)
+                            .symbolSize(50)
+                            .foregroundStyle(Color.purple)
+                    }
                     if let flare = d.flare {
                         PointMark(x: .value("Day", date, unit: .day), y: .value("Pain", flare * scale))
                             .symbol(.diamond)
@@ -71,6 +77,10 @@ struct LoadPainChart: View {
             dayDetail(days)
             HStack(spacing: 14) {
                 legend(Color.pink, "pain range", line: true)
+                HStack(spacing: 4) {
+                    Image(systemName: "triangle.fill").foregroundStyle(Color.purple)
+                    Text("pain during sets").foregroundStyle(.secondary)
+                }
                 legend(Color.orange, "flare-up", line: false)
             }
             .font(.caption)
@@ -87,6 +97,7 @@ struct LoadPainChart: View {
             if let low = d.painLow, let high = d.painHigh {
                 parts.append(low == high ? "pain \(Format.number(low))" : "pain \(Format.number(low)) to \(Format.number(high))")
             }
+            if let during = d.setPain { parts.append("pain during sets up to \(Format.number(during))") }
             if let flare = d.flare { parts.append("flare-up \(Format.number(flare))") }
             return AnyView(Text(parts.joined(separator: " · ")).font(.subheadline))
         } else {
