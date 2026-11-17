@@ -5,6 +5,21 @@ import RehabitCore
 /// A made-up workout in a throwaway in-memory database, for screenshots and
 /// trying the workout screen. Debug builds only, and only when launched with
 /// `-demo-workout`; the real database is not opened.
+/// Made-up daily steps, about 8,000 a day, a little more at weekends.
+struct DemoHealth: HealthSource {
+    var name: String { "demo" }
+    func requestAccess() async throws -> Bool { true }
+    func dailyMetrics(from: Day, through: Day) async throws -> [DailyMetric] {
+        var out: [DailyMetric] = [], day = from
+        while day <= through {
+            let steps = 7_000 + Double((day.number * 37) % 3_000) + (day.number % 7 >= 5 ? 2_500 : 0)
+            out.append(DailyMetric(day: day, metric: MetricName.steps, value: steps, source: name))
+            day = day.adding(1)
+        }
+        return out
+    }
+}
+
 enum DemoData {
     /// Made-up injuries for the inbox walkthrough (`-demo-inbox`).
     static let inbox = Data("""
@@ -18,8 +33,21 @@ enum DemoData {
         if ProcessInfo.processInfo.arguments.contains("-demo-empty"), let store = try? Store(path: ":memory:") {
             return AppModel(store: store)
         }
-        guard ProcessInfo.processInfo.arguments.contains("-demo-workout"),
-              let store = try? Store(path: ":memory:") else { return nil }
+        let args = ProcessInfo.processInfo.arguments
+        guard args.contains("-demo-workout") else { return nil }
+        // -demo-file keeps the demo in a file in the app's temporary folder, so
+        // a walkthrough can relaunch and see its edits; -demo-reset starts it over.
+        var path = ":memory:"
+        if args.contains("-demo-file") {
+            path = FileManager.default.temporaryDirectory.appendingPathComponent("demo.sqlite").path
+            if args.contains("-demo-reset") {
+                for suffix in ["", "-wal", "-shm", "-journal"] { try? FileManager.default.removeItem(atPath: path + suffix) }
+            }
+        }
+        guard let store = try? Store(path: path) else { return nil }
+        if path != ":memory:", let existing = try? store.all(Workout.self), !existing.isEmpty {
+            return AppModel(store: store)
+        }
         // The clock starts four weeks back so the history has usual weeks; it
         // returns to the real time once the history is written.
         final class Clock { var offset: TimeInterval = 0 }
@@ -54,6 +82,15 @@ enum DemoData {
             if day % 2 == 0 { for _ in 0..<3 { fill(model.addExercise(rdl, mode: .together)[0], 95, 8) } }
             model.finishWorkout()
         }
+        // A workout brought in from Hevy, with no sides logged.
+        clock.offset = -3 * 86_400
+        let start = Date().addingTimeInterval(clock.offset)
+        model.importWorkouts([ImportedWorkout(sourceID: "demo-push", title: "Push day", start: start,
+                                              end: start.addingTimeInterval(45 * 60), sets: [
+            ImportedSet(exercise: "Bench Press (Dumbbell)", reps: 10, loadValue: 30),
+            ImportedSet(exercise: "Bench Press (Dumbbell)", reps: 8, loadValue: 35),
+            ImportedSet(exercise: "Triceps Pushdown (Cable)", reps: 12, loadValue: 40),
+        ])], source: HevyCSV.source)
         // This week: more squatting, fewer presses, and calf raises for the first time.
         clock.offset = -2 * 86_400
         model.startWorkout(title: "Lower A")
@@ -62,6 +99,8 @@ enum DemoData {
         fill(model.addExercise(bench, mode: .together)[0], 30, 8)
         model.finishWorkout()
         clock.offset = 0
+        // Steps for the last five weeks, so walking shows as leg load.
+        Task { @MainActor in await model.importHealth(from: DemoHealth(), days: 40) }
 
         // Last session, so each side has its own history.
         model.startWorkout(title: "Lower A")

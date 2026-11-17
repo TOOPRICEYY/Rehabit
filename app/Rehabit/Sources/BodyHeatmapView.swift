@@ -378,7 +378,7 @@ struct TissueDetailSheet: View {
                         Label(injury.label, systemImage: "bandage.fill").foregroundStyle(.orange)
                     }
                 }
-                Section(weeksAgo == 0 ? "This week, by exercise" : "That week, by exercise") {
+                Section(weeksAgo == 0 ? "This week, by activity" : "That week, by activity") {
                     if detail.contributions.isEmpty {
                         Text("Nothing loaded this tissue.").foregroundStyle(.secondary)
                     }
@@ -395,7 +395,7 @@ struct TissueDetailSheet: View {
                 }
                 Section {
                 } footer: {
-                    Text("A set done with both sides counts in full toward each side. This describes load; it is not advice.")
+                    Text("A set done with both sides counts in full toward each side. Daily steps count as walking load on the legs. This describes load; it is not advice.")
                 }
             }
             .navigationTitle("\(Format.side(choice.side)) \(name.lowercased())")
