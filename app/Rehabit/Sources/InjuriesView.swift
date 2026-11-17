@@ -80,7 +80,9 @@ struct InjuryDetailView: View {
             List {
                 Section("Pain over time") {
                     if history.isEmpty {
-                        Text("No pain readings yet.").foregroundStyle(.secondary)
+                        Text(model.timeline(for: injury, days: 84).contains { $0.setPain != nil }
+                             ? "No check-in answers yet. Pain recorded during sets is on the Load and pain chart below."
+                             : "No pain readings yet.").foregroundStyle(.secondary)
                     } else {
                         Chart(history) { check in
                             LineMark(x: .value("Time", check.answeredAt ?? check.dueAt),

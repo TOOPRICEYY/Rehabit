@@ -221,6 +221,11 @@ struct SymmetrySection: View {
 
     private func detail(_ row: SymmetryRow) -> String {
         var parts = ["compares \(measure(row.latest.measure))", "last \(Format.day(row.latest.day))"]
+        if row.latest.measure == .holdLoad || row.latest.measure == .holdSeconds,
+           let l = row.latest.left, let r = row.latest.right {
+            let unit = row.latest.measure == .holdSeconds ? " s" : ""
+            parts.insert("left \(Format.number((l * 10).rounded() / 10))\(unit), right \(Format.number((r * 10).rounded() / 10))\(unit)", at: 1)
+        }
         if let pain = row.maxPain { parts.append("max pain \(Format.number(pain))") }
         return parts.joined(separator: " · ")
     }
@@ -228,7 +233,7 @@ struct SymmetrySection: View {
     private func measure(_ m: SymmetryMeasure?) -> String {
         switch m {
         case .e1RM: return "estimated max"
-        case .holdLoad: return "hold time × load"
+        case .holdLoad: return "load held × seconds"
         case .holdSeconds: return "hold time"
         case nil: return "–"
         }
@@ -250,6 +255,9 @@ struct SettlingSection: View {
                         Text(item.injury.label).font(.subheadline.weight(.semibold))
                         Text(item.baseline.map { "Before the session: \(Format.number($0))" } ?? "No reading before the session")
                             .font(.caption).foregroundStyle(.secondary)
+                        if let during = item.during {
+                            Text("Highest during the session: \(Format.number(during))").font(.caption)
+                        }
                         ForEach(item.readings) { r in
                             HStack {
                                 Text(r.moment.label).font(.caption)
