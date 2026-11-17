@@ -80,6 +80,9 @@ public final class AppModel {
     func storeSets(_ sets: [WorkoutSet]) throws { try store.saveAll(sets) }
     func noteError(_ text: String) { lastError = text }
     func storeImported(_ workout: Workout, sets: [WorkoutSet]) throws -> Bool { try store.addIfNew(workout, sets: sets) }
+    /// Every set held, of any workout, for the progress views (Progress.swift),
+    /// which would otherwise have to ask `sets(of:)` once per workout.
+    var storedSets: [WorkoutSet] { allSets }
 
     func attempt(_ body: () throws -> Void) {
         do { try body(); lastError = nil } catch { lastError = String(describing: error) }
