@@ -58,6 +58,13 @@ public struct Day: Hashable, Comparable, Codable, Sendable, CustomStringConverti
         return "\(pad(c.year, 4))-\(pad(c.month, 2))-\(pad(c.day, 2))"
     }
 
+    /// The date as it is read: "Nov 3, 2026". The stored form stays 2026-11-03.
+    public var readable: String {
+        let c = components
+        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        return "\(months[c.month - 1]) \(c.day), \(c.year)"
+    }
+
     /// Midnight at the start of this day in a time zone.
     public func start(in zone: TimeZone = .current) -> Date {
         var calendar = Calendar(identifier: .gregorian)

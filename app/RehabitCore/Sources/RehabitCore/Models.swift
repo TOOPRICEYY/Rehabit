@@ -46,6 +46,27 @@ public struct PainType: RawRepresentable, Codable, Hashable, Sendable, CaseItera
                                               .throbbing, .tingling]
 }
 
+/// What kind of set it was, beyond an ordinary working set or a warm-up. An
+/// open list, like `PainType`: a tag from a newer version is kept as it is.
+public struct SetTag: RawRepresentable, Codable, Hashable, Sendable, CaseIterable {
+    public let rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+
+    /// Done straight after the set before it, at a lighter load, with no rest between.
+    public static let drop = SetTag(rawValue: "drop")
+    /// Taken until no further rep could be done.
+    public static let failure = SetTag(rawValue: "failure")
+    public static let allCases: [SetTag] = [.drop, .failure]
+
+    public var label: String {
+        switch self {
+        case .drop: return "Drop set"
+        case .failure: return "To failure"
+        default: return rawValue.prefix(1).uppercased() + rawValue.dropFirst()
+        }
+    }
+}
+
 public enum RangeOfMotion: String, Codable, CaseIterable, Sendable {
     case full, partial
     case shortOfEndRange = "short_of_end_range"
@@ -123,9 +144,13 @@ public struct WorkoutSet: Record, Equatable {
     /// leaves the other where it was. Nil for a set that is no half of a pair,
     /// and in older records, which are paired in the order they were added.
     public var pairID: String?
+    /// A drop set or a set to failure. Nil for an ordinary set; a warm-up is `isWarmup`.
+    public var tag: SetTag?
     public var notes: String
     public var updatedAt: Date
     public var parentID: String? { workoutID }
+    /// The reps, or for a hold the seconds: what makes it a set that was done.
+    public var count: Double? { kind == .hold ? holdSeconds : reps }
     public var isDone: Bool { completedAt != nil }
     /// Nothing was entered: no reps or seconds, no pain, no note, not marked
     /// done. A row added and left alone, which is not a set that was done.
@@ -254,7 +279,7 @@ public enum PainCheckMoment: String, Codable, CaseIterable, Sendable {
         case .nextMorning: return "The next morning"
         case .hours24: return "24 hours after"
         case .hours48: return "48 hours after"
-        case .baseline: return "Daily baseline"
+        case .baseline: return "Daily check"
         case .flare: return "Flare-up"
         }
     }

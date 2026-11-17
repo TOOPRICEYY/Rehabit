@@ -18,6 +18,14 @@ public struct InjuryDay: Identifiable, Equatable, Sendable {
     /// The highest pain recorded on a set that loaded the injury that day:
     /// pain under load, which is not the same measure as an answer to a question.
     public let setPain: Double?
+    /// Weight moved on the injured side that day by sets that load the injury,
+    /// in kilograms: load x reps (a hold counts 5 seconds as a rep). A load
+    /// shared by both sides counts half for each. Unlike `load`, which is
+    /// measured against each side's own usual weight, this compares the two
+    /// sides in the same unit. Walking is not in it.
+    public let volumeKg: Double
+    /// The same for the other side. Nil for an injury on both sides.
+    public let otherVolumeKg: Double?
     public var id: Day { day }
 }
 
@@ -43,12 +51,20 @@ public struct InjuryReport: Equatable, Sendable {
     /// in the 7 before them. Nil with no answers.
     public let recentPain: Double?
     public let earlierPain: Double?
+    /// Questions whose time came in the period: answered with a number,
+    /// skipped by choice, or left until they lapsed. One still open is in none.
     public let answered: Int
-    public let asked: Int
+    public let skipped: Int
+    public let missed: Int
+    public var asked: Int { answered + skipped + missed }
     public let flares: [PainCheck]
     /// Effective reps per week on the injured side, oldest first, and on the other side.
     public let weeklyLoad: [Double]
     public let weeklyOtherLoad: [Double]?
+    /// Weight moved per week on the injured side and on the other, in `unit`.
+    public let weeklyVolume: [Double]
+    public let weeklyOtherVolume: [Double]?
+    public let unit: WeightUnit
     public let exercises: [InjuryExerciseLine]
     public let symmetry: [SymmetryRow]
     /// Sessions that loaded the injury and have a reading before and a delayed one after.
@@ -86,6 +102,20 @@ extension AppModel {
                 }
             }
         }
+        var volume: [Day: Double] = [:], otherVolume: [Day: Double] = [:]
+        let finished = Set(workouts.map(\.id)), first = window.end.adding(1 - span)
+        let scale = Ledger(library: library)
+        for set in storedSets where finished.contains(set.workoutID) && set.workoutDay >= first && set.workoutDay <= window.end {
+            guard library.pattern(set.pattern)?.links.contains(where: { $0.share >= 0.25 && tissues.contains($0.tissue) }) == true,
+                  let kg = scale.loadKg(set, profile: profile), kg > 0, kg.isFinite else { continue }
+            let count = max(0, set.kind == .hold ? (set.holdSeconds ?? 0) / 5 : (set.reps ?? 0))
+            // One number for the whole bar or the whole body is shared by the two sides.
+            let perSide = (set.side == .both && set.convention != .perHand ? kg / 2 : kg) * count
+            for side in set.side.bodySides {
+                if injuredSides.contains(side) { volume[set.workoutDay, default: 0] += perSide }
+                if side == otherSide { otherVolume[set.workoutDay, default: 0] += perSide }
+            }
+        }
         var answers: [Day: [Double]] = [:], flares: [Day: Double] = [:]
         for check in checks where check.injuryID == injury.id {
             guard let pain = check.pain else { continue }
@@ -96,7 +126,8 @@ extension AppModel {
             let day = window.end.adding(back - span + 1)
             return InjuryDay(day: day, load: load[day] ?? 0, otherLoad: otherSide == nil ? nil : (other[day] ?? 0),
                              trained: trained.contains(day), painLow: answers[day]?.min(), painHigh: answers[day]?.max(),
-                             flare: flares[day], setPain: underLoad[day])
+                             flare: flares[day], setPain: underLoad[day], volumeKg: volume[day] ?? 0,
+                             otherVolumeKg: otherSide == nil ? nil : (otherVolume[day] ?? 0))
         }
     }
 
@@ -177,10 +208,16 @@ extension AppModel {
         return InjuryReport(
             injury: injury, start: start, end: end, days: line,
             recentPain: resting(end.adding(-6), end), earlierPain: resting(end.adding(-13), end.adding(-7)),
-            answered: questions.filter { $0.pain != nil }.count, asked: questions.count,
+            answered: questions.filter { $0.pain != nil }.count,
+            skipped: questions.filter { $0.pain == nil && $0.skippedAt != nil }.count,
+            missed: questions.filter { $0.isOpen && $0.dueAt.addingTimeInterval(AppModel.window($0.moment)) < clock }.count,
             flares: mine.filter { $0.moment == .flare }.sorted { $0.dueAt < $1.dueAt },
             weeklyLoad: weeks.map { $0.reduce(0) { $0 + $1.load } },
             weeklyOtherLoad: injury.side == .both ? nil : weeks.map { $0.reduce(0) { $0 + ($1.otherLoad ?? 0) } },
+            weeklyVolume: weeks.map { $0.reduce(0) { $0 + $1.volumeKg } / profile.unit.kilograms },
+            weeklyOtherVolume: injury.side == .both ? nil
+                : weeks.map { $0.reduce(0) { $0 + ($1.otherVolumeKg ?? 0) } / profile.unit.kilograms },
+            unit: profile.unit,
             exercises: exercises, symmetry: symmetry(for: injury, days: span),
             sessionsFollowed: followed, sessionsLoading: loading, sessionsRaisedPain: raised,
             sessionsSettled: settled, medianHoursToSettle: median)
@@ -201,18 +238,21 @@ extension AppModel {
         out.append("# \(injury.label)")
         out.append("")
         var facts = "\(side.prefix(1).uppercased() + side.dropFirst()); \(tissues.isEmpty ? "tissues not set" : tissues). "
-        facts += "Began \(injury.onsetPrecision == .day ? "on" : "around") \(injury.onset)"
-        facts += injury.resolvedOn.map { ", marked resolved \($0)." } ?? ", \(max(0, r.end.days(since: injury.onset)) / 7) weeks before this report."
+        facts += "Began \(injury.onsetPrecision == .day ? "on" : "around") \(injury.onset.readable)"
+        facts += injury.resolvedOn.map { ", marked resolved \($0.readable)." } ?? ", \(max(0, r.end.days(since: injury.onset)) / 7) weeks before this report."
         out.append(facts)
         if !injury.mechanism.isEmpty { out.append("How it happened: \(injury.mechanism)") }
-        out.append("Period: \(r.start) to \(r.end) (\(r.days.count) days).")
+        out.append("Period: \(r.start.readable) to \(r.end.readable) (\(r.days.count) days).")
         out.append("")
         out.append("## Pain (0 to 10)")
         let underLoad = r.days.compactMap { day in day.setPain.map { (day.day, $0) } }
         if r.asked == 0 && r.flares.isEmpty {
             out.append("No pain questions were answered in this period.")
         } else {
-            out.append("- Questions answered: \(r.answered) of \(r.asked).")
+            var counts = "- Questions answered: \(r.answered)."
+            if r.skipped > 0 { counts += " Skipped: \(r.skipped)." }
+            if r.missed > 0 { counts += " Not answered in time: \(r.missed)." }
+            out.append(counts)
             switch (r.recentPain, r.earlierPain) {
             case let (recent?, earlier?):
                 out.append("- Morning and daily readings, last 7 days: mean \(n(recent)). The 7 days before: mean \(n(earlier)).")
@@ -222,7 +262,7 @@ extension AppModel {
                 out.append("- No morning or daily readings in the last 7 days.")
             }
             let highs = r.days.compactMap { day in day.painHigh.map { (day.day, $0) } }
-            if let worst = highs.max(by: { $0.1 < $1.1 }) { out.append("- Highest answer: \(n(worst.1)) on \(worst.0).") }
+            if let worst = highs.max(by: { $0.1 < $1.1 }) { out.append("- Highest answer: \(n(worst.1)) on \(worst.0.readable).") }
             if r.flares.isEmpty {
                 out.append("- Flare-ups logged: none.")
             } else {
@@ -230,23 +270,32 @@ extension AppModel {
                 for flare in r.flares {
                     let about = [flare.context, flare.painType?.rawValue, flare.notes.isEmpty ? nil : flare.notes]
                         .compactMap { $0 }.joined(separator: "; ")
-                    out.append("  - \(Day(flare.dueAt, in: localZone)): \(n(flare.pain ?? 0))\(about.isEmpty ? "" : " (\(about))")")
+                    out.append("  - \(Day(flare.dueAt, in: localZone).readable): \(n(flare.pain ?? 0))\(about.isEmpty ? "" : " (\(about))")")
                 }
             }
         }
         if let worst = underLoad.max(by: { $0.1 < $1.1 }) {
-            out.append("- Pain recorded during sets that load it: on \(underLoad.count) day\(underLoad.count == 1 ? "" : "s"), highest \(n(worst.1)) on \(worst.0).")
+            out.append("- Pain recorded during sets that load it: on \(underLoad.count) day\(underLoad.count == 1 ? "" : "s"), highest \(n(worst.1)) on \(worst.0.readable).")
         }
         out.append("")
         out.append("## Load on the injured tissue")
-        out.append("In effective reps: reps at the usual weight, heavier sets counting more. Daily steps are included for leg tissues.")
+        out.append("Effective reps count each side against its own usual weight (a rep at the usual weight is 1, heavier counts more), so they show how each side's week compares with its own normal. Daily steps are included for leg tissues. Weight moved is load x reps in \(r.unit.rawValue) and compares the two sides directly; walking is not in it.")
         out.append("")
-        out.append(r.weeklyOtherLoad == nil ? "| Week ending | Load |" : "| Week ending | Injured side | Other side |")
-        out.append(r.weeklyOtherLoad == nil ? "|---|---|" : "|---|---|---|")
+        func whole(_ value: Double) -> String { String(Int(value.rounded())) }
+        if r.weeklyOtherLoad == nil {
+            out.append("| Week ending | Effective reps | Weight moved (\(r.unit.rawValue)) |")
+            out.append("|---|---|---|")
+        } else {
+            out.append("| Week ending | Injured side, effective reps | Other side | Injured side, weight moved (\(r.unit.rawValue)) | Other side |")
+            out.append("|---|---|---|---|---|")
+        }
         for (i, load) in r.weeklyLoad.enumerated() {
-            let ending = r.start.adding(min(r.days.count, (i + 1) * 7) - 1)
-            if let other = r.weeklyOtherLoad { out.append("| \(ending) | \(n(load)) | \(n(other[i])) |") }
-            else { out.append("| \(ending) | \(n(load)) |") }
+            let ending = r.start.adding(min(r.days.count, (i + 1) * 7) - 1).readable
+            if let other = r.weeklyOtherLoad, let otherVolume = r.weeklyOtherVolume {
+                out.append("| \(ending) | \(n(load)) | \(n(other[i])) | \(whole(r.weeklyVolume[i])) | \(whole(otherVolume[i])) |")
+            } else {
+                out.append("| \(ending) | \(n(load)) | \(whole(r.weeklyVolume[i])) |")
+            }
         }
         out.append("")
         out.append("## Exercises that load it")
@@ -269,7 +318,7 @@ extension AppModel {
                 guard let ratio = row.ratio else { continue }
                 let what = row.latest.measure == .e1RM ? "estimated one-rep max"
                     : row.latest.measure == .holdLoad ? "load held x seconds" : "seconds held"
-                var text = "- \(row.exercise): \(percent(ratio)) of the other side (\(what)) on \(row.latest.day)"
+                var text = "- \(row.exercise): \(percent(ratio)) of the other side (\(what)) on \(row.latest.day.readable)"
                 if let first = row.firstRatio { text += "; \(percent(first)) at the start of the period" }
                 out.append(text + ".")
             }

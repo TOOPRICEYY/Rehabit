@@ -49,6 +49,8 @@ public final class AppModel {
     }
     /// When the rest countdown was last dismissed by hand. Not stored.
     public var restSkippedAt: Date?
+    /// Seconds added to or taken from the rest running now. Not stored.
+    public var restAdjust: RestAdjust?
     /// Goes up whenever stored records were saved and read back (a workout
     /// finished, a pain check answered, an injury saved, an import), so the
     /// app knows when to write its export for the Mac again.
@@ -210,7 +212,7 @@ public final class AppModel {
             set.id = UUID().uuidString
             set.position = position
             set.pain = nil; set.painType = nil; set.repsInReserve = nil; set.notes = ""
-            set.completedAt = nil; set.pairID = nil
+            set.completedAt = nil; set.pairID = nil; set.tag = nil
             // The set after a warm-up is a working set: it takes the numbers of the
             // working set before it, or of last session's, never the warm-up's light load.
             if last.isWarmup {
@@ -331,7 +333,8 @@ public final class AppModel {
     /// coming back from weeks of nothing, an injured tissue being loaded.
     public func advice(for set: WorkoutSet) -> [Advice] {
         let others = ledgerHistory().filter { $0.id != set.id }.map(\.set)
-        return advisor.advice(for: ledger.ledgerSet(set, profile: profile), history: others, injuries: injuries)
+        let step = loadStep(for: set.exercise, unit: set.loadUnit) * set.loadUnit.kilograms
+        return advisor.advice(for: ledger.ledgerSet(set, profile: profile), history: others, injuries: injuries, stepKg: step)
     }
 
     /// Ends the workout and schedules pain checks for each injury it loaded.
@@ -342,7 +345,7 @@ public final class AppModel {
         // Rows added and never filled in were not done: they are not kept.
         for set in activeSets where set.isBlank { removeSet(id: set.id) }
         guard var workout = active else { return [] }
-        restSkippedAt = nil
+        restSkippedAt = nil; restAdjust = nil
         if activeSets.isEmpty {
             discardWorkout()
             return []

@@ -57,8 +57,10 @@ final class SessionRegressionTests: XCTestCase {
     func testTogetherKeepsTheDoneHalf() throws {
         let m = try model()
         m.startWorkout()
-        let rounds = m.addExercise(try entry("Single-Leg Extension (Machine)", m), mode: .perSide)
-        m.setDone(true, rounds[1])   // only the right was ticked
+        var rounds = m.addExercise(try entry("Single-Leg Extension (Machine)", m), mode: .perSide)
+        rounds[1].reps = 10; m.update(rounds[1])
+        XCTAssertFalse(m.setDone(true, rounds[0]), "a set with no reps was marked done")
+        XCTAssertTrue(m.setDone(true, rounds[1]))   // only the right was ticked
         m.setSideMode(.together, for: "Single-Leg Extension (Machine)")
         XCTAssertTrue(m.activeSets[0].isDone, "merging to together dropped the right half's done mark")
     }

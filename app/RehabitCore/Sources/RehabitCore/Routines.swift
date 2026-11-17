@@ -43,6 +43,24 @@ extension AppModel {
     /// side. Does nothing while another workout is in progress.
     @discardableResult
     public func startWorkout(from routine: Routine) -> Bool {
+        guard layOut(routine) else { return false }
+        changeActive { $0.routineID = routine.id }
+        var used = routine
+        used.lastUsed = clock
+        attempt { try storeRoutine(used) }
+        reload()
+        return true
+    }
+
+    /// Starts a workout as a repeat of a finished one: the same exercises,
+    /// rounds, sides and supersets, each set starting from what was done last
+    /// time. No routine is saved. Does nothing while a workout is in progress.
+    @discardableResult
+    public func startWorkout(repeating workout: Workout) -> Bool {
+        layOut(routine(from: workout))
+    }
+
+    private func layOut(_ routine: Routine) -> Bool {
         guard active == nil else { return false }
         startWorkout(title: routine.name)
         guard active != nil else { return false }
@@ -57,6 +75,7 @@ extension AppModel {
                     let previous = previousSets(exercise: entry.name, side: set.side).filter { !$0.isWarmup }
                     guard round < previous.count, var filled = activeSets.first(where: { $0.id == set.id }) else { continue }
                     filled.copyPrescription(from: previous[round])
+                    filled.tag = previous[round].tag
                     update(filled)
                 }
             }
@@ -66,14 +85,7 @@ extension AppModel {
         var groups: [Int: [String]] = [:]
         for item in routine.items { if let group = item.group { groups[group, default: []].append(item.exercise) } }
         let supersets = groups.keys.sorted().compactMap { groups[$0] }.filter { $0.count > 1 }
-        changeActive { workout in
-            workout.routineID = routine.id
-            workout.supersets = supersets.isEmpty ? nil : supersets
-        }
-        var used = routine
-        used.lastUsed = clock
-        attempt { try storeRoutine(used) }
-        reload()
+        changeActive { $0.supersets = supersets.isEmpty ? nil : supersets }
         return true
     }
 

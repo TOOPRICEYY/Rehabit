@@ -101,7 +101,7 @@ def import_export(con: sqlite3.Connection, path: str | Path, profile: Profile,
              s.get("kind", "reps"), 1,
              s.get("reps"), s.get("holdSeconds"), s.get("loadValue"),
              s.get("loadUnit") if s.get("loadValue") is not None else None, s.get("convention"),
-             kg, kg, "warmup" if s.get("isWarmup") else "normal",
+             kg, kg, "warmup" if s.get("isWarmup") else (s.get("tag") or "normal"),
              None if rir is None else 10 - rir, s.get("pain"), s.get("notes") or None, SOURCE))
         counts["sets"] += 1
 

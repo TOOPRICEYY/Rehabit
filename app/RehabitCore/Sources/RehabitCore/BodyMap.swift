@@ -162,6 +162,17 @@ public enum BodyMap {
 }
 
 extension AppModel {
+    /// False until there are two weeks of sets or steps: before that there is
+    /// no usual week to compare with, and "new" on every tissue would say nothing.
+    public var hasUsualWeek: Bool {
+        _ = tick
+        let today = Day(clock, in: localZone)
+        let firstSet = storedSets.map(\.workoutDay).min()
+        let firstSteps = dailyMetrics(MetricName.steps).filter { $0.value > 0 }.map(\.day).min()
+        guard let first = [firstSet, firstSteps].compactMap({ $0 }).min() else { return false }
+        return today.days(since: first) >= 14
+    }
+
     /// The week for one tissue on one side. The ledger files a set done with
     /// both sides under each side, so a "both" entry only appears in data from
     /// elsewhere; when it does, it counts for either side.

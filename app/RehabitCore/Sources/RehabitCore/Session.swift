@@ -11,23 +11,39 @@ public struct RestTimer: Equatable, Sendable {
     public func remaining(at time: Date) -> TimeInterval { min(Double(seconds), max(0, endsAt.timeIntervalSince(time))) }
 }
 
+/// A change to one rest countdown, not to the exercise's rest.
+public struct RestAdjust: Equatable, Sendable {
+    public let setID: String
+    public let seconds: Int
+}
+
 /// Doing a workout: marking sets done, resting, stepping the load, warming up.
 extension AppModel {
     // MARK: Done
 
     /// Marks a set done now, or back to planned. A set marked done keeps the
-    /// time, so the rest between sets can be read afterwards.
-    public func setDone(_ done: Bool, _ set: WorkoutSet) {
-        guard let current = activeSets.first(where: { $0.id == set.id }) ?? sets(ofWorkout: set.workoutID).first(where: { $0.id == set.id }),
-              current.isDone != done else { return }
+    /// time, so the rest between sets can be read afterwards. A set with no
+    /// reps (or, for a hold, no seconds) is not marked done: false comes back
+    /// and the screen asks for the number.
+    @discardableResult
+    public func setDone(_ done: Bool, _ set: WorkoutSet) -> Bool {
+        guard let current = activeSets.first(where: { $0.id == set.id }) ?? sets(ofWorkout: set.workoutID).first(where: { $0.id == set.id })
+        else { return false }
+        guard current.isDone != done else { return true }
+        if done, (current.count ?? 0) <= 0 { return false }
         var changed = current
         changed.completedAt = done ? clock : nil
         update(changed)
+        return true
     }
 
-    /// Marks every half of a round done (or planned again).
-    public func setDone(_ done: Bool, _ round: SetRound) {
-        for set in round.members { setDone(done, set) }
+    /// Marks every half of a round done (or planned again). False if a half
+    /// had no reps and was left as it was.
+    @discardableResult
+    public func setDone(_ done: Bool, _ round: SetRound) -> Bool {
+        var all = true
+        for set in round.members where !setDone(done, set) { all = false }
+        return all
     }
 
     /// Finishes a timed hold: the seconds actually held, and done.
@@ -68,18 +84,56 @@ extension AppModel {
     /// The rest running now: from the set most recently marked done in the
     /// workout in progress, unless it was a warm-up, its rest is off, it has
     /// run out more than an hour ago, or the countdown was dismissed.
+    ///
+    /// A left and a right set are one round: the rest starts when both are
+    /// done. Someone doing every set of one side first is recognised from the
+    /// round before (their side done there, the other not), and rests after each set.
     public var rest: RestTimer? {
         guard let last = activeSets.filter({ $0.isDone }).max(by: { ($0.completedAt ?? .distantPast) < ($1.completedAt ?? .distantPast) }),
               let started = last.completedAt, !last.isWarmup else { return nil }
-        let seconds = restSeconds(for: last.exercise)
-        guard seconds > 0, restSkippedAt.map({ $0 < started }) ?? true else { return nil }
+        let extra = restAdjust.flatMap { $0.setID == last.id ? $0.seconds : nil } ?? 0
+        let base = restSeconds(for: last.exercise)
+        let seconds = base + extra
+        guard base > 0, seconds > 0, restSkippedAt.map({ $0 < started }) ?? true else { return nil }
         // In a superset the rest comes after the last exercise of the group that still has this round to do.
         if let next = supersetNext(after: last), next.exercise != last.exercise { return nil }
+        if waitsForOtherSide(last) || dropFollows(last) { return nil }
         let timer = RestTimer(exercise: last.exercise, setID: last.id, startedAt: started, seconds: seconds)
         return clock.timeIntervalSince(timer.endsAt) < 3600 ? timer : nil
     }
 
+    /// True when this set is one half of a round whose other half is still to
+    /// do, and nothing shows the person does one side at a time.
+    func waitsForOtherSide(_ set: WorkoutSet) -> Bool {
+        guard set.side != .both else { return false }
+        let other: Side = set.side == .left ? .right : .left
+        let rounds = block(set.exercise).rounds
+        guard let round = rounds.first(where: { $0.members.contains { $0.id == set.id } }),
+              let partner = round.set(on: other), !partner.isDone else { return false }
+        let oneSideAtATime = rounds.prefix(round.index).contains { earlier in
+            guard let own = earlier.set(on: set.side), let theirs = earlier.set(on: other) else { return false }
+            return own.isDone && !theirs.isDone
+        }
+        return !oneSideAtATime
+    }
+
+    /// True when the next set of this exercise on this side is a drop set
+    /// still to do: it follows at once, and the rest comes after it.
+    func dropFollows(_ set: WorkoutSet) -> Bool {
+        let later = activeSets.filter { $0.exercise == set.exercise && $0.side == set.side && $0.position > set.position }
+        guard let next = later.min(by: { $0.position < $1.position }) else { return false }
+        return next.tag == .drop && !next.isDone
+    }
+
     public func skipRest() { restSkippedAt = clock }
+
+    /// Makes the rest running now longer or shorter, this once. The
+    /// exercise's own rest (`setRest`) is not changed.
+    public func adjustRest(by seconds: Int) {
+        guard let timer = rest else { return }
+        let before = restAdjust.flatMap { $0.setID == timer.setID ? $0.seconds : nil } ?? 0
+        restAdjust = RestAdjust(setID: timer.setID, seconds: before + seconds)
+    }
 
     // MARK: Steps
 
@@ -165,8 +219,10 @@ extension AppModel {
 
     /// Shows an exercise's loads in another unit. Converting keeps the weight
     /// (100 lb becomes 45.359 kg); not converting keeps the
-    /// numbers, for loads that were typed under the wrong unit.
-    public func setUnit(_ unit: WeightUnit, for exercise: String, converting: Bool = true) {
+    /// numbers, for loads that were typed under the wrong unit. With
+    /// `rounding`, a converted load goes to the nearest weight that exists in
+    /// the new unit (half a kilogram, one pound): 20 lb reads 9 kg, not 9.07.
+    public func setUnit(_ unit: WeightUnit, for exercise: String, converting: Bool = true, rounding: Bool = false) {
         updateAll(of: exercise) { set in
             guard set.loadUnit != unit else { return }
             if converting, let value = set.loadValue {
@@ -175,8 +231,42 @@ extension AppModel {
                 let exact = value * set.loadUnit.kilograms / unit.kilograms
                 let near = (exact * 1000).rounded() / 1000
                 set.loadValue = abs(near - exact) < 1e-7 ? near : exact
+                if rounding { set.loadValue = AppModel.rounded(exact, in: unit) }
             }
             set.loadUnit = unit
+        }
+    }
+
+    /// A weight to the nearest half kilogram or whole pound.
+    public static func rounded(_ value: Double, in unit: WeightUnit) -> Double {
+        let grain = unit == .kg ? 0.5 : 1.0
+        return (value / grain).rounded() * grain
+    }
+
+    // MARK: Set kinds
+
+    /// The next kind of set, as a tap on the set's number cycles them:
+    /// working set, warm-up, drop set, to failure, and round again.
+    public func cycleKind(_ set: WorkoutSet) {
+        guard var changed = activeSets.first(where: { $0.id == set.id }) ?? sets(ofWorkout: set.workoutID).first(where: { $0.id == set.id })
+        else { return }
+        if changed.isWarmup { changed.isWarmup = false; changed.tag = .drop }
+        else if changed.tag == .drop { changed.tag = .failure }
+        else if changed.tag != nil { changed.tag = nil }
+        else { changed.isWarmup = true }
+        update(changed)
+    }
+
+    /// The same for both halves of a round, which are one kind of set.
+    public func cycleKind(_ round: SetRound) {
+        guard let first = round.members.first else { return }
+        cycleKind(first)
+        guard let now = activeSets.first(where: { $0.id == first.id }) ?? sets(ofWorkout: first.workoutID).first(where: { $0.id == first.id })
+        else { return }
+        for other in round.members.dropFirst() {
+            var changed = other
+            changed.isWarmup = now.isWarmup; changed.tag = now.tag
+            update(changed)
         }
     }
 

@@ -82,12 +82,12 @@ final class InjuryReportTests: XCTestCase {
         XCTAssertEqual(report.earlierPain ?? 0, 2, accuracy: 0.001)         // mornings of Nov 2 (1) and Nov 3 (3)
 
         let text = m.reportText(for: quad, days: 14)
-        for needle in ["# Right quad strain", "Right side; Quadriceps. Began around 2026-05-03",
-                       "Period: 2026-10-28 to 2026-11-10 (14 days).",
-                       "- Flare-ups logged: 1.", "- Pain recorded during sets that load it: on 1 day, highest 2 on 2026-11-02.", "  - 2026-11-03: 6 (stairs; sharp)",
-                       "| 2026-11-03 | 10 | 10 |", "| 2026-11-10 | 15.6 | 10 |",
+        for needle in ["# Right quad strain", "Right side; Quadriceps. Began around May 3, 2026",
+                       "Period: Oct 28, 2026 to Nov 10, 2026 (14 days).",
+                       "- Flare-ups logged: 1.", "- Pain recorded during sets that load it: on 1 day, highest 2 on Nov 2, 2026.", "  - Nov 3, 2026: 6 (stairs; sharp)",
+                       "| Nov 3, 2026 | 10 | 10 | 200 | 600 |", "| Nov 10, 2026 | 15.6 | 10 | 250 | 600 |",
                        "Top set went from 20 lb x 10 to 25 lb x 10. Other side, latest: 60 lb x 10. Highest pain during a set: 2.",
-                       "42% of the other side (estimated one-rep max) on 2026-11-09; 33% at the start of the period.",
+                       "42% of the other side (estimated one-rep max) on Nov 9, 2026; 33% at the start of the period.",
                        "- Pain rose more than 1 point above the reading before in 1 of 1.",
                        "back within half a point by the last reading: 1, after a median of 48 hours.",
                        "it is not an assessment or advice."] {

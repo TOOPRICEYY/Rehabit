@@ -43,7 +43,7 @@ final class SetEntryTests: XCTestCase {
         XCTAssertEqual(model.block(row.name).rounds.count, 3)
     }
 
-    func testLinkedRightFollowsLeftUntilEditedOnItsOwn() throws {
+    func testLinkedSidesFollowEachOtherUntilOneIsDone() throws {
         let model = try makeModel()
         let curl = try entry(model, "Biceps Curl (Dumbbell)")
         model.addExercise(curl, mode: .together)
@@ -54,12 +54,19 @@ final class SetEntryTests: XCTestCase {
         r = model.block(curl.name).rounds[0]
         XCTAssertEqual(r.right?.loadValue, 20)
         XCTAssertEqual(r.right?.reps, 12)
-        set(model, r.right!, load: 15, partner: r.left)              // the right given its own load
+        set(model, r.right!, load: 15, partner: r.left)              // the right changed: the left follows too
+        XCTAssertTrue(model.isLinked(curl.name))
+        r = model.block(curl.name).rounds[0]
+        XCTAssertEqual(r.left?.loadValue, 15)
+        // Once the left is done it is not rewritten: the right goes its own way and the link ends.
+        XCTAssertTrue(model.setDone(true, r.left!))
+        set(model, r.right!, load: 25, partner: r.left)
+        r = model.block(curl.name).rounds[0]
+        XCTAssertEqual(r.left?.loadValue, 15)
+        XCTAssertEqual(r.right?.loadValue, 25)
         XCTAssertFalse(model.isLinked(curl.name))
-        r = model.block(curl.name).rounds[0]
-        set(model, r.left!, load: 25, partner: r.right)
-        r = model.block(curl.name).rounds[0]
-        XCTAssertEqual(r.right?.loadValue, 15)                       // no longer follows
+        set(model, r.left!, load: 30, partner: r.right)              // unlinked: no longer follows
+        XCTAssertEqual(model.block(curl.name).rounds[0].right?.loadValue, 25)
     }
 
     func testAOneSidedInjuryUnlinksAndMarksItsSide() throws {

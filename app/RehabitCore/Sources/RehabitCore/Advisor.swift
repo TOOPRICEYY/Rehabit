@@ -13,10 +13,20 @@ public struct Advice: Equatable, Sendable {
     }
     public let kind: Kind
     public let detail: String
+    /// How far: the fraction above the reference for a jump in load, the days
+    /// for a layoff. 0 where the statement has no size.
+    public let amount: Double
+
+    public init(kind: Kind, detail: String, amount: Double = 0) {
+        self.kind = kind; self.detail = detail; self.amount = amount
+    }
 }
 
 public struct AdvisorThresholds: Sendable {
     public var intensityJump = 1.10     // load against the 28-day heaviest
+    /// One step up from the heaviest (the next dumbbell, the next plate) is
+    /// the smallest increase there is, and is not remarked on up to this size.
+    public var oneStepJump = 1.30
     public var layoffDays = 7           // gap after which the same load is worth a note
     public var reEntryDays = 21         // a tissue unloaded this long, then loaded
     public var minShare = 0.25          // tissues carrying less than this are ignored
@@ -32,7 +42,9 @@ public struct Advisor: Sendable {
 
     public init(ledger: Ledger = Ledger()) { self.ledger = ledger }
 
-    public func advice(for candidate: LedgerSet, history: [LedgerSet], injuries: [Injury] = []) -> [Advice] {
+    /// `stepKg` is the usual jump in load for this exercise, where it is known.
+    public func advice(for candidate: LedgerSet, history: [LedgerSet], injuries: [Injury] = [],
+                       stepKg: Double? = nil) -> [Advice] {
         var out: [Advice] = []
         let t = thresholds
         let library = ledger.library
@@ -43,16 +55,21 @@ public struct Advisor: Sendable {
             let windowStart = candidate.day.adding(-ledger.settings.referenceWindowDays)
             if let reference = sameExercise.filter({ $0.day >= windowStart }).compactMap(\.loadKg).max(),
                load > reference * t.intensityJump {
-                let percent = Int(((load / reference - 1) * 100).rounded())
-                out.append(Advice(kind: .intensityJump,
-                                  detail: "\(percent) percent above the heaviest in the last 28 days"))
+                let oneStep = stepKg.map { $0 > 0 && load <= reference + $0 * 1.001 } ?? false
+                if !oneStep || load > reference * t.oneStepJump {
+                    let percent = Int(((load / reference - 1) * 100).rounded())
+                    out.append(Advice(kind: .intensityJump,
+                                      detail: "\(percent) percent above the heaviest in the last 28 days",
+                                      amount: load / reference - 1))
+                }
             }
             if let lastDay = sameExercise.map(\.day).max() {
                 let gap = candidate.day.days(since: lastDay)
                 let lastTop = sameExercise.filter { $0.day == lastDay }.compactMap(\.loadKg).max() ?? 0
                 if gap >= t.layoffDays && load >= lastTop * 0.999 {
                     out.append(Advice(kind: .layoff,
-                                      detail: "First time in \(gap) days, at the same or a heavier load"))
+                                      detail: "First time in \(gap) days, at the same or a heavier load",
+                                      amount: Double(gap)))
                 }
             }
         }

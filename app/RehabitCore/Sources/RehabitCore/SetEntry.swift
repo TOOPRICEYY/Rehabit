@@ -193,18 +193,20 @@ extension AppModel {
     }
 
     /// Saves a change to one half of a pair. While the sides are linked, a
-    /// change to the left load or reps is copied to the right; changing the
-    /// right by itself unlinks them.
+    /// change to either side's load or reps is copied to the other, unless the
+    /// other is already done: what was done is not rewritten, and the two
+    /// sides, now different, are unlinked.
     public func update(_ set: WorkoutSet, partner: WorkoutSet?) {
         let before = activeSets.first { $0.id == set.id }
         update(set)
-        guard let before, set.prescription != before.prescription, var partner,
-              isLinked(set.exercise) else { return }
-        if set.side == .left {
-            partner.copyPrescription(from: set)
-            update(partner)
-        } else if partner.prescription != set.prescription {
+        guard let before, set.prescription != before.prescription, let partner,
+              var other = activeSets.first(where: { $0.id == partner.id }), isLinked(set.exercise) else { return }
+        guard other.prescription != set.prescription else { return }
+        if other.isDone {
             setLinked(false, for: set.exercise)
+        } else {
+            other.copyPrescription(from: set)
+            update(other)
         }
     }
 
@@ -266,7 +268,7 @@ extension AppModel {
             update(set)
         }
         twin.copyPrescription(from: set)
-        twin.isWarmup = set.isWarmup
+        twin.isWarmup = set.isWarmup; twin.tag = set.tag
         twin.range = set.range
         twin.pairID = set.pairID
         twin.completedAt = sameSet ? set.completedAt : nil
@@ -310,7 +312,7 @@ extension AppModel {
         for set in round.members {
             guard var copy = addSet(catalogueEntry(for: set), side: set.side) else { continue }
             copy.copyPrescription(from: set)
-            copy.isWarmup = set.isWarmup; copy.range = set.range
+            copy.isWarmup = set.isWarmup; copy.tag = set.tag; copy.range = set.range
             copy.pairID = pair
             update(copy)
         }
@@ -331,11 +333,17 @@ extension AppModel {
 
     /// Moves an exercise one place up (-1) or down (+1) in the workout.
     public func moveExercise(_ exercise: String, by offset: Int) {
+        guard let i = activeBlocks.firstIndex(where: { $0.exercise == exercise }),
+              activeBlocks.indices.contains(i + offset) else { return }
+        moveExercise(exercise, to: i + offset)
+    }
+
+    /// Moves an exercise to a place in the workout (0 is first), as a drag does.
+    public func moveExercise(_ exercise: String, to index: Int) {
         var blocks = activeBlocks
-        guard let i = blocks.firstIndex(where: { $0.exercise == exercise }) else { return }
-        let j = i + offset
-        guard blocks.indices.contains(j) else { return }
-        blocks.swapAt(i, j)
+        guard let from = blocks.firstIndex(where: { $0.exercise == exercise }) else { return }
+        let moving = blocks.remove(at: from)
+        blocks.insert(moving, at: min(max(0, index), blocks.count))
         var position = 0
         for block in blocks {
             for set in block.sets.sorted(by: { $0.position < $1.position }) {
@@ -384,12 +392,36 @@ extension AppModel {
     /// When a set of the workout in progress was last added or changed.
     public var lastActivity: Date? { activeSets.map(\.updatedAt).max() ?? active?.start }
 
-    /// Statements about any set of an exercise, each said once.
+    /// Statements about any set of an exercise, each said once. A jump in
+    /// load or a return after a layoff is said once per side, for the set it
+    /// is most true of, and names that set: "Left, set 2: ...".
     public func advice(for block: ExerciseBlock) -> [Advice] {
-        var seen = Set<String>(), out: [Advice] = []
-        for set in block.sets where !set.isWarmup {
-            for item in advice(for: set) where seen.insert(item.detail).inserted { out.append(item) }
+        struct Named { let advice: Advice; let side: Side; let number: Int }
+        var perSet: [String: Named] = [:], order: [String] = []
+        var seen = Set<String>(), rest: [Advice] = []
+        var number = 0
+        for round in block.rounds where !round.isWarmup {
+            number += 1
+            for set in round.members {
+                for item in advice(for: set) {
+                    if item.kind == .intensityJump || item.kind == .layoff {
+                        let key = item.kind.rawValue + "|" + set.side.rawValue
+                        if let held = perSet[key], held.advice.amount >= item.amount { continue }
+                        if perSet[key] == nil { order.append(key) }
+                        perSet[key] = Named(advice: item, side: set.side, number: number)
+                    } else if seen.insert(item.detail).inserted {
+                        rest.append(item)
+                    }
+                }
+            }
         }
-        return out
+        let named = order.compactMap { perSet[$0] }.map { held -> Advice in
+            let which = held.side == .both ? "Set \(held.number)"
+                : "\(held.side == .left ? "Left" : "Right"), set \(held.number)"
+            let text = held.advice.detail
+            return Advice(kind: held.advice.kind, detail: "\(which): \(text.prefix(1).lowercased() + text.dropFirst())",
+                          amount: held.advice.amount)
+        }
+        return named + rest
     }
 }
