@@ -159,8 +159,8 @@ def _app_export(tmp_path, **changes):
              "notes": "new toy", "updatedAt": "2026-11-10T22:30:00.000Z"},
             {"id": "hevy:abc:0", "workoutID": "hevy:abc", "workoutDay": "2026-10-01", "position": 0,
              "exercise": "Bench Press (Dumbbell)", "pattern": "press_horizontal", "side": "left",
-             "kind": "reps", "reps": 8, "loadValue": 10, "loadUnit": "lb", "convention": "per_hand",
-             "isWarmup": False, "notes": "", "updatedAt": "2026-10-01T21:00:00.000Z"},
+             "sideInferred": True, "kind": "reps", "reps": 8, "loadValue": 10, "loadUnit": "lb",
+             "convention": "per_hand", "isWarmup": False, "notes": "", "updatedAt": "2026-10-01T21:00:00.000Z"},
             {"id": "S9", "workoutID": "OPEN", "workoutDay": "2026-11-17", "position": 0,
              "exercise": "Squat (Barbell)", "pattern": "squat", "side": "both", "kind": "reps",
              "reps": 5, "loadValue": 135, "loadUnit": "lb", "convention": "total",
@@ -200,6 +200,9 @@ def test_app_export_keeps_what_was_logged(con, profile, tmp_path):
     assert left["side_inferred"] == 0 and left["load_convention"] == "per_hand"
     assert abs(left["load_kg"] - 15 * 0.45359237) < 1e-9 and left["pain"] == 1.5 and left["rpe"] == 8
     assert right["set_type"] == "warmup" and right["rpe"] is None
+
+    # A side the app worked out from an injury is marked, so it is not read as logged.
+    assert _sets(con, "session_id = 'app:hevy:abc'")[0]["side_inferred"] == 1
 
     push_up = _sets(con, "exercise_id = 'push_up'")[0]
     share = __import__("rehabit.library", fromlist=["x"]).EXERCISES["push_up"][1]

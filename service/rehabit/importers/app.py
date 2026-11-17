@@ -93,11 +93,12 @@ def import_export(con: sqlite3.Connection, path: str | Path, profile: Profile,
         rir = s.get("repsInReserve")
         con.execute(
             "INSERT INTO set_entry(id, session_id, day, position, exercise_id, source_exercise,"
-            " granularity, side, kind, set_count, reps, hold_seconds, load_value, load_unit,"
+            " granularity, side, side_inferred, kind, set_count, reps, hold_seconds, load_value, load_unit,"
             " load_convention, load_kg, load_max_kg, set_type, rpe, pain, notes, source)"
-            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             ("app:" + s["id"], "app:" + s["workoutID"], s["workoutDay"], s.get("position", 0),
-             pattern, s["exercise"], "set", s.get("side", "both"), s.get("kind", "reps"), 1,
+             pattern, s["exercise"], "set", s.get("side", "both"), 1 if s.get("sideInferred") else 0,
+             s.get("kind", "reps"), 1,
              s.get("reps"), s.get("holdSeconds"), s.get("loadValue"),
              s.get("loadUnit") if s.get("loadValue") is not None else None, s.get("convention"),
              kg, kg, "warmup" if s.get("isWarmup") else "normal",

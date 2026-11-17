@@ -165,6 +165,11 @@ public enum HevyCSV {
         return String(text[r])
     }
 
+    /// The side a set's note names ("Left arm", "right leg"), if it names one.
+    static func side(inNote note: String) -> Side? {
+        firstGroup(sideNote, note).flatMap { Side(rawValue: $0.lowercased()) }
+    }
+
     public static func parse(_ text: String, zone: TimeZone = .current) throws -> [ImportedWorkout] {
         var lines = rows(text.hasPrefix("\u{FEFF}") ? String(text.dropFirst()) : text)
         guard !lines.isEmpty else { throw ImportError(description: "The file is empty.") }
@@ -208,7 +213,7 @@ public enum HevyCSV {
                 kind = .hold; hold = seconds; reps = nil
             }
             if kind == .hold { reps = nil } else { hold = nil }
-            let side = firstGroup(sideNote, note).flatMap { Side(rawValue: $0.lowercased()) }
+            let side = side(inNote: note)
             let rpe = number(cRPE)
             let type = cell(cType).lowercased()
             found[key]?.sets.append(ImportedSet(
@@ -232,17 +237,66 @@ extension AppModel {
         return source + ":" + String(hash, radix: 16)
     }
 
-    /// The side an imported set was done on when the source does not say. If
-    /// the exercise loads a tissue of a one-sided injury that had begun by
-    /// that day and was not yet resolved, it is taken as that side; this is
-    /// how a log kept only for the injured side reads. Otherwise both sides.
+    /// How much of an exercise's work must fall on an injured tissue before a
+    /// set is read as rehab for that injury. A prime mover is 1.0 and a main
+    /// assistant about 0.5; a stabiliser is far below.
+    static let rehabShare = 0.5
+
+    /// The side an imported set was done on when the source does not say. This
+    /// is how a log kept only for the injured side reads: the set belongs to
+    /// the one-sided injury, begun by that day and not yet resolved, whose
+    /// tissue the exercise works hardest. A dumbbell press works the chest
+    /// harder than the triceps, so with a left chest and a right triceps injury
+    /// it is read as left. Between equals the newer injury is taken. An
+    /// exercise that moves the body's own weight (a push-up, a bodyweight
+    /// squat) uses both sides whatever is injured, so no side is guessed.
     func inferredSide(pattern: String?, on day: Day) -> Side? {
-        guard let links = library.pattern(pattern)?.links else { return nil }
-        let loaded = Set(links.map(\.tissue))
-        return injuries.first { injury in
-            injury.side != .both && injury.onset <= day && (injury.resolvedOn.map { $0 >= day } ?? true)
-                && !loaded.isDisjoint(with: injury.tissues)
-        }?.side
+        guard let pattern = library.pattern(pattern), pattern.bodyweightShare == 0 else { return nil }
+        let open = injuries.filter { $0.earliestOnset <= day && ($0.resolvedOn.map { $0 >= day } ?? true) }
+        return AppModel.hardestWorked(open, by: pattern, minShare: AppModel.rehabShare)?.side
+    }
+
+    /// The one-sided injury whose tissue an exercise works hardest, if any
+    /// reaches `minShare`. Between equals the first in the list is taken; the
+    /// model keeps injuries newest first.
+    static func hardestWorked(_ injuries: [Injury], by pattern: Pattern, minShare: Double) -> Injury? {
+        var best: (share: Double, injury: Injury)?
+        for injury in injuries where injury.side != .both {
+            let share = pattern.links.filter { injury.tissues.contains($0.tissue) }.map(\.share).max() ?? 0
+            if share >= minShare, share > (best?.share ?? 0) { best = (share, injury) }
+        }
+        return best?.injury
+    }
+
+    /// Works out again which side each set of a Hevy-imported workout was done
+    /// on, after the injuries changed. A Hevy log is read as the injured side's
+    /// log, so its sides depend on which injuries are known; entering an injury
+    /// after the import would otherwise leave those sets filed under both sides.
+    /// A side named in the set's own note is kept. Imported workouts cannot be
+    /// edited in the app, so no choice made by hand is overwritten here.
+    /// Returns how many sets changed.
+    @discardableResult
+    public func reapplyImportedSides() -> Int {
+        let prefix = HevyCSV.source + ":"
+        var changed: [WorkoutSet] = []
+        for workout in workouts where workout.id.hasPrefix(prefix) {
+            for var set in sets(of: workout) {
+                let noted = HevyCSV.side(inNote: set.notes)
+                let guess = noted == nil ? inferredSide(pattern: set.pattern, on: workout.startDay) : nil
+                let side = noted ?? guess ?? .both
+                let inferred: Bool? = guess != nil ? true : nil
+                if side != set.side || inferred != set.sideInferred {
+                    set.side = side
+                    set.sideInferred = inferred
+                    set.updatedAt = importNow
+                    changed.append(set)
+                }
+            }
+        }
+        guard !changed.isEmpty else { return 0 }
+        attempt { try storeSets(changed) }
+        reload()
+        return changed.count
     }
 
     /// Stores workouts read from another app. Reading the same file again adds nothing.
@@ -260,16 +314,17 @@ extension AppModel {
                 for (position, s) in item.sets.enumerated() {
                     let match = ExerciseMatcher.entry(for: s.exercise, in: library)
                     if match.pattern == nil { unmapped.insert(match.entry.name) }
-                    var side = s.side ?? .both
+                    var side = s.side ?? .both, guessed: Bool?
                     if s.side == nil, inferSide, let guess = inferredSide(pattern: match.pattern, on: workout.startDay) {
-                        side = guess; inferred += 1
+                        side = guess; guessed = true; inferred += 1
                     } else if s.side != nil { inferred += 1 }
                     let bodyweight = match.entry.convention == .bodyweight || match.entry.convention == .bodyweightPlus
                     let convention: LoadConvention = bodyweight ? (s.loadValue == nil ? .bodyweight : .bodyweightPlus)
                                                                 : match.entry.convention
                     sets.append(WorkoutSet(
                         id: id + ":" + String(position), workout: workout, position: position,
-                        exercise: match.entry.name, pattern: match.pattern, side: side, kind: s.kind,
+                        exercise: match.entry.name, pattern: match.pattern, side: side, sideInferred: guessed,
+                        kind: s.kind,
                         reps: s.reps, holdSeconds: s.holdSeconds, loadValue: s.loadValue, loadUnit: s.loadUnit,
                         convention: convention, repsInReserve: s.repsInReserve, pain: s.pain,
                         isWarmup: s.isWarmup, notes: s.notes, updatedAt: workout.start))

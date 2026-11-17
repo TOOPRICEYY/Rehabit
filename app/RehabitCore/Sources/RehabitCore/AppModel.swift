@@ -77,6 +77,7 @@ public final class AppModel {
 
     var importZone: TimeZone { zone }
     var importNow: Date { now() }
+    func storeSets(_ sets: [WorkoutSet]) throws { try store.saveAll(sets) }
     func noteError(_ text: String) { lastError = text }
     func storeImported(_ workout: Workout, sets: [WorkoutSet]) throws -> Bool { try store.addIfNew(workout, sets: sets) }
 
@@ -124,12 +125,11 @@ public final class AppModel {
         active = workout
     }
 
-    /// The side a one-sided exercise most likely means: the side of an active
-    /// injury in a tissue this exercise actually loads. Left if there is none.
+    /// The side a one-sided exercise most likely means: the side of the active
+    /// injury whose tissue this exercise works hardest. Left if there is none.
     public func likelySide(for exercise: CatalogueExercise) -> Side {
-        let loaded = Set((library.pattern(exercise.pattern)?.links ?? []).filter { $0.share >= 0.25 }.map(\.tissue))
-        let match = injuries.first { $0.isActive && $0.side != .both && !loaded.isDisjoint(with: $0.tissues) }
-        return match?.side ?? .left
+        guard let pattern = library.pattern(exercise.pattern) else { return .left }
+        return AppModel.hardestWorked(injuries.filter(\.isActive), by: pattern, minShare: 0.25)?.side ?? .left
     }
 
     /// Adds a set to the workout in progress. A repeat of an exercise on the
@@ -304,12 +304,15 @@ public final class AppModel {
             }
         }
         reload()
+        // A log kept for the injured side reads differently once this injury is known.
+        reapplyImportedSides()
     }
 
     /// Deletes an injury with all of its pain readings.
     public func deleteInjury(id: String) {
         attempt { try store.delete(Injury.self, id: id, at: now()) }
         reload()
+        reapplyImportedSides()
     }
 
     /// Unanswered checks whose time has come, oldest first. One left too long
@@ -472,6 +475,53 @@ public final class AppModel {
         attempt { changed = try store.merge(try Store.decodeSnapshot(data)) }
         profile = store.profile
         reload()
+        reapplyImportedSides()
         return changed
     }
+
+    // MARK: Records prepared away from the phone
+
+    /// The records in a file that would add to or change what is held here.
+    /// Nothing is stored. Throws if the file cannot be read as Rehabit records.
+    public func incoming(_ data: Data) throws -> IncomingRecords {
+        let file = try Store.decodeSnapshot(data)
+        return IncomingRecords(injuries: try store.arriving(file.injuries),
+                               workouts: try store.arriving(file.workouts),
+                               sets: try store.arriving(file.sets).count,
+                               painChecks: try store.arriving(file.painChecks).count,
+                               unreadable: file.unreadable.count)
+    }
+
+    /// Stores the records `incoming` listed. Such a file can add records and
+    /// change them, and nothing else: its deletions, profile and daily values
+    /// are ignored, so a file made elsewhere cannot remove anything or alter
+    /// settings. Returns how many records changed; a failure is in `lastError`.
+    @discardableResult
+    public func takeIn(_ data: Data) -> Int {
+        var changed = 0
+        attempt {
+            let file = try Store.decodeSnapshot(data)
+            changed = try store.merge(Snapshot(
+                schemaVersion: file.schemaVersion, exportedAt: file.exportedAt, profile: profile,
+                workouts: file.workouts, sets: file.sets, injuries: file.injuries,
+                painChecks: file.painChecks, dailyMetrics: [], tombstones: []))
+        }
+        reload()
+        reapplyImportedSides()
+        return changed
+    }
+}
+
+/// Records prepared away from the phone (by Claude on the Mac, for one) and
+/// left for the app to take in: only those that would add to or change the
+/// store, so a file already taken in lists nothing.
+public struct IncomingRecords: Equatable, Sendable {
+    public var injuries: [Injury] = []
+    public var workouts: [Workout] = []
+    public var sets = 0
+    public var painChecks = 0
+    /// Records in the file this version of the app could not read. They are left out.
+    public var unreadable = 0
+    public var isEmpty: Bool { injuries.isEmpty && workouts.isEmpty && sets == 0 && painChecks == 0 }
+    public var count: Int { injuries.count + workouts.count + sets + painChecks }
 }

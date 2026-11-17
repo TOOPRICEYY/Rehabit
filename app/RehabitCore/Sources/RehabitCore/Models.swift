@@ -92,6 +92,9 @@ public struct WorkoutSet: Record, Equatable {
     /// The movement pattern, which decides the tissues loaded. Nil for an unmapped custom exercise.
     public var pattern: String?
     public var side: Side
+    /// True when the side was worked out by rule (from an injury) instead of
+    /// logged or noted. Nil in records written before this was kept.
+    public var sideInferred: Bool?
     public var kind: SetKind
     public var reps: Double?
     public var holdSeconds: Double?
@@ -111,14 +114,15 @@ public struct WorkoutSet: Record, Equatable {
     public var day: Day? { workoutDay }
 
     public init(id: String = UUID().uuidString, workout: Workout, position: Int, exercise: String,
-                pattern: String?, side: Side = .both, kind: SetKind = .reps, reps: Double? = nil,
+                pattern: String?, side: Side = .both, sideInferred: Bool? = nil, kind: SetKind = .reps,
+                reps: Double? = nil,
                 holdSeconds: Double? = nil, loadValue: Double? = nil, loadUnit: WeightUnit = .lb,
                 convention: LoadConvention = .total, repsInReserve: Double? = nil, pain: Double? = nil,
                 painType: PainType? = nil, range: RangeOfMotion? = nil, isWarmup: Bool = false,
                 notes: String = "", updatedAt: Date = Date()) {
         self.id = id; self.workoutID = workout.id; self.workoutDay = workout.startDay
         self.position = position; self.exercise = exercise; self.pattern = pattern; self.side = side
-        self.kind = kind; self.reps = reps; self.holdSeconds = holdSeconds; self.loadValue = loadValue
+        self.sideInferred = sideInferred; self.kind = kind; self.reps = reps; self.holdSeconds = holdSeconds; self.loadValue = loadValue
         self.loadUnit = loadUnit; self.convention = convention; self.repsInReserve = repsInReserve
         self.pain = pain; self.painType = painType; self.range = range; self.isWarmup = isWarmup
         self.notes = notes; self.updatedAt = updatedAt
@@ -143,6 +147,15 @@ public struct Injury: Record, Equatable {
     public var parentID: String? { nil }
     public var day: Day? { onset }
     public var isActive: Bool { resolvedOn == nil }
+    /// The first day the injury may have begun, given how exactly its start is
+    /// known: an injury dated to a month may have begun on the first of it.
+    public var earliestOnset: Day {
+        switch onsetPrecision {
+        case .day: return onset
+        case .week: return onset.adding(-6)
+        case .month: return Day(year: onset.components.year, month: onset.components.month, day: 1)
+        }
+    }
 
     public init(id: String = UUID().uuidString, label: String, side: Side, onset: Day,
                 onsetPrecision: OnsetPrecision = .day, tissues: [String], mechanism: String = "",

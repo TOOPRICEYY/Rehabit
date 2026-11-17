@@ -211,6 +211,11 @@ public final class Store {
         return true
     }
 
+    /// Saves many records as one change: all of them or none.
+    public func saveAll<R: Record>(_ records: [R]) throws {
+        try db.transaction { for record in records { try save(record) } }
+    }
+
     private func decode<R: Record>(_ type: R.Type, _ body: String?) -> R? {
         body.flatMap { try? Store.decoder.decode(R.self, from: Data($0.utf8)) }
     }
@@ -426,6 +431,14 @@ public final class Store {
         if updated != mine.updated { return updated > mine.updated }
         if deleted != mine.deleted { return deleted }
         return !deleted && body > mine.body
+    }
+
+    /// The records in a list that would add to or replace what is held here.
+    public func arriving<R: Record>(_ records: [R]) throws -> [R] {
+        try records.filter {
+            try arrivingWins(kind: R.kind, id: $0.id, updated: Stamp.millis($0.updatedAt), deleted: false,
+                             body: try encode($0))
+        }
     }
 
     /// Brings in another device's snapshot. Returns how many records changed here.
