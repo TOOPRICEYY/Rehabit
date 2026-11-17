@@ -4,6 +4,9 @@
 # Needs, once: Xcode signed in to the developer account (Settings > Accounts),
 # an app record in App Store Connect for the bundle identifier, and
 # app/Rehabit/Config/Local.xcconfig with DEVELOPMENT_TEAM. Pass --archive-only to stop before the upload.
+#
+# If Xcode's account sign-in has expired, set ASC_KEY_PATH, ASC_KEY_ID and
+# ASC_ISSUER_ID to sign in with an App Store Connect API key instead.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -11,6 +14,12 @@ export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Develope
 if [ ! -f Config/Local.xcconfig ]; then
   echo "Config/Local.xcconfig is missing. Copy Config/Local.example.xcconfig and fill it in." >&2
   exit 1
+fi
+
+AUTH=()
+if [ -n "${ASC_KEY_PATH:-}" ]; then
+  AUTH=(-authenticationKeyPath "$ASC_KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" \
+    -authenticationKeyIssuerID "$ASC_ISSUER_ID")
 fi
 
 # Every upload needs a build number higher than the last; the time gives one.
@@ -21,7 +30,7 @@ mkdir -p "$OUT"
 xcodegen
 xcodebuild -project Rehabit.xcodeproj -scheme Rehabit -configuration Release \
   -destination 'generic/platform=iOS' -archivePath "$OUT/Rehabit.xcarchive" \
-  -allowProvisioningUpdates CURRENT_PROJECT_VERSION="$BUILD" archive
+  -allowProvisioningUpdates ${AUTH[@]+"${AUTH[@]}"} CURRENT_PROJECT_VERSION="$BUILD" archive
 
 if [ "${1:-}" = "--archive-only" ]; then
   echo "Archived to $OUT/Rehabit.xcarchive (not uploaded)."
@@ -39,5 +48,5 @@ cat > "$OUT/ExportOptions.plist" <<PLIST
 PLIST
 
 xcodebuild -exportArchive -archivePath "$OUT/Rehabit.xcarchive" -exportPath "$OUT/export" \
-  -exportOptionsPlist "$OUT/ExportOptions.plist" -allowProvisioningUpdates
+  -exportOptionsPlist "$OUT/ExportOptions.plist" -allowProvisioningUpdates ${AUTH[@]+"${AUTH[@]}"}
 echo "Uploaded build $BUILD. It appears in TestFlight after Apple finishes processing, usually within 15 minutes."
