@@ -29,6 +29,7 @@ final class MacSync {
     private(set) var inbox: IncomingRecords?
     private var inboxData: Data?
     private var checking = false
+    private var checkStarted: Date?
 
     private init() {
         lastSync = UserDefaults.standard.object(forKey: Self.lastSyncKey) as? Date
@@ -93,22 +94,25 @@ final class MacSync {
 
     // MARK: Inbox
 
-    /// Looks for the inbox file in the chosen folder (and in its Rehabit folder
-    /// when the top of iCloud Drive was chosen). The file is often not on the
-    /// phone yet, so it is downloaded and read off the main thread. A missing
-    /// or unreadable file says nothing.
+    /// Looks for inbox files (`rehabit-inbox*.json`) in the chosen folder, and
+    /// in its Rehabit folder when the top of iCloud Drive was chosen, and offers
+    /// the newest that would add anything. The files are often not on the phone
+    /// yet, or not in their newest version, so each is brought down from iCloud
+    /// (waiting up to 30 seconds) and read off the main thread. Nothing found,
+    /// nothing said.
     func checkInbox(_ model: AppModel) {
-        guard isSetUp, !checking, let folder = try? resolveFolder() else { return }
+        // A read stuck on iCloud must not block every later check.
+        if checking, let started = checkStarted, Date().timeIntervalSince(started) < 90 { return }
+        guard isSetUp, let folder = try? resolveFolder() else { return }
         checking = true
-        var candidates = [folder.appendingPathComponent(Self.inboxName)]
-        if folder.lastPathComponent == "com~apple~CloudDocs" {
-            candidates.append(folder.appendingPathComponent("Rehabit").appendingPathComponent(Self.inboxName))
-        }
+        checkStarted = Date()
+        var folders = [folder]
+        if folder.lastPathComponent == "com~apple~CloudDocs" { folders.append(folder.appendingPathComponent("Rehabit")) }
         Task.detached(priority: .utility) {
-            let data = Self.read(candidates, in: folder)
+            let files = Self.readInboxes(in: folders, scope: folder, deadline: Date().addingTimeInterval(75))
             await MainActor.run {
-                self.checking = false
-                self.offer(data, model: model)
+                defer { self.checking = false; self.checkStarted = nil }
+                for data in files where self.offer(data, model: model) && self.inbox != nil { return }
             }
         }
     }
@@ -139,24 +143,40 @@ final class MacSync {
         inboxData = nil
     }
 
-    nonisolated private static func read(_ candidates: [URL], in folder: URL) -> Data? {
-        let access = folder.startAccessingSecurityScopedResource()
-        defer { if access { folder.stopAccessingSecurityScopedResource() } }
-        for url in candidates {
-            // An iCloud file not yet on the phone shows up only as a placeholder.
-            let placeholder = url.deletingLastPathComponent().appendingPathComponent(".\(url.lastPathComponent).icloud")
-            guard FileManager.default.fileExists(atPath: url.path) || FileManager.default.fileExists(atPath: placeholder.path)
-            else { continue }
-            try? FileManager.default.startDownloadingUbiquitousItem(at: url)
-            var result: Data?
-            var error: NSError?
-            // A coordinated read waits for iCloud to bring the file down.
-            NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &error) { readable in
-                result = try? Data(contentsOf: readable)
+    /// Every inbox file in the folders, newest first, as read once it is current.
+    nonisolated private static func readInboxes(in folders: [URL], scope: URL, deadline: Date) -> [Data] {
+        let access = scope.startAccessingSecurityScopedResource()
+        defer { if access { scope.stopAccessingSecurityScopedResource() } }
+        var out: [Data] = []
+        for folder in folders {
+            let listing = (try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? []
+            for name in InboxFiles.names(in: listing) where Date() < deadline {
+                if let data = readCurrent(folder.appendingPathComponent(name), deadline: deadline) { out.append(data) }
             }
-            if let result { return result }
         }
-        return nil
+        return out
+    }
+
+    /// Asks iCloud for the newest version and waits (up to 30 seconds, and not
+    /// past the deadline) until it is on the phone, then reads it coordinated.
+    nonisolated private static func readCurrent(_ url: URL, deadline: Date) -> Data? {
+        let until = min(deadline, Date().addingTimeInterval(30))
+        var target = url
+        func status() -> URLUbiquitousItemDownloadingStatus? {
+            target.removeAllCachedResourceValues()
+            return try? target.resourceValues(forKeys: [.ubiquitousItemDownloadingStatusKey]).ubiquitousItemDownloadingStatus
+        }
+        // A file not on the phone yet has no status under its own name; ask for it all the same.
+        if status() != .current {
+            try? FileManager.default.startDownloadingUbiquitousItem(at: url)
+            while Date() < until, status() != .current { Thread.sleep(forTimeInterval: 1) }
+        }
+        var result: Data?
+        var error: NSError?
+        NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &error) { readable in
+            result = try? Data(contentsOf: readable)
+        }
+        return result
     }
 
     private func resolveFolder() throws -> URL {

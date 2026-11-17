@@ -36,6 +36,7 @@ struct InjuriesView: View {
                 }
             }
             .navigationTitle("Injuries")
+            .onAppear { sync.checkInbox(model) }
             .toolbar {
                 Button { adding = true } label: { Label("Add injury", systemImage: "plus") }
             }
