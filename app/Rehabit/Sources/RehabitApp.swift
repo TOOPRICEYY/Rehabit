@@ -20,6 +20,9 @@ struct RehabitApp: App {
 
     /// The database lives in Application Support, which is backed up with the phone.
     private static func makeModel() -> AppModel? {
+        #if DEBUG
+        if let demo = DemoData.modelIfRequested() { return demo }
+        #endif
         let manager = FileManager.default
         guard let folder = try? manager.url(for: .applicationSupportDirectory, in: .userDomainMask,
                                             appropriateFor: nil, create: true),
@@ -127,6 +130,31 @@ enum Format {
     }
 
     static let painSteps: [Double] = stride(from: 0.0, through: 10.0, by: 0.5).map { $0 }
+
+    /// "15 × 10", "BW × 12", "20 × 30 s": a set in the fewest characters.
+    static func short(_ set: WorkoutSet) -> String {
+        let load = set.convention == .bodyweight ? "BW" : (set.loadValue.map { number($0) } ?? "–")
+        let count = set.kind == .hold ? "\(set.holdSeconds.map { number($0) } ?? "–") s" : (set.reps.map { number($0) } ?? "–")
+        return "\(load) × \(count)"
+    }
+
+    /// 0:42, 3:05, 1:02:10.
+    static func elapsed(_ seconds: TimeInterval) -> String {
+        let s = Int(seconds)
+        return s >= 3600 ? String(format: "%d:%02d:%02d", s / 3600, s / 60 % 60, s % 60)
+                         : String(format: "%d:%02d", s / 60, s % 60)
+    }
+
+    /// Green when low, through yellow and orange, to red from 7.
+    static func painColor(_ pain: Double?) -> Color {
+        guard let pain else { return .secondary }
+        switch pain {
+        case ..<2.5: return .green
+        case ..<5: return Color(red: 0.85, green: 0.65, blue: 0.0)
+        case ..<7: return .orange
+        default: return .red
+        }
+    }
 }
 
 /// A number field that saves what is typed as it is typed. The system's

@@ -32,6 +32,10 @@ public final class AppModel {
     public private(set) var unreadableCount = 0
     /// Bumped when the clock should be read again; see `refreshClock()`.
     public private(set) var tick = 0
+    /// Exercises in the workout in progress whose left and right sides were linked
+    /// or unlinked by hand. The rest follow `defaultLinked(_:)`. Not stored: it
+    /// only steers how the next edit is copied.
+    public var linkOverrides: [String: Bool] = [:]
     public var profile: Profile {
         didSet {
             guard profile != oldValue else { return }

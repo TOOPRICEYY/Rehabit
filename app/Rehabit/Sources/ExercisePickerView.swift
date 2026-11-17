@@ -4,12 +4,11 @@ import SwiftUI
 struct ExercisePickerView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
-    let onPick: (CatalogueExercise, Side) -> Void
+    var title = "Add exercise"
+    let onPick: (CatalogueExercise, SideMode) -> Void
     @State private var search = ""
     @State private var customPattern = ""
     @State private var customOneSided = false
-    /// A one-sided exercise waiting for its side to be chosen.
-    @State private var asking: CatalogueExercise?
 
     private var matches: [CatalogueExercise] {
         let words = search.lowercased().split(separator: " ")
@@ -24,16 +23,29 @@ struct ExercisePickerView: View {
             List {
                 Section {
                     ForEach(matches, id: \.name) { exercise in
+                        // One tap adds it the usual way: one-sided exercises as a left
+                        // and right pair. A long press offers the other ways.
                         Button {
-                            // A two-sided exercise is logged as both sides. A one-sided
-                            // one always asks, so load is never filed under a guessed side.
-                            if exercise.unilateral { asking = exercise } else { onPick(exercise, .both) }
+                            onPick(exercise, model.startingMode(for: exercise))
                         } label: {
-                            VStack(alignment: .leading) {
-                                Text(exercise.name).foregroundStyle(.primary)
-                                Text(subtitle(exercise)).font(.caption).foregroundStyle(.secondary)
+                            row(exercise)
+                        }
+                        .contextMenu {
+                            Section("Add \(exercise.name)") {
+                                Button { onPick(exercise, .perSide) } label: {
+                                    Label("Each side separately", systemImage: "rectangle.split.2x1")
+                                }
+                                Button { onPick(exercise, .together) } label: {
+                                    Label("Both sides together", systemImage: "arrow.left.and.right")
+                                }
+                                Button { onPick(exercise, .leftOnly) } label: { Label("Left side only", systemImage: "l.square") }
+                                Button { onPick(exercise, .rightOnly) } label: { Label("Right side only", systemImage: "r.square") }
                             }
                         }
+                    }
+                } footer: {
+                    if search.isEmpty {
+                        Text("Touch and hold an exercise to choose which sides to log.")
                     }
                 }
                 if !search.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -47,7 +59,7 @@ struct ExercisePickerView: View {
                             let exercise = CatalogueExercise(name: search.trimmingCharacters(in: .whitespaces),
                                                              pattern: customPattern, convention: .total,
                                                              unilateral: customOneSided)
-                            if customOneSided { asking = exercise } else { onPick(exercise, .both) }
+                            onPick(exercise, customOneSided ? .perSide : .together)
                         }
                     } header: {
                         Text("Custom exercise")
@@ -57,25 +69,30 @@ struct ExercisePickerView: View {
                 }
             }
             .searchable(text: $search, prompt: "Search or name a new exercise")
-            .navigationTitle("Add exercise")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { Button("Cancel") { dismiss() } }
-            .confirmationDialog("Which side?", isPresented: Binding(get: { asking != nil }, set: { if !$0 { asking = nil } }),
-                                titleVisibility: .visible, presenting: asking) { exercise in
-                let likely = model.likelySide(for: exercise)
-                // The side of a matching injury is offered first.
-                ForEach(likely == .right ? [Side.right, .left] : [Side.left, .right], id: \.self) { side in
-                    Button(Format.side(side)) { onPick(exercise, side) }
-                }
-                Button("Both together") { onPick(exercise, .both) }
-            } message: { _ in
-                Text("Log each side by itself when the two sides do different work. You can add the other side afterwards.")
+        }
+    }
+
+    private func row(_ exercise: CatalogueExercise) -> some View {
+        let injured = model.injuredSides(for: exercise)
+        return HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(exercise.name).foregroundStyle(.primary)
+                Text(subtitle(exercise)).font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer()
+            if !injured.isEmpty {
+                Image(systemName: "bandage.fill")
+                    .foregroundStyle(.orange)
+                    .accessibilityLabel("Loads an injured tissue")
             }
         }
     }
 
     private func subtitle(_ exercise: CatalogueExercise) -> String {
         let movement = model.library.pattern(exercise.pattern)?.name ?? "No movement set"
-        return exercise.unilateral ? "\(movement) · one side" : movement
+        return exercise.unilateral ? "\(movement) · each side" : movement
     }
 }
