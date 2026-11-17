@@ -126,7 +126,23 @@ struct ActiveWorkoutView: View {
 
     /// Always in reach: the rest countdown after a set marked done (or the
     /// time since the last set) and the way to add the next exercise.
+    /// In a superset, the exercise to go to after the set just marked done.
+    private var supersetNextUp: String? {
+        guard let last = model.activeSets.filter(\.isDone).max(by: { ($0.completedAt ?? .distantPast) < ($1.completedAt ?? .distantPast) })
+        else { return nil }
+        return model.supersetNext(after: last)?.exercise
+    }
+
     private var bottomBar: some View {
+        VStack(spacing: 6) {
+        if let next = supersetNextUp {
+            Label("Next: \(next)", systemImage: "arrow.turn.down.right")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+        }
         HStack(spacing: 12) {
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 if let rest = model.rest, context.date.timeIntervalSince(rest.endsAt) < 30 {
@@ -159,6 +175,7 @@ struct ActiveWorkoutView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 10)
+        }
         .background(.bar)
         // A bar that grew with the largest text sizes would cover half the screen.
         .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
@@ -183,6 +200,8 @@ struct ExerciseCard: View {
     @State private var askingWhichSide = false
     @State private var showingHistory = false
     @State private var confirmingLink = false
+    @State private var pickingSuperset = false
+    @State private var reordering = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
     private var mode: SideMode { block.mode }
@@ -223,7 +242,7 @@ struct ExerciseCard: View {
         .confirmationDialog(linkWarning, isPresented: $confirmingLink, titleVisibility: .visible) {
             Button("Link anyway") { model.setLinked(true, for: block.exercise) }
         } message: {
-            Text("While linked, each change to the left is copied to the right, and the right's own numbers are overwritten. Unlinking does not bring them back.")
+            Text("While linked, a change on either side is copied to the other until that side is marked done, overwriting its numbers. Unlinking does not bring them back.")
         }
         .confirmationDialog("Remove \(block.exercise) and its \(block.sets.count) sets?",
                             isPresented: $confirmingRemove, titleVisibility: .visible) {
@@ -262,6 +281,14 @@ struct ExerciseCard: View {
                 }
                 .accessibilityLabel("Options for \(block.exercise)")
             }
+            if let group = model.superset(of: block.exercise) {
+                Label("Superset with \(group.filter { $0 != block.exercise }.joined(separator: ", "))",
+                      systemImage: "rectangle.stack")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(supersetColor(group))
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(supersetColor(group).opacity(0.14), in: Capsule())
+            }
             HStack(spacing: 8) {
                 sideSwitch
                 Text(loadDescription)
@@ -273,8 +300,18 @@ struct ExerciseCard: View {
         .textCase(nil)
         .dynamicTypeSize(...DynamicTypeSize.accessibility2)
         .padding(.top, 6)
+        // On the header view: a sheet attached to a list section may not show.
+        .sheet(isPresented: $pickingSuperset) { SupersetPicker(exercise: block.exercise) }
+        .sheet(isPresented: $reordering) { ReorderExercises() }
         .contentShape(Rectangle())
         .contextMenu { cardMenu }
+    }
+
+    /// One colour per superset, the same on every card in it.
+    private func supersetColor(_ group: [String]) -> Color {
+        let colors: [Color] = [.teal, .indigo, .pink, .mint, .brown]
+        let index = (model.active?.supersets ?? []).firstIndex(of: group) ?? 0
+        return colors[index % colors.count]
     }
 
     /// A small switch between logging the sides together and each side by itself.
@@ -341,7 +378,7 @@ struct ExerciseCard: View {
             if mode == .perSide {
                 Toggle(isOn: Binding(get: { model.isLinked(block.exercise) },
                                      set: { requestLink($0) })) {
-                    Label("Right follows left", systemImage: "link")
+                    Label("Link the two sides", systemImage: "link")
                 }
             }
         }
@@ -360,6 +397,9 @@ struct ExerciseCard: View {
                 let current = sample?.loadUnit ?? model.profile.unit
                 ForEach(WeightUnit.allCases.filter { $0 != current }, id: \.self) { unit in
                     Button("Convert to \(unit.rawValue)") { model.setUnit(unit, for: block.exercise) }
+                    Button("Convert to \(unit.rawValue), rounded to \(unit == .lb ? "whole pounds" : "half kilograms")") {
+                        model.setUnit(unit, for: block.exercise, converting: true, rounding: true)
+                    }
                     Button("Numbers were already in \(unit.rawValue)") {
                         model.setUnit(unit, for: block.exercise, converting: false)
                     }
@@ -410,6 +450,16 @@ struct ExerciseCard: View {
             Button { showingHistory = true } label: {
                 Label("History and records", systemImage: "chart.xyaxis.line")
             }
+            if let group = model.superset(of: block.exercise) {
+                Button { model.removeFromSuperset(block.exercise) } label: {
+                    Label("Remove from superset (\(group.filter { $0 != block.exercise }.joined(separator: ", ")))",
+                          systemImage: "rectangle.stack.badge.minus")
+                }
+            }
+            if model.activeBlocks.count > 1 {
+                Button { pickingSuperset = true } label: { Label("Superset with…", systemImage: "rectangle.stack.badge.plus") }
+                Button { reordering = true } label: { Label("Reorder exercises…", systemImage: "arrow.up.arrow.down") }
+            }
             Button(action: onReplace) {
                 Label("Replace exercise…", systemImage: "arrow.triangle.2.circlepath")
             }
@@ -440,9 +490,9 @@ struct ExerciseCard: View {
 
     private var linkWarning: String {
         if injured.first == .right {
-            return "The right side is injured. Linking puts the left (healthy) side's load and reps on the injured right side, replacing its own numbers."
+            return "The right side is injured. Linked, a change to the healthy left is copied onto the injured right."
         }
-        return "The left side is injured. Linking replaces the right side's numbers with the injured left side's from now on."
+        return "The left side is injured. Linked, a change to the healthy right is copied onto the injured left."
     }
 
     /// Linking an exercise that loads a one-sided injury asks first: it would
@@ -460,7 +510,7 @@ struct ExerciseCard: View {
             } label: {
                 HStack(spacing: 3) {
                     Image(systemName: linked ? "link" : "link.badge.plus")
-                    Text(linked ? "Right follows left" : "Sides separate")
+                    Text(linked ? "Sides linked" : "Sides separate")
                 }
                 .lineLimit(1)
                 .font(.caption.weight(.semibold))
@@ -469,7 +519,7 @@ struct ExerciseCard: View {
                 .background(linked ? Color.accentColor.opacity(0.12) : Color(.tertiarySystemFill), in: Capsule())
             }
             .buttonStyle(.borderless)
-            .accessibilityHint("When linked, the right side copies the left side's load and reps")
+            .accessibilityHint("When linked, a change on either side is copied to the other until that side is marked done")
             if injured.count == 1, let side = injured.first {
                 Label("\(Format.side(side)) injured", systemImage: "bandage.fill")
                     .font(.caption.weight(.semibold)).foregroundStyle(.orange)
@@ -539,12 +589,9 @@ struct RoundRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
-            Menu {
-                setMenu
-            } label: {
-                badge
-            }
-            .accessibilityLabel(round.isWarmup ? "Warm-up set, options" : "Set \(number), options")
+            Button { model.cycleKind(round) } label: { badge }
+                .accessibilityLabel("Set \(number), \(kindName)")
+                .accessibilityHint("Changes the kind of set: working, warm-up, drop set, to failure. Touch and hold the row for more.")
             if round.isPair {
                 // Left above right, each with its own done mark within reach of a thumb.
                 VStack(alignment: .leading, spacing: 10) {
@@ -575,12 +622,21 @@ struct RoundRow: View {
         }
     }
 
+    private var tag: SetTag? { round.members.first?.tag }
+
+    private var kindName: String {
+        round.isWarmup ? "Warm-up" : tag?.label ?? "Working set"
+    }
+
+    /// W warm-up, D drop set, F to failure, else the set's number; each its own colour.
     private var badge: some View {
-        Text(round.isWarmup ? "W" : "\(number)")
+        let (text, color): (String, Color) = round.isWarmup ? ("W", .orange)
+            : tag == .drop ? ("D", .purple) : tag == .failure ? ("F", .red) : ("\(number)", .primary)
+        return Text(text)
             .font(.headline.monospacedDigit())
-            .foregroundStyle(round.isWarmup ? Color.orange : Color.primary)
+            .foregroundStyle(color)
             .frame(width: Self.badgeSize, height: Self.badgeSize)
-            .background(round.isWarmup ? Color.orange.opacity(0.15) : Color(.tertiarySystemFill), in: Circle())
+            .background(color == .primary ? Color(.tertiarySystemFill) : color.opacity(0.15), in: Circle())
             .contentShape(Circle())
     }
 
@@ -729,6 +785,8 @@ struct SetCell: View {
     let showPain: Bool
     @State private var draft: WorkoutSet
     @State private var timingHold = false
+    @State private var refusal: String?
+    @State private var showingPlates = false
     @ScaledMetric(relativeTo: .body) private var loadWidth: CGFloat = 58
     @ScaledMetric(relativeTo: .body) private var repsWidth: CGFloat = 44
     @ScaledMetric(relativeTo: .body) private var checkSize: CGFloat = 40
@@ -760,18 +818,18 @@ struct SetCell: View {
                         .accessibilityLabel("Body weight")
                 } else {
                     NumberField(title: Format.number(last?.loadValue).ifEmpty(draft.loadUnit.rawValue),
-                                value: $draft.loadValue, width: loadWidth, step: loadStep)
+                                value: $draft.loadValue, width: loadWidth, step: loadStep, fieldID: draft.id + "|load")
                         .accessibilityLabel("Set \(number)\(sideWords), \(unitWords)")
                 }
                 Text("×").foregroundStyle(.secondary).accessibilityHidden(true)
                 if draft.kind == .hold {
                     NumberField(title: Format.number(last?.holdSeconds).ifEmpty("s"), value: $draft.holdSeconds,
-                                width: repsWidth, decimal: false, step: countStep)
+                                width: repsWidth, decimal: false, step: countStep, fieldID: draft.id + "|count")
                         .accessibilityLabel("Set \(number)\(sideWords), seconds held")
                     Text("s").font(.caption).foregroundStyle(.secondary).accessibilityHidden(true)
                 } else {
                     NumberField(title: Format.number(last?.reps).ifEmpty("rep"), value: $draft.reps,
-                                width: repsWidth, decimal: false, step: countStep)
+                                width: repsWidth, decimal: false, step: countStep, fieldID: draft.id + "|count")
                         .accessibilityLabel("Set \(number)\(sideWords), reps")
                 }
                 Spacer(minLength: 4)
@@ -814,6 +872,49 @@ struct SetCell: View {
                     }
                 }
             }
+                if let refusal, !draft.isDone {
+                    Label(refusal, systemImage: "exclamationmark.circle").font(.caption).foregroundStyle(.orange)
+                }
+                if !draft.isWarmup {
+                    HStack(spacing: 6) {
+                        // Reps in reserve on the row: one tap, a number.
+                        Menu {
+                            Picker("Reps in reserve", selection: $draft.repsInReserve) {
+                                Text("Not recorded").tag(Double?.none)
+                                ForEach([0.0, 1, 2, 3, 4, 5], id: \.self) { Text(Format.number($0)).tag(Double?.some($0)) }
+                            }
+                        } label: {
+                            Text(draft.repsInReserve.map { "RIR \(Format.number($0))" } ?? "RIR")
+                                .font(.caption2.weight(.medium))
+                                .padding(.horizontal, 8).padding(.vertical, 4)
+                                .foregroundStyle(draft.repsInReserve == nil ? Color.secondary : Color.primary)
+                                .background(Color(.tertiarySystemFill), in: Capsule())
+                        }
+                        .accessibilityLabel("Reps in reserve, set \(number)\(sideWords)")
+                        .accessibilityValue(draft.repsInReserve.map { Format.number($0) } ?? "not recorded")
+                        if let plates {
+                            Button { showingPlates = true } label: {
+                                Label("Plates", systemImage: "circle.grid.2x1")
+                                    .font(.caption2.weight(.medium))
+                                    .padding(.horizontal, 8).padding(.vertical, 4)
+                                    .background(Color(.tertiarySystemFill), in: Capsule())
+                            }
+                            .popover(isPresented: $showingPlates) {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text(plates.perSide.isEmpty ? "Bar only" : "\(plates.perSide.map { Format.number($0) }.joined(separator: " + ")) \(draft.loadUnit.rawValue) per side")
+                                        .font(.headline)
+                                    Text("On a \(Format.number(Plates.bar(draft.loadUnit))) \(draft.loadUnit.rawValue) bar").font(.caption).foregroundStyle(.secondary)
+                                    if plates.short > 0 {
+                                        Text("\(Format.number(plates.short)) \(draft.loadUnit.rawValue) short of \(Format.number(draft.loadValue ?? 0)) with standard plates")
+                                            .font(.caption).foregroundStyle(.orange)
+                                    }
+                                }
+                                .padding(16)
+                                .presentationCompactAdaptation(.popover)
+                            }
+                        }
+                    }
+                }
                 if let last, lastDiffers(last) {
                     Button {
                         draft.copyPrescription(from: last)
@@ -842,8 +943,14 @@ struct SetCell: View {
     /// A large check at the row's end: planned until tapped, then done (and the rest starts).
     private var doneButton: some View {
         Button {
-            dismissKeyboard()
-            model.setDone(!draft.isDone, draft)
+            if model.setDone(!draft.isDone, draft) {
+                refusal = nil
+                dismissKeyboard()
+            } else {
+                // Not marked: a set needs its reps (or seconds) before it counts as done.
+                refusal = draft.kind == .hold ? "Enter seconds first" : "Enter reps first"
+                FieldFocus.request(draft.id + "|count")
+            }
         } label: {
             Image(systemName: draft.isDone ? "checkmark.circle.fill" : "circle")
                 .font(.system(size: checkSize * 0.75, weight: .regular))
@@ -863,16 +970,31 @@ struct SetCell: View {
         return StepAction(id: draft.id + "|load", label: "\(Format.number(step)) \(draft.loadUnit.rawValue)",
                           minus: { draft = model.stepped(draft, load: -1) },
                           plus: {
-                              // An empty weight starts from last session's, not from zero.
                               if draft.loadValue == nil, let last = previous?.loadValue { draft.loadValue = last }
                               else { draft = model.stepped(draft, load: 1) }
-                          })
+                          },
+                          next: draft.id + "|count")
     }
 
     private var countStep: StepAction {
         StepAction(id: draft.id + "|count", label: draft.kind == .hold ? "5 s" : "1 rep",
                    minus: { draft = model.stepped(draft, count: -1) },
-                   plus: { draft = model.stepped(draft, count: 1) })
+                   plus: { draft = model.stepped(draft, count: 1) },
+                   next: nextSetID.map { $0 + (draft.convention == .bodyweight ? "|count" : "|load") })
+    }
+
+    /// The set after this one in the workout, for Next on its reps.
+    private var nextSetID: String? {
+        let ordered = model.activeSets.sorted { $0.position < $1.position }
+        guard let at = ordered.firstIndex(where: { $0.id == draft.id }), at + 1 < ordered.count else { return nil }
+        return ordered[at + 1].id
+    }
+
+    /// Plates per side for a barbell lift logged as the total.
+    private var plates: PlateLoad? {
+        guard draft.convention == .total, let total = draft.loadValue, total > 0,
+              draft.exercise.localizedCaseInsensitiveContains("barbell") else { return nil }
+        return Plates.load(total: total, unit: draft.loadUnit)
     }
 
     private func lastDiffers(_ last: WorkoutSet?) -> Bool {
@@ -1018,5 +1140,70 @@ struct WrapStack: Layout {
             line = max(line, size.height)
         }
         return (points, CGSize(width: min(widest, width), height: y + line))
+    }
+}
+
+/// Picks the exercises to do back to back with this one.
+struct SupersetPicker: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    let exercise: String
+    @State private var chosen: Set<String> = []
+
+    var body: some View {
+        NavigationStack {
+            List(model.activeBlocks.map(\.exercise).filter { $0 != exercise }, id: \.self) { name in
+                Button {
+                    if chosen.contains(name) { chosen.remove(name) } else { chosen.insert(name) }
+                } label: {
+                    HStack {
+                        Text(name).foregroundStyle(.primary)
+                        Spacer()
+                        if chosen.contains(name) { Image(systemName: "checkmark").foregroundStyle(Color.accentColor) }
+                    }
+                }
+            }
+            .navigationTitle("Superset with \(exercise)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        let order = model.activeBlocks.map(\.exercise).filter { $0 == exercise || chosen.contains($0) }
+                        model.setSuperset(order)
+                        dismiss()
+                    }
+                    .disabled(chosen.isEmpty)
+                }
+            }
+            .onAppear { chosen = Set((model.superset(of: exercise) ?? []).filter { $0 != exercise }) }
+        }
+        .presentationDetents([.medium, .large])
+    }
+}
+
+/// Drag the exercises of the workout in progress into a new order.
+struct ReorderExercises: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(model.activeBlocks.map(\.exercise), id: \.self) { name in
+                    Text(name)
+                }
+                .onMove { from, to in
+                    guard let source = from.first else { return }
+                    let name = model.activeBlocks[source].exercise
+                    model.moveExercise(name, to: to > source ? to - 1 : to)
+                }
+            }
+            .environment(\.editMode, .constant(.active))
+            .navigationTitle("Reorder exercises")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { Button("Done") { dismiss() } }
+        }
+        .presentationDetents([.medium, .large])
     }
 }

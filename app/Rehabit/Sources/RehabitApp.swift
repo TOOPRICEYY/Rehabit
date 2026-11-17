@@ -171,6 +171,9 @@ struct NumberField: View {
     var decimal = true
     /// What − and + do for this field while it is being typed in; shown above the keys.
     var step: StepAction?
+    /// A name other views can ask to focus (FieldFocus.request), for Next and for
+    /// "enter reps first".
+    var fieldID: String?
     @State private var text = ""
     @FocusState private var focused: Bool
 
@@ -192,6 +195,9 @@ struct NumberField: View {
                 // A change from elsewhere (a stepper, the linked side) shows even while
                 // typing; one that only echoes what was typed leaves the text alone.
                 if !focused || Self.parse(text) != changed { text = Format.number(changed) }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: FieldFocus.note)) { note in
+                if let fieldID, note.object as? String == fieldID { focused = true }
             }
             .onChange(of: focused) { _, now in
                 if now {
@@ -221,6 +227,16 @@ struct StepAction: Identifiable {
     let label: String
     let minus: () -> Void
     let plus: () -> Void
+    /// The field Next moves to (weight to reps, reps to the next set's weight); nil closes the keys.
+    var next: String? = nil
+}
+
+/// Asks the number field with this id to take the keyboard.
+enum FieldFocus {
+    static let note = Notification.Name("RehabitFocusField")
+    static func request(_ id: String) {
+        DispatchQueue.main.async { NotificationCenter.default.post(name: note, object: id) }
+    }
 }
 
 @Observable
@@ -243,10 +259,14 @@ extension View {
                         .accessibilityLabel("Plus \(step.label)")
                 }
                 Spacer()
+                if let next = StepTarget.shared.current?.next {
+                    Button("Next") { FieldFocus.request(next) }
+                }
                 Button("Done") {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
                                                     to: nil, from: nil, for: nil)
                 }
+                .fontWeight(.semibold)
             }
         }
     }

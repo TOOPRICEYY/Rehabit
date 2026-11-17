@@ -28,7 +28,7 @@ struct CheckInsList: View {
     @State private var logging = false
 
     var body: some View {
-        // The session's follow-ups first, then the morning questions.
+        // The session's follow-ups first, then the daily checks.
         let round = model.checkInRound.sorted { ($0.check.workoutID == nil ? 1 : 0) < ($1.check.workoutID == nil ? 1 : 0) }
         List {
             if let error = model.lastError, !round.isEmpty {
@@ -66,7 +66,7 @@ struct CheckInsList: View {
                 } header: {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.injury.label).font(.headline).foregroundStyle(Color(uiColor: .label))
-                        Text(item.check.moment == .baseline ? "Morning check" : item.check.moment.label).font(.subheadline)
+                        Text(item.check.moment.label).font(.subheadline)
                         HStack(spacing: 10) {
                             Text(lastText(item.last))
                             if let during = item.sessionPain { Text("During the session: \(Format.number(during))") }
@@ -75,6 +75,11 @@ struct CheckInsList: View {
                             }
                         }
                         .font(.caption)
+                        if recentFlare(item.injury) != nil {
+                            Text("The flare-up is shown for context. Unchanged does not copy it.")
+                                .font(.caption2)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
                     .textCase(nil)
                 }

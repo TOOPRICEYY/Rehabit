@@ -35,9 +35,13 @@ struct IncomingRecordsView: View {
     let onLater: () -> Void
 
     static func headline(_ r: IncomingRecords) -> String {
-        if !r.injuries.isEmpty && r.workouts.isEmpty && r.sets == 0 && r.painChecks == 0 {
+        if !r.injuries.isEmpty && r.workouts.isEmpty && r.sets == 0 && r.painChecks == 0 && r.routines.isEmpty {
             return r.injuries.count == 1 ? "1 injury is waiting to be added"
                                          : "\(r.injuries.count) injuries are waiting to be added"
+        }
+        if !r.routines.isEmpty && r.injuries.isEmpty && r.workouts.isEmpty && r.sets == 0 && r.painChecks == 0 {
+            return r.routines.count == 1 ? "1 routine is waiting to be added"
+                                         : "\(r.routines.count) routines are waiting to be added"
         }
         return r.count == 1 ? "1 record is waiting to be added" : "\(r.count) records are waiting to be added"
     }
@@ -49,6 +53,13 @@ struct IncomingRecordsView: View {
                     Section("Injuries") {
                         ForEach(records.injuries) { injury in
                             injuryRow(injury)
+                        }
+                    }
+                }
+                if !records.routines.isEmpty {
+                    Section("Routines") {
+                        ForEach(records.routines) { routine in
+                            routineRow(routine)
                         }
                     }
                 }
@@ -82,6 +93,24 @@ struct IncomingRecordsView: View {
                 .background(.bar)
             }
         }
+    }
+
+    private func routineRow(_ routine: Routine) -> some View {
+        let existing = model.routines.contains { $0.id == routine.id }
+        return HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(routine.name).font(.headline)
+                Text(Format.count(routine.items.count, "exercise")).font(.subheadline).foregroundStyle(.secondary)
+            }
+            Spacer()
+            if existing {
+                Text("update").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(Color(.tertiarySystemFill), in: Capsule())
+            }
+        }
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .combine)
     }
 
     private func injuryRow(_ injury: Injury) -> some View {

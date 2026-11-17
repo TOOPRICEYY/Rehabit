@@ -10,6 +10,11 @@ struct WorkoutDetailView: View {
     @State private var editing = false
     @State private var editingInfo = false
     @State private var picking = false
+    @Environment(\.openLiveWorkout) private var openLive
+    @State private var namingRoutine = false
+    @State private var routineName = ""
+    @State private var savedRoutine: String?
+    @State private var busy = false
 
     init(workout: Workout) { workoutID = workout.id }
 
@@ -97,12 +102,46 @@ struct WorkoutDetailView: View {
         .keyboardDoneButton()
         .scrollDismissesKeyboard(.interactively)
         .toolbar {
-            Button(editing ? "Done" : "Edit") {
-                if editing { dismissKeyboard() }
-                editing.toggle()
+            ToolbarItem(placement: .primaryAction) {
+                Button(editing ? "Done" : "Edit") {
+                    if editing { dismissKeyboard() }
+                    editing.toggle()
+                }
+                .fontWeight(editing ? .semibold : .regular)
             }
-            .fontWeight(editing ? .semibold : .regular)
+            if !editing {
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        if openLive != nil {
+                            Button("Repeat this workout", systemImage: "arrow.clockwise") { repeatWorkout(workout) }
+                        }
+                        Button("Save as routine…", systemImage: "list.bullet.clipboard") {
+                            routineName = workout.title
+                            namingRoutine = true
+                        }
+                    } label: {
+                        Label("More", systemImage: "ellipsis.circle")
+                    }
+                }
+            }
         }
+        .alert("Save as routine", isPresented: $namingRoutine) {
+            TextField("Routine name", text: $routineName)
+            Button("Cancel", role: .cancel) {}
+            Button("Save") {
+                let routine = model.routine(from: workout, name: routineName)
+                model.save(routine)
+                savedRoutine = model.routines.first { $0.id == routine.id }?.name ?? routine.name
+            }
+        } message: {
+            Text("Keeps the exercises, rounds, sides and supersets. Each set starts from the last session when the routine is started.")
+        }
+        .alert("Routine saved", isPresented: Binding(get: { savedRoutine != nil }, set: { if !$0 { savedRoutine = nil } })) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("\(savedRoutine ?? "") is in Routines on the Workouts tab.")
+        }
+        .workoutInProgressAlert($busy, resume: openLive)
         .sheet(isPresented: $editingInfo) { WorkoutInfoEditor(workout: workout) }
         .sheet(isPresented: $picking) {
             ExercisePickerView(title: "Add exercise") { exercise, mode in
@@ -113,6 +152,14 @@ struct WorkoutDetailView: View {
         // Edits are saved as made; leave a fresh export for the Mac shortly after.
         .onChange(of: sets) { _, _ in MacSync.shared.changed(model) }
         .onChange(of: workout) { _, _ in MacSync.shared.changed(model) }
+    }
+
+    private func repeatWorkout(_ workout: Workout) {
+        guard model.active == nil else { busy = true; return }
+        if model.startWorkout(repeating: workout) {
+            RestNotice.askPermissionIfNeeded()
+            openLive?()
+        }
     }
 
     static func source(_ workout: Workout) -> String? {

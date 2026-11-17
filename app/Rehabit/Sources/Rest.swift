@@ -22,9 +22,9 @@ struct RestReadout: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel(left > 0 ? "Rest, \(Int(left)) seconds left" : "Rest over")
             Button { change(-15) } label: { Text("−15").frame(minWidth: 36, minHeight: 32) }
-                .accessibilityLabel("15 seconds less rest for \(rest.exercise)")
+                .accessibilityLabel("15 seconds less rest this time")
             Button { change(15) } label: { Text("+15").frame(minWidth: 36, minHeight: 32) }
-                .accessibilityLabel("15 seconds more rest for \(rest.exercise)")
+                .accessibilityLabel("15 seconds more rest this time")
             Button("Skip") { model.skipRest() }
                 .frame(minHeight: 32)
         }
@@ -34,11 +34,8 @@ struct RestReadout: View {
         .controlSize(.small)
     }
 
-    /// Changes this exercise's own rest, which also moves the countdown running now.
-    private func change(_ by: Int) {
-        let next = max(0, model.restSeconds(for: rest.exercise) + by)
-        model.setRest(next, for: rest.exercise)
-    }
+    /// Changes this countdown only; the exercise's own rest is set in its menu.
+    private func change(_ by: Int) { model.adjustRest(by: by) }
 }
 
 /// One local notification when the rest runs out, replaced whenever the rest changes.

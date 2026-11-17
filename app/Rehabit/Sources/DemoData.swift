@@ -30,7 +30,16 @@ enum DemoData {
     """.utf8)
 
     static func modelIfRequested() -> AppModel? {
-        if ProcessInfo.processInfo.arguments.contains("-demo-empty"), let store = try? Store(path: ":memory:") {
+        if ProcessInfo.processInfo.arguments.contains("-demo-empty") {
+            // With -demo-file the empty demo also keeps its data between launches.
+            var path = ":memory:"
+            if ProcessInfo.processInfo.arguments.contains("-demo-file") {
+                path = FileManager.default.temporaryDirectory.appendingPathComponent("demo-empty.sqlite").path
+                if ProcessInfo.processInfo.arguments.contains("-demo-reset") {
+                    for suffix in ["", "-wal", "-shm", "-journal"] { try? FileManager.default.removeItem(atPath: path + suffix) }
+                }
+            }
+            guard let store = try? Store(path: path) else { return nil }
             return AppModel(store: store)
         }
         let args = ProcessInfo.processInfo.arguments
@@ -110,6 +119,8 @@ enum DemoData {
         }
         for _ in 0..<3 { fill(model.addExercise(squat, mode: .together)[0], 35, 10) }
         model.finishWorkout()
+        // A routine to start from, made from that session.
+        if let last = model.workouts.first { model.save(model.routine(from: last, name: "Lower B")) }
 
         // Today's session, part way through.
         model.startWorkout(title: "Lower B")

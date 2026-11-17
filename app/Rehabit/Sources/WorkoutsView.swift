@@ -6,6 +6,7 @@ struct WorkoutsView: View {
     @State private var showingActive = false
     @State private var showingChecks = false
     @State private var checksWaiting = false
+    @State private var busy = false
 
     var body: some View {
         NavigationStack {
@@ -24,6 +25,12 @@ struct WorkoutsView: View {
                               systemImage: model.active == nil ? "plus.circle.fill" : "play.circle.fill")
                             .font(.headline)
                     }
+                    NavigationLink {
+                        RoutinesView()
+                    } label: {
+                        Label("Routines", systemImage: "list.bullet.clipboard")
+                    }
+                    .accessibilityHint("Start a workout from a saved routine")
                 }
                 Section("This week") {
                     WeekHeader()
@@ -47,13 +54,21 @@ struct WorkoutsView: View {
                                     .font(.caption).foregroundStyle(.secondary)
                             }
                         }
-                    }
-                    .onDelete { offsets in
-                        for workout in offsets.map({ model.workouts[$0] }) { model.deleteWorkout(workout) }
+                        .swipeActions(edge: .leading) {
+                            Button("Repeat", systemImage: "arrow.clockwise") { repeatWorkout(workout) }
+                                .tint(.accentColor)
+                        }
+                        .swipeActions(edge: .trailing) {
+                            Button("Delete", systemImage: "trash", role: .destructive) { model.deleteWorkout(workout) }
+                        }
+                        .contextMenu {
+                            Button("Repeat this workout", systemImage: "arrow.clockwise") { repeatWorkout(workout) }
+                        }
                     }
                 }
             }
             .navigationTitle("Workouts")
+            .workoutInProgressAlert($busy, resume: { showingActive = true })
             // The pain questions are shown once the workout screen has finished
             // closing; asking for a second screen while the first is still on its
             // way out is ignored by the system.
@@ -74,6 +89,16 @@ struct WorkoutsView: View {
                         .onChange(of: model.checkInRound.isEmpty) { _, empty in if empty { showingChecks = false } }
                 }
             }
+        }
+        .environment(\.openLiveWorkout, { showingActive = true })
+    }
+
+    /// Starts a workout with the same exercises as a finished one and opens it.
+    private func repeatWorkout(_ workout: Workout) {
+        guard model.active == nil else { busy = true; return }
+        if model.startWorkout(repeating: workout) {
+            RestNotice.askPermissionIfNeeded()
+            showingActive = true
         }
     }
 }
