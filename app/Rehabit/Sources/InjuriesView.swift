@@ -129,7 +129,7 @@ struct InjuryDetailView: View {
                 }
                 Section("Details") {
                     LabeledContent("Side", value: Format.side(injury.side))
-                    LabeledContent("Onset", value: "\(injury.onset.description) (to the \(injury.onsetPrecision.rawValue))")
+                    LabeledContent("Began", value: IncomingRecordsView.onset(injury))
                     LabeledContent("Tissues", value: injury.tissues.compactMap { model.library.tissue($0)?.name }.joined(separator: ", "))
                     if !injury.mechanism.isEmpty { LabeledContent("How it happened", value: injury.mechanism) }
                     if !injury.notes.isEmpty { Text(injury.notes) }

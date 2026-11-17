@@ -98,7 +98,7 @@ final class RoundOneTests: XCTestCase {
         app.swipeUp()
         sleep(1)
         shot("23-report-more")
-        app.buttons["Save as PDF"].tap()
+        app.buttons["Make a PDF"].tap()
         XCTAssertTrue(app.buttons["Share PDF"].waitForExistence(timeout: 5))
     }
 }

@@ -70,6 +70,9 @@ struct CheckInsList: View {
                         HStack(spacing: 10) {
                             Text(lastText(item.last))
                             if let during = item.sessionPain { Text("During the session: \(Format.number(during))") }
+                            if let flare = recentFlare(item.injury) {
+                                Text("Flare-up \(Format.number(flare.pain ?? 0)), \((flare.answeredAt ?? flare.dueAt).formatted(.relative(presentation: .named)))")
+                            }
                         }
                         .font(.caption)
                     }
@@ -90,6 +93,11 @@ struct CheckInsList: View {
 
     private func binding(_ id: String) -> Binding<Double?> {
         Binding(get: { pain[id] }, set: { pain[id] = $0 })
+    }
+
+    /// A flare-up logged in the last day, shown beside the question so it does not look lost.
+    private func recentFlare(_ injury: Injury) -> PainCheck? {
+        model.painHistory(for: injury).last { $0.moment == .flare && ($0.answeredAt ?? $0.dueAt) > Date().addingTimeInterval(-86_400) }
     }
 
     private func lastText(_ last: PainCheck?) -> String {
@@ -209,9 +217,11 @@ struct LogPainSheet: View {
     @State private var type: [String: PainType] = [:]
     @State private var context = ""
     @State private var notes = ""
+    @State private var showAll = false
 
     var body: some View {
         let active = model.injuries.filter(\.isActive)
+            .filter { injuryID == nil || showAll || $0.id == injuryID }
             .sorted { ($0.id == injuryID ? 0 : 1) < ($1.id == injuryID ? 0 : 1) }
         NavigationStack {
             List {
@@ -230,6 +240,9 @@ struct LogPainSheet: View {
                     } header: {
                         Text(injury.label).font(.headline).foregroundStyle(Color(uiColor: .label)).textCase(nil)
                     }
+                }
+                if injuryID != nil && !showAll && model.injuries.filter(\.isActive).count > 1 {
+                    Button("Also log other injuries") { showAll = true }
                 }
                 Section {
                     TextField("What was going on? (stairs, woke up with it)", text: $context)

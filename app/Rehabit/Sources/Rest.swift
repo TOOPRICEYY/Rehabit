@@ -13,7 +13,7 @@ struct RestReadout: View {
         let left = rest.remaining(at: now)
         HStack(spacing: 6) {
             VStack(alignment: .leading, spacing: 0) {
-                Text(left > 0 ? "Rest · \(rest.exercise)" : "Rest over").font(.caption2)
+                Text(left > 0 ? "Rest" : "Rest over").font(.caption2)
                     .foregroundStyle(left > 0 ? Color.secondary : Color.green).lineLimit(1)
                 Text(Format.elapsed(left)).font(.title3.monospacedDigit().weight(.semibold))
                     .foregroundStyle(left > 0 ? Color.primary : Color.green)

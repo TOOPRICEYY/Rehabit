@@ -86,7 +86,7 @@ struct ActiveWorkoutView: View {
                     .fontWeight(.semibold)
                 }
             }
-            .confirmationDialog("\(model.unfinishedSets.filter { !$0.isBlank }.count) sets not marked done", isPresented: $confirmingUnfinished,
+            .confirmationDialog("\(Format.count(model.unfinishedSets.filter { !$0.isBlank }.count, "set")) not marked done", isPresented: $confirmingUnfinished,
                                 titleVisibility: .visible) {
                 Button("Keep them") { finish(removing: false) }
                 Button("Remove them", role: .destructive) { finish(removing: true) }
@@ -223,7 +223,7 @@ struct ExerciseCard: View {
         .confirmationDialog(linkWarning, isPresented: $confirmingLink, titleVisibility: .visible) {
             Button("Link anyway") { model.setLinked(true, for: block.exercise) }
         } message: {
-            Text("While linked, a change to the left side's load and reps is copied to the right side.")
+            Text("While linked, each change to the left is copied to the right, and the right's own numbers are overwritten. Unlinking does not bring them back.")
         }
         .confirmationDialog("Remove \(block.exercise) and its \(block.sets.count) sets?",
                             isPresented: $confirmingRemove, titleVisibility: .visible) {
@@ -439,8 +439,10 @@ struct ExerciseCard: View {
     // MARK: Columns and footer
 
     private var linkWarning: String {
-        let side = injured.first.map { Format.side($0).lowercased() } ?? "one"
-        return "The \(side) side is injured. Linking copies the left side's numbers onto the right."
+        if injured.first == .right {
+            return "The right side is injured. Linking puts the left (healthy) side's load and reps on the injured right side, replacing its own numbers."
+        }
+        return "The left side is injured. Linking replaces the right side's numbers with the injured left side's from now on."
     }
 
     /// Linking an exercise that loads a one-sided injury asks first: it would

@@ -44,7 +44,7 @@ struct SettingsView: View {
                     Picker("Rest after a set", selection: Binding(
                         get: { model.profile.defaultRestSeconds },
                         set: { seconds in var p = model.profile; p.defaultRestSeconds = seconds; model.profile = p })) {
-                        ForEach(Array(stride(from: 0, through: 300, by: 15)), id: \.self) { Text(Format.restLength($0)).tag($0) }
+                        ForEach(Array(Set([0, 30, 45, 60, 75, 90, 120, 150, 180, 240, 300, model.profile.defaultRestSeconds])).sorted(), id: \.self) { Text(Format.restLength($0)).tag($0) }
                     }
                 } header: {
                     Text("Rest timer")

@@ -70,7 +70,16 @@ struct LoadPainChart: View {
                     }
                 }
             }
-            .chartXSelection(value: $selected)
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    Rectangle().fill(Color.clear).contentShape(Rectangle())
+                        .gesture(SpatialTapGesture().onEnded { tap in
+                            guard let plot = proxy.plotFrame else { return }
+                            let x = tap.location.x - geo[plot].origin.x
+                            selected = proxy.value(atX: x, as: Date.self)
+                        })
+                }
+            }
             .frame(height: 220)
             .accessibilityLabel("Load on the \(sideName.lowercased()) and pain over \(weeks) weeks")
 
@@ -130,6 +139,19 @@ struct TherapistReportView: View {
                     Text("8 weeks").tag(8)
                 }
                 .pickerStyle(.segmented)
+                HStack {
+                    ShareLink(item: text, subject: Text("Rehabit report: \(injury.label)"),
+                              preview: SharePreview("Rehabit report: \(injury.label)")) {
+                        Label("Share as text", systemImage: "square.and.arrow.up")
+                    }
+                    if let pdf {
+                        ShareLink(item: pdf) { Label("Share PDF", systemImage: "doc.richtext") }
+                    } else {
+                        Button { pdf = renderPDF(text) } label: { Label("Make a PDF", systemImage: "doc.richtext") }
+                    }
+                }
+                .buttonStyle(.bordered)
+                .font(.subheadline)
                 MarkdownReport(text: text)
             }
             .padding(16)
@@ -137,14 +159,10 @@ struct TherapistReportView: View {
         .navigationTitle("Report")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                ShareLink(item: text, subject: Text("Rehabit report: \(injury.label)")) {
+            ToolbarItem(placement: .primaryAction) {
+                ShareLink(item: text, subject: Text("Rehabit report: \(injury.label)"),
+                          preview: SharePreview("Rehabit report: \(injury.label)")) {
                     Label("Share text", systemImage: "square.and.arrow.up")
-                }
-                if let pdf {
-                    ShareLink(item: pdf) { Label("Share PDF", systemImage: "doc.richtext") }
-                } else {
-                    Button { pdf = renderPDF(text) } label: { Label("Save as PDF", systemImage: "doc.richtext") }
                 }
             }
         }
