@@ -65,7 +65,11 @@ not), editing a finished workout, rest timers, and Health Connect for Android.
    top 5 percent, three short nights in seven, and training while HRV or heart rate is
    flagged. Percentile rules stay silent until there are 30 earlier values.
    Recovery flags apply to every injury; step flags only to hip, thigh, knee and lower leg.
-   Steps are a separate channel and are not yet converted into tissue dose.
+   Steps also count as tissue dose (`ledger.py`, "walking"): each leg takes half the day's
+   steps and every 100 steps on a leg count as one effective rep, mostly on the calf and
+   Achilles with small shares for the thigh and hip. The weekly spike sees training and
+   walking together; the flags about sessions (density, re-entry, compensation) see
+   training only, since walking happens every day.
 6. **Replay** (`replay.py`). For each injury with a known onset, lists the flags that
    fired in the two weeks before it, next to the base rate: the share of all comparable
    two-week windows in which the same flag fired. A flag that fires before an injury but
@@ -107,6 +111,8 @@ fixtures.
 - Recovery does not yet change the dose. In the replay it did not separate the run-up to
   an injury from an ordinary fortnight, so it is reported, not acted on.
 - A percentile rule cannot fire for a tissue that is loaded too rarely to build a history.
-- Step counts include steps taken during runs, so steps and run minutes overlap.
+- Step counts include steps taken during runs, so steps and run minutes overlap, and a
+  running step is counted like a walking step though it loads the calf far harder.
+- 100 steps per effective rep is a starting value, not a measurement.
 - The replay checks rules against a handful of injuries. That is enough to reject a rule
   that fires all the time, and not enough to tune thresholds without fitting noise.

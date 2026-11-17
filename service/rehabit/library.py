@@ -106,6 +106,12 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
         "calf": (1.0, P), "achilles": (1.0, P)}),
     "core": ("Trunk exercise", 0.0, {
         "abs": (1.0, P), "obliques": (0.5, A), "hip_flexors": (0.5, A)}),
+    # Daily steps, not a logged exercise: it is not in the picker and no
+    # exercise name maps to it. Push-off loads the calf and Achilles most; the
+    # thigh and hip muscles work at a small fraction of their capacity.
+    "walking": ("Walking (daily steps)", 0.0, {
+        "calf": (1.0, P), "achilles": (1.0, P), "glute_med": (0.4, S), "quads": (0.3, A),
+        "hip_flexors": (0.3, A), "hamstrings": (0.2, A), "glute_max": (0.2, A)}),
 }
 
 # Named exercises offered by the app's picker: (name, movement pattern, how the

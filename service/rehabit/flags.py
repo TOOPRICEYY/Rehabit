@@ -86,22 +86,29 @@ class _Own:
 
 
 def _tissue_flags(con, t: Thresholds) -> None:
+    # Total dose (training and walking) for the weekly spike; training alone for
+    # the flags about sessions (density, re-entry), since walking happens daily.
     series: dict[tuple[str, str], dict[date, float]] = defaultdict(dict)
-    for r in con.execute("SELECT day, tissue_id, side, dose FROM tissue_load_day"):
+    trained: dict[tuple[str, str], dict[date, float]] = defaultdict(dict)
+    for r in con.execute("SELECT day, tissue_id, side, dose, walking_dose FROM tissue_load_day"):
         series[(r["tissue_id"], r["side"])][_d(r["day"])] = r["dose"]
+        trained[(r["tissue_id"], r["side"])][_d(r["day"])] = max(0.0, r["dose"] - r["walking_dose"])
     for (tissue, side), by_day in series.items():
+        training = trained[(tissue, side)]
         days = sorted(by_day)
-        loaded = [d for d in days if by_day[d] >= t.density_min_dose]
+        loaded = [d for d in days if training[d] >= t.density_min_dose]
         loaded_set = set(loaded)
         any_load = [d for d in days if by_day[d] > 0]
         first_load = any_load[0] if any_load else None
         last_loaded = re_entered = None
         own = _Own(t)
         for d in any_load:
-            dose = by_day[d]
+            dose = training[d]
             # Re-entry: nothing for three weeks, then load. The weeks after it are
             # flagged too, because tissue adapts more slowly than a routine settles.
-            if last_loaded and (d - last_loaded).days >= t.re_entry_days:
+            if dose <= 0:
+                pass
+            elif last_loaded and (d - last_loaded).days >= t.re_entry_days:
                 re_entered = d
                 _insert(con, d, "re_entry", "tissue", tissue, side=side,
                         value=(d - last_loaded).days, threshold=t.re_entry_days,
@@ -110,7 +117,8 @@ def _tissue_flags(con, t: Thresholds) -> None:
                 _insert(con, d, "re_entry_period", "tissue", tissue, side=side,
                         value=(d - re_entered).days, threshold=t.re_entry_period_days,
                         detail=f"{tissue} ({side}) is {(d - re_entered).days} days into a return from a layoff")
-            last_loaded = d
+            if dose > 0:
+                last_loaded = d
             # Spike: this week against the mean of the four weeks before it. The
             # earlier weeks exclude the current one, which avoids the built-in
             # correlation of the classic acute:chronic ratio.
@@ -237,8 +245,11 @@ def _compensation_flags(con, t: Thresholds) -> None:
         other = opposite[inj["side"]]
         onset = _d(inj["onset"])
         for tissue in json.loads(inj["tissues"]):
+            # Training alone: walking loads both legs alike, so it says nothing
+            # about one side taking over from the other.
             rows = con.execute(
-                "SELECT day, dose, chronic FROM tissue_load_day WHERE tissue_id = ? AND side = ?"
+                "SELECT day, dose - walking_dose AS dose, chronic - walking_chronic AS chronic"
+                " FROM tissue_load_day WHERE tissue_id = ? AND side = ?"
                 " AND day >= ? ORDER BY day", (tissue, other, onset.isoformat())).fetchall()
             if not rows or rows[0]["chronic"] <= 0:
                 continue

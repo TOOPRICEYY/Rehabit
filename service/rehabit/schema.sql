@@ -143,6 +143,8 @@ CREATE TABLE IF NOT EXISTS tissue_load_day (
   reps REAL NOT NULL,
   acute REAL NOT NULL,
   chronic REAL NOT NULL,
+  walking_dose REAL NOT NULL DEFAULT 0,    -- the part of dose from daily steps
+  walking_chronic REAL NOT NULL DEFAULT 0, -- the part of chronic from daily steps
   PRIMARY KEY (day, tissue_id, side)
 );
 

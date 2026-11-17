@@ -249,6 +249,14 @@ public final class AppModel {
         return built
     }
 
+    /// Daily steps from every source, the largest reading of each day (phone and
+    /// watch count the same walking), as walking load.
+    private func walkingHistory() -> [LedgerSet] {
+        var steps: [Day: Double] = [:]
+        for m in dailyMetrics(MetricName.steps) where m.value > 0 { steps[m.day] = max(steps[m.day] ?? 0, m.value) }
+        return ledger.walkingSets(steps: steps)
+    }
+
     /// Statements about this set against the history: load jump, layoff, a tissue
     /// coming back from weeks of nothing, an injured tissue being loaded.
     public func advice(for set: WorkoutSet) -> [Advice] {
@@ -428,7 +436,7 @@ public final class AppModel {
         let end = loadToday.adding(-7 * max(0, weeksAgo))
         // 35 days are shown; the 28 before them are only needed as reference loads.
         let from = end.adding(-35 - ledger.settings.referenceWindowDays)
-        let sets = ledgerHistory().map(\.set).filter { $0.day >= from && $0.day <= end }
+        let sets = (ledgerHistory().map(\.set) + walkingHistory()).filter { $0.day >= from && $0.day <= end }
         let days = ledger.tissueDays(sets, through: end).filter { end.days(since: $0.day) < 35 && $0.day <= end }
         return (end, sets, days)
     }

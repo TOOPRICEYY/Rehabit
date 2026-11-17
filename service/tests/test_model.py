@@ -257,3 +257,29 @@ def test_run_query_refuses_everything_but_reading(con, tmp_path):
                 "select zeroblob(1000000000)"):
         assert "error" in tools.run_query(sql), sql
     assert tools.run_query("select zeroblob(8) b")[0]["b"] == "<8 bytes>"
+
+
+def test_steps_count_as_walking_load_on_both_legs(con):
+    from datetime import date, timedelta
+    from rehabit import ledger
+    start = date(2026, 10, 1)
+    for i in range(20):
+        if i != 10:   # a day off the wrist
+            con.execute("INSERT INTO daily_metric(day, metric, value, source) VALUES (?,?,?,?)",
+                        ((start + timedelta(days=i)).isoformat(), "steps", 8000, "garmin"))
+            # The phone counted less of the same walking; the larger reading is kept, never the sum.
+            con.execute("INSERT INTO daily_metric(day, metric, value, source) VALUES (?,?,?,?)",
+                        ((start + timedelta(days=i)).isoformat(), "steps", 5000, "apple_health"))
+    ledger.compute(con)
+    rows = {(r["day"], r["side"]): r["dose"] for r in con.execute(
+        "SELECT day, side, dose FROM tissue_load_day WHERE tissue_id = 'calf'")}
+    assert rows[("2026-10-05", "left")] == rows[("2026-10-05", "right")] == 40
+    assert con.execute("SELECT MAX(sets), MAX(reps) FROM tissue_load_day").fetchone()[:] == (0, 0)   # no sets to count
+    assert rows[("2026-10-11", "left")] == 40          # the gap takes the usual day
+    assert rows[("2026-09-03", "left")] == 40          # the 28 days before the record start at the usual day
+    assert ("2026-09-02", "left") not in rows
+    quads = con.execute("SELECT dose FROM tissue_load_day WHERE tissue_id = 'quads' AND day = '2026-10-05'"
+                        " AND side = 'left'").fetchone()[0]
+    assert abs(quads - 12) < 1e-9
+    ledger.compute(con, ledger.Settings(count_steps=False))
+    assert con.execute("SELECT COUNT(*) FROM tissue_load_day").fetchone()[0] == 0

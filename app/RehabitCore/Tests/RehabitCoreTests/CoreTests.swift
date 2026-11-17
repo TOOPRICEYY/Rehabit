@@ -36,7 +36,7 @@ final class LedgerParityTests: XCTestCase {
             let day: Day, tissue: String, side: Side
             let dose: Double, sets: Double, reps: Double, acute: Double, chronic: Double
         }
-        let sets: [VSet], tissueDays: [VDay]
+        let sets: [VSet], steps: [String: Double], tissueDays: [VDay]
     }
 
     func testDosesMatchTheService() throws {
@@ -45,7 +45,9 @@ final class LedgerParityTests: XCTestCase {
             LedgerSet(day: $0.day, exercise: $0.exercise, pattern: $0.pattern, side: $0.side, kind: $0.kind,
                       reps: $0.reps, holdSeconds: $0.holdSeconds, loadKg: $0.loadKg)
         }
-        let mine = Ledger().tissueDays(sets)
+        let steps = Dictionary(uniqueKeysWithValues: vectors.steps.map { (Day($0.key)!, $0.value) })
+        let ledger = Ledger()
+        let mine = ledger.tissueDays(sets + ledger.walkingSets(steps: steps))
         var byKey: [String: TissueDay] = [:]
         for d in mine { byKey["\(d.day)|\(d.tissue)|\(d.side.rawValue)"] = d }
         XCTAssertGreaterThan(vectors.tissueDays.count, 50)

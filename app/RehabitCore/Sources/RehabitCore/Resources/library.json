@@ -768,6 +768,48 @@
      "role": "assist"
     }
    ]
+  },
+  {
+   "id": "walking",
+   "name": "Walking (daily steps)",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "calf",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "achilles",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_med",
+     "share": 0.4,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "quads",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "hip_flexors",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.2,
+     "role": "assist"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.2,
+     "role": "assist"
+    }
+   ]
   }
  ],
  "catalogue": [

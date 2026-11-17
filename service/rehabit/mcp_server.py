@@ -89,8 +89,10 @@ class Tools:
 
     def get_tissue_load(self, tissue_id: str, side: str, start_day: str, end_day: str,
                         loaded_days_only: bool = True) -> list[dict]:
-        """Daily dose with acute (7-day) and chronic (28-day) averages for one tissue and side."""
-        sql = ("SELECT day, dose, sets, reps, acute, chronic FROM tissue_load_day"
+        """Daily dose with acute (7-day) and chronic (28-day) averages for one tissue and side.
+
+        Dose is in effective reps and includes daily steps for leg tissues; walking_dose is that part."""
+        sql = ("SELECT day, dose, walking_dose, sets, reps, acute, chronic FROM tissue_load_day"
                " WHERE tissue_id = ? AND side = ? AND day BETWEEN ? AND ?")
         if loaded_days_only:
             sql += " AND dose > 0"

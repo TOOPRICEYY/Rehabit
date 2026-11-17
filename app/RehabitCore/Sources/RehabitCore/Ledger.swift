@@ -10,6 +10,12 @@ import Foundation
 /// than the same percentage of extra reps. At the usual weight a dose reads as
 /// "effective reps" for that tissue.
 ///
+/// Daily steps count too, as the "walking" pattern (`walkingSets`): each leg
+/// takes half the steps, and every `stepsPerEffectiveRep` steps on a leg make
+/// one effective rep. Days off the wrist are filled with the median of the 28
+/// days before, and the 28 days before the first reading with the median of
+/// the first 28 readings, so neither reads as a change in load.
+///
 /// This is a port of the service's `ledger.py` and is held to the same numbers
 /// by a shared fixture. The values are starting settings, not measured constants.
 public struct LedgerSettings: Sendable {
@@ -20,6 +26,9 @@ public struct LedgerSettings: Sendable {
     public var chronicDays = 28.0
     public var minRatio = 0.25
     public var maxRatio = 3.0
+    /// Steps on one leg that count as one effective rep at usual weight.
+    public var stepsPerEffectiveRep = 100.0
+    public var countSteps = true
     public init() {}
 }
 
@@ -101,6 +110,40 @@ public struct Ledger: Sendable {
         max(0, set.kind == .hold ? (set.holdSeconds ?? 0) / settings.holdSecondsPerRep : (set.reps ?? 0))
     }
 
+    public static let walkingPattern = "walking"
+    public static let walkingName = "Walking (daily steps)"
+
+    private static func median(_ values: [Double]) -> Double {
+        let v = values.sorted(), m = v.count / 2
+        return v.count % 2 == 1 ? v[m] : (v[m - 1] + v[m]) / 2
+    }
+
+    /// Daily steps (the largest reading of each day) as one walking "set" a day
+    /// on both legs, in effective reps per leg.
+    public func walkingSets(steps: [Day: Double]) -> [LedgerSet] {
+        let readings = steps.filter { $0.value > 0 && $0.value.isFinite }
+        guard settings.countSteps, settings.stepsPerEffectiveRep > 0,
+              let first = readings.keys.min(), let last = readings.keys.max() else { return [] }
+        let warm = Ledger.median(readings.filter { $0.key.days(since: first) < 28 }.map(\.value))
+        var out: [LedgerSet] = []
+        var day = first.adding(-28)
+        while day <= last {
+            let value: Double
+            if let reading = readings[day] {
+                value = reading
+            } else if day < first {
+                value = warm
+            } else {
+                let before = (1...28).compactMap { readings[day.adding(-$0)] }
+                value = before.isEmpty ? warm : Ledger.median(before)
+            }
+            out.append(LedgerSet(day: day, exercise: Ledger.walkingName, pattern: Ledger.walkingPattern, side: .both,
+                                 kind: .reps, reps: value / 2 / settings.stepsPerEffectiveRep, holdSeconds: nil, loadKg: nil))
+            day = day.adding(1)
+        }
+        return out
+    }
+
     /// One record per mapped set, in day order. Sets with no pattern are left out.
     public func setDoses(_ sets: [LedgerSet]) -> [SetDose] {
         let ordered = sets.enumerated()
@@ -149,7 +192,8 @@ public struct Ledger: Sendable {
                 for side in record.set.side.bodySides {
                     var cell = daily[Key(tissue: link.tissue, side: side)]?[record.set.day] ?? Cell()
                     cell.dose += link.share * record.dose
-                    if link.role == "prime" {
+                    // Walking has no sets or reps to count.
+                    if link.role == "prime", record.set.pattern != Ledger.walkingPattern {
                         cell.sets += 1
                         cell.reps += record.effectiveReps
                     }
