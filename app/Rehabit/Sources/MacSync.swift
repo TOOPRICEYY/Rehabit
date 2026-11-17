@@ -25,7 +25,7 @@ final class MacSync {
 
     private init() {
         lastSync = UserDefaults.standard.object(forKey: Self.lastSyncKey) as? Date
-        folderName = (try? resolveFolder())?.lastPathComponent
+        folderName = (try? resolveFolder()).map(Self.displayName)
     }
 
     var isSetUp: Bool { UserDefaults.standard.data(forKey: Self.bookmarkKey) != nil }
@@ -37,7 +37,7 @@ final class MacSync {
         do {
             let bookmark = try folder.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil)
             UserDefaults.standard.set(bookmark, forKey: Self.bookmarkKey)
-            folderName = folder.lastPathComponent
+            folderName = Self.displayName(folder)
             lastError = nil
             syncNow(model)
         } catch {
@@ -93,6 +93,15 @@ final class MacSync {
             UserDefaults.standard.set(fresh, forKey: Self.bookmarkKey)
         }
         return url
+    }
+
+    /// The folder's name as Files shows it: the top of iCloud Drive is stored
+    /// as "com~apple~CloudDocs", which means nothing to anyone.
+    static func displayName(_ folder: URL) -> String {
+        let name = folder.lastPathComponent
+        if name == "com~apple~CloudDocs" { return "iCloud Drive" }
+        if folder.deletingLastPathComponent().lastPathComponent == "com~apple~CloudDocs" { return "iCloud Drive › \(name)" }
+        return name
     }
 
     /// A coordinated, atomic replace, so iCloud and the Mac never see half a file.
