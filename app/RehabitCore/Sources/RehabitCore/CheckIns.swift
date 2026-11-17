@@ -10,6 +10,10 @@ public struct CheckInItem: Identifiable, Equatable, Sendable {
     /// What "unchanged" would record: the last reading, if it is recent
     /// enough to stand for today. Nil when a number has to be given.
     public let unchangedValue: Double?
+    /// For a follow-up to a session: the highest pain recorded on a set of
+    /// that session that loaded this injury. Pain under load is not a reading
+    /// of how the injury is, so it is shown beside the question, never copied.
+    public let sessionPain: Double?
     public var id: String { check.id }
 }
 
@@ -41,6 +45,8 @@ public struct SessionSettling: Equatable, Sendable {
     public let baseline: Double?
     /// Readings from the end of the session to 60 hours after, in order, whatever prompted them.
     public let readings: [PainCheck]
+    /// The highest pain recorded on a set of the session that loaded the injury. Nil if none was.
+    public let during: Double?
     /// Questions asked in that time, answered or not. Flare-ups are readings but were not asked.
     public let asked: Int
     /// Nil without a baseline to settle back to.
@@ -199,9 +205,20 @@ extension AppModel {
     public var checkInRound: [CheckInItem] {
         dueChecks.compactMap { check in
             guard let injury = injuries.first(where: { $0.id == check.injuryID }) else { return nil }
+            let workout = check.workoutID.flatMap { id in workouts.first { $0.id == id } }
             return CheckInItem(check: check, injury: injury, last: lastReading(injuryID: injury.id),
-                               unchangedValue: unchangedSource(injuryID: injury.id)?.pain)
+                               unchangedValue: unchangedSource(injuryID: injury.id)?.pain,
+                               sessionPain: workout.flatMap { setPain(in: sets(of: $0), for: injury) })
         }.sorted { ($0.injury.label, $0.id) < ($1.injury.label, $1.id) }
+    }
+
+    /// The highest pain recorded on sets that load an injury (a tissue share of
+    /// 0.25 or more, on its side), whether or not it is still active.
+    func setPain(in sets: [WorkoutSet], for injury: Injury) -> Double? {
+        var loaded = injury
+        loaded.resolvedOn = nil
+        return sets.filter { $0.pain != nil && !schedule.injuriesLoaded(by: [$0], injuries: [loaded], library: library).isEmpty }
+            .compactMap(\.pain).max()
     }
 
     /// A question can be answered while it is still there: stored and not
@@ -335,6 +352,7 @@ extension AppModel {
             }.max { $0.dueAt < $1.dueAt }
             let baseline = before?.pain
             return SessionSettling(injury: injury, baseline: baseline, readings: readings,
+                                   during: setPain(in: sets(of: workout), for: injury),
                                    asked: after.filter { $0.moment != .flare }.count,
                                    summary: baseline.map { SettlingSummary(checks: after, baseline: $0, sessionEnd: end) })
         }.sorted { $0.injury.label < $1.injury.label }

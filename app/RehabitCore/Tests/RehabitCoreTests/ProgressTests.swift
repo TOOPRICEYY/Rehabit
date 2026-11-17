@@ -237,9 +237,9 @@ final class ProgressTests: XCTestCase {
     func testSymmetryFallsBackToHoldsAndNeverMixesMeasures() throws {
         let model = try makeModel()
         let calf = "Single-Leg Calf Raise (Dumbbell)"
-        // Loaded holds: 30 s x 10 kg against 45 s x 10 kg.
+        // Loaded holds at different loads: 30 s x 10 kg against 45 s x 20 kg.
         try log(model, on: "2026-11-02", [Entry(name: calf, side: .left, load: 10, hold: 30),
-                                          Entry(name: calf, side: .right, load: 10, hold: 45)])
+                                          Entry(name: calf, side: .right, load: 20, hold: 45)])
         // A loaded hold against one with no load typed: nothing to compare.
         try log(model, on: "2026-11-04", [Entry(name: calf, side: .left, load: 10, hold: 30),
                                           Entry(name: calf, side: .right, hold: 40)])
@@ -254,13 +254,19 @@ final class ProgressTests: XCTestCase {
         XCTAssertEqual(points.count, 3)
         XCTAssertEqual(points[0].measure, .holdLoad)
         XCTAssertEqual(points[0].left, 300)
-        XCTAssertEqual(points[0].right, 450)
-        XCTAssertEqual(points[0].ratio(injured: .left)!, 2.0 / 3, accuracy: 1e-9)
+        XCTAssertEqual(points[0].right, 900)
+        XCTAssertEqual(points[0].ratio(injured: .left)!, 1.0 / 3, accuracy: 1e-9)
         for point in points.dropFirst() {
             XCTAssertNil(point.measure)
             XCTAssertNil(point.left)
             XCTAssertNil(point.ratio(injured: .left))
         }
+        // Held at the same load on both sides: the seconds are compared, not load x seconds.
+        try log(model, on: "2026-11-09", [Entry(name: "Isometric Leg Extension (Machine)", side: .left, load: 20, hold: 30),
+                                          Entry(name: "Isometric Leg Extension (Machine)", side: .right, load: 20, hold: 45)])
+        let equal = try XCTUnwrap(model.symmetry(exercise: "Isometric Leg Extension (Machine)").first)
+        XCTAssertEqual(equal.measure, .holdSeconds)
+        XCTAssertEqual(equal.left, 30); XCTAssertEqual(equal.right, 45)
         let plank = try XCTUnwrap(model.symmetry(exercise: "Side Plank").first)
         XCTAssertEqual(plank.measure, .holdSeconds)
         XCTAssertEqual(plank.ratio(injured: .left)!, 0.75, accuracy: 1e-9)

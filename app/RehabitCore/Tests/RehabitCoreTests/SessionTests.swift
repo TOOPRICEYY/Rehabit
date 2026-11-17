@@ -75,6 +75,30 @@ final class SessionTests: XCTestCase {
         XCTAssertNil(try decoder.decode(WorkoutSet.self, from: Data(old.utf8)).completedAt)
     }
 
+    func testRowsLeftBlankAreNotKeptAndASetsPainShowsBesideItsFollowUp() throws {
+        let m = try model()
+        m.save(Injury(label: "Calf", side: .left, onset: Day("2026-05-01")!, tissues: ["calf"]))
+        m.startWorkout()
+        var left = try add(m, "Single-Leg Calf Raise (Dumbbell)", side: .left, load: 10)
+        left.pain = 3
+        m.update(left)
+        _ = m.addExercise(try entry("Lateral Raise (Dumbbell)", m), mode: .together)       // added, never filled in
+        XCTAssertTrue(m.activeSets[1].isBlank)
+        m.finishWorkout()
+        XCTAssertEqual(m.sets(of: m.workouts[0]).map(\.exercise), ["Single-Leg Calf Raise (Dumbbell)"])
+        XCTAssertEqual(m.weekSummary().workingSets, 1)
+        let item = try XCTUnwrap(m.checkInRound.first)
+        XCTAssertEqual(item.check.moment, .afterSession)
+        XCTAssertEqual(item.sessionPain, 3)                       // shown beside the question
+        XCTAssertNil(item.last); XCTAssertNil(item.unchangedValue) // but it is not a reading to copy
+        // A workout of nothing but blank rows is not kept at all.
+        clock.addTimeInterval(7200)
+        m.startWorkout()
+        _ = m.addExercise(try entry("Lateral Raise (Dumbbell)", m), mode: .together)
+        m.finishWorkout()
+        XCTAssertEqual(m.workouts.count, 1); XCTAssertNil(m.active)
+    }
+
     func testRestRunsFromTheLastSetMarkedDone() throws {
         let m = try model()
         m.startWorkout()

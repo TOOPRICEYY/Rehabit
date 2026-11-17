@@ -101,7 +101,7 @@ public struct Advisor: Sendable {
                 for injury in injuries where injury.isActive && injury.tissues.contains(link.tissue)
                     && (injury.side == side || injury.side == .both) {
                     out.append(Advice(kind: .injuredTissue,
-                                      detail: "Loads \(where_): \(injury.label). Record pain for this set."))
+                                      detail: "Loads \(where_): \(injury.label). Record how the \(side.rawValue) side feels on each set."))
                 }
             }
         }

@@ -58,6 +58,8 @@ final class InjuryReportTests: XCTestCase {
         XCTAssertEqual(monday.load, 10, accuracy: 0.001)                    // ten reps at the usual load, share 1.0
         XCTAssertEqual(monday.otherLoad ?? 0, 10, accuracy: 0.001)
         XCTAssertEqual(monday.painLow, 1); XCTAssertEqual(monday.painHigh, 1.5)
+        XCTAssertEqual(monday.setPain, 2)                                   // recorded on the right set, under load
+        XCTAssertEqual(m.settling(for: m.workouts[1]).first?.during, 2)
         let tuesday = try XCTUnwrap(line.first { $0.day == Day("2026-11-03") })
         XCTAssertFalse(tuesday.trained); XCTAssertEqual(tuesday.load, 0)
         XCTAssertEqual(tuesday.painHigh, 3); XCTAssertEqual(tuesday.flare, 6)       // the flare is not an answer
@@ -82,7 +84,7 @@ final class InjuryReportTests: XCTestCase {
         let text = m.reportText(for: quad, days: 14)
         for needle in ["# Right quad strain", "Right side; Quadriceps. Began around 2026-05-03",
                        "Period: 2026-10-28 to 2026-11-10 (14 days).",
-                       "- Flare-ups logged: 1.", "  - 2026-11-03: 6 (stairs; sharp)",
+                       "- Flare-ups logged: 1.", "- Pain recorded during sets that load it: on 1 day, highest 2 on 2026-11-02.", "  - 2026-11-03: 6 (stairs; sharp)",
                        "| 2026-11-03 | 10 | 10 |", "| 2026-11-10 | 15.6 | 10 |",
                        "Top set went from 20 lb x 10 to 25 lb x 10. Other side, latest: 60 lb x 10. Highest pain during a set: 2.",
                        "42% of the other side (estimated one-rep max) on 2026-11-09; 33% at the start of the period.",
@@ -105,7 +107,7 @@ final class InjuryReportTests: XCTestCase {
         XCTAssertTrue(report.days.allSatisfy { $0.otherLoad == nil && $0.load == 0 })
         let text = m.reportText(for: both)
         XCTAssertTrue(text.contains("Both sides; Spinal erectors."))
-        XCTAssertTrue(text.contains("No pain readings in this period."))
+        XCTAssertTrue(text.contains("No pain questions were answered in this period."))
         XCTAssertTrue(text.contains("None logged in this period."))
         XCTAssertTrue(text.contains("No session loaded this injury in the period."))
     }

@@ -647,16 +647,16 @@ final class AppModelStressTests: XCTestCase {
         XCTAssertEqual(model.active?.id, first)
     }
 
-    /// Design: a set added and left blank (no reps, no load) still counts as
-    /// loading the injury, so pain checks are scheduled for a session in which
-    /// nothing was done.
-    func testDesignABlankSetStillSchedulesPainChecks() throws {
+    /// A set added and left blank (no reps, no seconds) was not done: it is not
+    /// kept, loads nothing, and a session of nothing else is not kept either.
+    func testABlankSetIsNotKeptAndSchedulesNothing() throws {
         let model = try makeModel()
         model.save(quad())
         model.startWorkout()
         _ = model.addSet(entry("Single-Leg Extension (Machine)", model))
-        XCTAssertEqual(model.finishWorkout().count, 1)
-        XCTAssertEqual(model.workouts.count, 1)
+        XCTAssertEqual(model.finishWorkout().count, 0)
+        XCTAssertEqual(model.workouts.count, 0)
+        XCTAssertTrue(model.checks.isEmpty)
     }
 
     /// The weighted pull-up end to end with body weight not yet entered.

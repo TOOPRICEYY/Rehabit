@@ -267,7 +267,8 @@ extension ExerciseSession {
         let ll = left.longestHoldLoadKg.flatMap { $0 > 0 ? $0 : nil }
         let rl = right.longestHoldLoadKg.flatMap { $0 > 0 ? $0 : nil }
         switch (ll, rl) {
-        case let (l?, r?): return (.holdLoad, ls * l, rs * r)
+        // At the same load the seconds say it all; "load x seconds" is only for unequal loads.
+        case let (l?, r?): return abs(l - r) < 0.05 ? (.holdSeconds, ls, rs) : (.holdLoad, ls * l, rs * r)
         case (nil, nil): return (.holdSeconds, ls, rs)
         default: return nil   // a loaded hold against an unloaded one says nothing about balance
         }

@@ -322,6 +322,8 @@ public final class AppModel {
     @discardableResult
     public func finishWorkout(removingUnfinished: Bool = false) -> [PainCheck] {
         if removingUnfinished { for set in unfinishedSets { removeSet(id: set.id) } }
+        // Rows added and never filled in were not done: they are not kept.
+        for set in activeSets where set.isBlank { removeSet(id: set.id) }
         guard var workout = active else { return [] }
         restSkippedAt = nil
         if activeSets.isEmpty {

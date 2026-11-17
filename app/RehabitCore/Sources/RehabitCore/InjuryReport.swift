@@ -15,6 +15,9 @@ public struct InjuryDay: Identifiable, Equatable, Sendable {
     public let painHigh: Double?
     /// The worst flare-up logged that day, if any.
     public let flare: Double?
+    /// The highest pain recorded on a set that loaded the injury that day:
+    /// pain under load, which is not the same measure as an answer to a question.
+    public let setPain: Double?
     public var id: Day { day }
 }
 
@@ -71,12 +74,16 @@ extension AppModel {
             if injuredSides.contains(d.side) { load[d.day] = max(load[d.day] ?? 0, d.dose) }
             if d.side == otherSide { other[d.day] = max(other[d.day] ?? 0, d.dose) }
         }
-        var trained = Set<Day>()
+        var trained = Set<Day>(), underLoad: [Day: Double] = [:]
         for workout in workouts where window.end.days(since: workout.startDay) < span {
             var loaded = injury
             loaded.resolvedOn = nil
-            if !schedule.injuriesLoaded(by: sets(of: workout), injuries: [loaded], library: library).isEmpty {
+            let sets = sets(of: workout)
+            if !schedule.injuriesLoaded(by: sets, injuries: [loaded], library: library).isEmpty {
                 trained.insert(workout.startDay)
+                if let pain = setPain(in: sets, for: injury) {
+                    underLoad[workout.startDay] = max(underLoad[workout.startDay] ?? 0, pain)
+                }
             }
         }
         var answers: [Day: [Double]] = [:], flares: [Day: Double] = [:]
@@ -89,7 +96,7 @@ extension AppModel {
             let day = window.end.adding(back - span + 1)
             return InjuryDay(day: day, load: load[day] ?? 0, otherLoad: otherSide == nil ? nil : (other[day] ?? 0),
                              trained: trained.contains(day), painLow: answers[day]?.min(), painHigh: answers[day]?.max(),
-                             flare: flares[day])
+                             flare: flares[day], setPain: underLoad[day])
         }
     }
 
@@ -201,8 +208,9 @@ extension AppModel {
         out.append("Period: \(r.start) to \(r.end) (\(r.days.count) days).")
         out.append("")
         out.append("## Pain (0 to 10)")
+        let underLoad = r.days.compactMap { day in day.setPain.map { (day.day, $0) } }
         if r.asked == 0 && r.flares.isEmpty {
-            out.append("No pain readings in this period.")
+            out.append("No pain questions were answered in this period.")
         } else {
             out.append("- Questions answered: \(r.answered) of \(r.asked).")
             switch (r.recentPain, r.earlierPain) {
@@ -225,6 +233,9 @@ extension AppModel {
                     out.append("  - \(Day(flare.dueAt, in: localZone)): \(n(flare.pain ?? 0))\(about.isEmpty ? "" : " (\(about))")")
                 }
             }
+        }
+        if let worst = underLoad.max(by: { $0.1 < $1.1 }) {
+            out.append("- Pain recorded during sets that load it: on \(underLoad.count) day\(underLoad.count == 1 ? "" : "s"), highest \(n(worst.1)) on \(worst.0).")
         }
         out.append("")
         out.append("## Load on the injured tissue")

@@ -122,6 +122,12 @@ public struct WorkoutSet: Record, Equatable {
     public var updatedAt: Date
     public var parentID: String? { workoutID }
     public var isDone: Bool { completedAt != nil }
+    /// Nothing was entered: no reps or seconds, no pain, no note, not marked
+    /// done. A row added and left alone, which is not a set that was done.
+    public var isBlank: Bool {
+        let count = kind == .hold ? holdSeconds : reps
+        return (count ?? 0) <= 0 && pain == nil && notes.isEmpty && !isDone
+    }
     public var day: Day? { workoutDay }
 
     public init(id: String = UUID().uuidString, workout: Workout, position: Int, exercise: String,
