@@ -64,33 +64,6 @@ struct WorkoutsView: View {
     }
 }
 
-struct WorkoutDetailView: View {
-    @Environment(AppModel.self) private var model
-    let workout: Workout
-
-    var body: some View {
-        List {
-            ForEach(ExerciseGroup.groups(model.sets(of: workout))) { group in
-                Section(group.title) {
-                    ForEach(group.sets) { set in
-                        VStack(alignment: .leading) {
-                            Text(Format.summary(set))
-                            if set.sideInferred == true && set.side != .both {
-                                Text("\(Format.side(set.side).lowercased()) side, inferred")
-                                    .font(.caption2).foregroundStyle(.secondary)
-                            }
-                            if !set.notes.isEmpty {
-                                Text(set.notes).font(.caption).foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        .navigationTitle(workout.title)
-    }
-}
-
 /// Consecutive sets of one exercise on one side, shown as one block.
 struct ExerciseGroup: Identifiable {
     let id: String
