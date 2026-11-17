@@ -45,6 +45,16 @@ struct RestReadout: View {
 enum RestNotice {
     static let id = "rest-over"
 
+    static func askPermissionIfNeeded() {
+        guard !Demo.isRunning else { return }
+        let center = UNUserNotificationCenter.current()
+        center.getNotificationSettings { settings in
+            if settings.authorizationStatus == .notDetermined {
+                center.requestAuthorization(options: [.alert, .sound]) { _, _ in }
+            }
+        }
+    }
+
     static func schedule(_ rest: RestTimer?) {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [id])

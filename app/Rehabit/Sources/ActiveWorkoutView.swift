@@ -22,6 +22,7 @@ struct ActiveWorkoutView: View {
     @State private var picker: PickerPurpose?
     @State private var confirmingDiscard = false
     @State private var confirmingUnfinished = false
+    @State private var keyboardUp = false
 
     var body: some View {
         NavigationStack {
@@ -59,7 +60,10 @@ struct ActiveWorkoutView: View {
             .navigationBarTitleDisplayMode(.inline)
             .keyboardStepBar()
             .scrollDismissesKeyboard(.interactively)
-            .safeAreaInset(edge: .bottom) { bottomBar }
+            // While typing, the keyboard's own bar (steps and Done) takes this place.
+            .safeAreaInset(edge: .bottom) { if !keyboardUp { bottomBar } }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in keyboardUp = true }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in keyboardUp = false }
             .onChange(of: model.rest) { _, rest in RestNotice.schedule(rest) }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -102,7 +106,8 @@ struct ActiveWorkoutView: View {
                     }
                 }
             }
-            .onAppear { title = model.active?.title ?? "" }
+            // "Workout" is the stand-in name: show it as the placeholder, so typing replaces it.
+            .onAppear { title = model.active.map { $0.title == "Workout" ? "" : $0.title } ?? "" }
         }
     }
 
@@ -116,7 +121,7 @@ struct ActiveWorkoutView: View {
     private var bottomBar: some View {
         HStack(spacing: 12) {
             TimelineView(.periodic(from: .now, by: 1)) { context in
-                if let rest = model.rest {
+                if let rest = model.rest, context.date.timeIntervalSince(rest.endsAt) < 30 {
                     RestReadout(rest: rest, now: context.date)
                 } else {
                     let since = model.lastActivity.map { max(0, context.date.timeIntervalSince($0)) } ?? 0
