@@ -223,7 +223,7 @@ extension AppModel {
         let today = Day(clock, in: localZone), first = today.adding(-max(1, days) + 1)
         var out: [RuleCheck] = []
         // Newest first by when they began: two sessions of one day are in the order they were done.
-        let recent = workouts.filter { $0.startDay >= first && $0.startDay <= today }
+        let recent = workouts.filter { $0.startDay >= max(first, injury.earliestOnset) && $0.startDay <= today }
             .sorted { ($0.start, $0.id) > ($1.start, $1.id) }
         for workout in recent {
             guard let end = workout.end, let settling = settling(for: workout).first(where: { $0.injury.id == injury.id })
@@ -375,11 +375,15 @@ extension AppModel {
     }
 
     /// Ticks a milestone by hand, or takes the tick away.
-    public func setMilestone(_ id: String, done: Bool, for injury: Injury) {
+    /// `day` is the day it was reached, today when not given; never a day to come.
+    public func setMilestone(_ id: String, done: Bool, for injury: Injury, on day: Day? = nil) {
         guard var current = injuries.first(where: { $0.id == injury.id }), var plan = current.plan,
               let at = plan.milestones.firstIndex(where: { $0.id == id }) else { return }
-        let day: Day? = done ? Day(clock, in: localZone) : nil
-        guard plan.milestones[at].doneOn != day, !(done && plan.milestones[at].doneOn != nil) else { return }
+        let today = Day(clock, in: localZone)
+        let chosen = day.map { min($0, today) }
+        let day: Day? = done ? (chosen ?? today) : nil
+        // Ticking again with no day given keeps the first day; a day given moves it.
+        guard plan.milestones[at].doneOn != day, !(done && chosen == nil && plan.milestones[at].doneOn != nil) else { return }
         plan.milestones[at].doneOn = day
         current.plan = plan
         save(current)

@@ -120,10 +120,16 @@ extension WorkoutSet {
         reps = other.reps; holdSeconds = other.holdSeconds; kind = other.kind; tempo = other.tempo
     }
 
-    public mutating func copyPrescription(from other: WorkoutSet) {
+    /// With `unit`, the load is turned into that unit (to the half kilogram or
+    /// the pound) instead of bringing the other set's unit with it.
+    public mutating func copyPrescription(from other: WorkoutSet, in unit: WeightUnit? = nil) {
         loadValue = other.loadValue; reps = other.reps; holdSeconds = other.holdSeconds
         kind = other.kind; convention = other.convention; loadUnit = other.loadUnit
         tempo = other.tempo
+        if let unit, unit != other.loadUnit {
+            loadValue = other.loadValue.map { AppModel.rounded($0 * other.loadUnit.kilograms / unit.kilograms, in: unit) }
+            loadUnit = unit
+        }
     }
 }
 
@@ -445,8 +451,9 @@ extension AppModel {
         return index < previous.count ? previous[index] : nil
     }
 
-    /// When a set of the workout in progress was last added or changed.
-    public var lastActivity: Date? { activeSets.map(\.updatedAt).max() ?? active?.start }
+    /// When a set of the workout in progress was last marked done; before any
+    /// is, when the workout began. A note or a changed number does not restart it.
+    public var lastActivity: Date? { activeSets.compactMap(\.completedAt).max() ?? active?.start }
 
     /// Statements about any set of an exercise, each said once. A jump in
     /// load or a return after a layoff is said once per side, for the set it

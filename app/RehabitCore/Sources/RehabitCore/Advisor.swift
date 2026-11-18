@@ -43,8 +43,11 @@ public struct Advisor: Sendable {
     public init(ledger: Ledger = Ledger()) { self.ledger = ledger }
 
     /// `stepKg` is the usual jump in load for this exercise, where it is known.
+    /// `earlierTodayKg` is the heaviest set of the same exercise and side done
+    /// earlier in the same session: the third set is not a jump from last week
+    /// when the second set already went up.
     public func advice(for candidate: LedgerSet, history: [LedgerSet], injuries: [Injury] = [],
-                       stepKg: Double? = nil) -> [Advice] {
+                       stepKg: Double? = nil, earlierTodayKg: Double? = nil) -> [Advice] {
         var out: [Advice] = []
         let t = thresholds
         let library = ledger.library
@@ -53,7 +56,9 @@ public struct Advisor: Sendable {
 
         if let load = candidate.loadKg, load > 0 {
             let windowStart = candidate.day.adding(-ledger.settings.referenceWindowDays)
-            if let reference = sameExercise.filter({ $0.day >= windowStart }).compactMap(\.loadKg).max(),
+            let past = sameExercise.filter({ $0.day >= windowStart }).compactMap(\.loadKg).max()
+            let today = earlierTodayKg.flatMap { $0 > 0 ? $0 : nil }
+            if let reference = [past, today].compactMap({ $0 }).max(),
                load > reference * t.intensityJump {
                 let oneStep = stepKg.map { $0 > 0 && load <= reference + $0 * 1.001 } ?? false
                 if !oneStep || load > reference * t.oneStepJump {

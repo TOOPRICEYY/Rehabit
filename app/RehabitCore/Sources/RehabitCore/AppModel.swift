@@ -351,8 +351,13 @@ public final class AppModel {
     public func advice(for set: WorkoutSet) -> [Advice] {
         let others = ledgerHistory().filter { $0.id != set.id }.map(\.set)
         let step = loadStep(for: set.exercise, unit: set.loadUnit) * set.loadUnit.kilograms
+        // The sets of this exercise and side already done in the same workout.
+        let ticking = set.workoutID == active?.id && usesDoneMarks
+        let today = allSets.filter { $0.workoutID == set.workoutID && $0.id != set.id && $0.position < set.position
+            && $0.side == set.side && AppModel.normal($0.exercise) == AppModel.normal(set.exercise) && (!ticking || $0.isDone) }
+            .compactMap { ledger.ledgerSet($0, profile: profile(on: $0.workoutDay)).loadKg }.max()
         return advisor.advice(for: ledger.ledgerSet(set, profile: profile(on: set.workoutDay)), history: others,
-                              injuries: injuries, stepKg: step)
+                              injuries: injuries, stepKg: step, earlierTodayKg: today)
     }
 
     /// Ends the workout and schedules pain checks for each injury it loaded.

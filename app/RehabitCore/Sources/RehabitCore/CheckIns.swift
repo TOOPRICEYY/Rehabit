@@ -346,8 +346,13 @@ extension AppModel {
             let after = AppModel.standing(window) + window.filter { $0.moment == .flare }
             let readings = after.filter { $0.pain != nil }.sorted { $0.dueAt < $1.dueAt }
             // Going in: the last question due before the session began and answered before it ended.
+            // A reading the person logged themselves in the quarter hour before is one too: logged on the way in,
+            // it says how it was going in. A flare-up earlier in the day stays a bad moment, not a level.
             let before = mine.filter { check in
-                guard check.pain != nil, check.moment != .flare, let at = check.answeredAt else { return false }
+                guard check.pain != nil, let at = check.answeredAt else { return false }
+                if check.moment == .flare {
+                    return check.dueAt <= workout.start && workout.start.timeIntervalSince(check.dueAt) <= 15 * 60
+                }
                 return check.dueAt <= workout.start && at <= end && workout.start.timeIntervalSince(check.dueAt) <= 3 * 86_400
             }.max { $0.dueAt < $1.dueAt }
             let baseline = before?.pain

@@ -11,8 +11,9 @@ public struct CalendarDay: Identifiable, Equatable, Sendable {
     public let painHigh: Double?
     /// Highest pain recorded on a set that day. Nil when none was.
     public let setPain: Double?
-    /// Flare-ups logged that day.
+    /// Flare-ups logged that day, and the worst of them. A flare-up is not in `painHigh`.
     public let flares: Int
+    public let flareHigh: Double?
     public var id: Day { day }
     public var isEmpty: Bool { workouts.isEmpty && painHigh == nil && flares == 0 }
 }
@@ -35,11 +36,11 @@ extension AppModel {
             if let pain = set.pain { entry.pain = max(entry.pain ?? pain, pain) }
             sets[set.workoutID] = entry
         }
-        var answers: [Day: Double] = [:], flares: [Day: Int] = [:]
+        var answers: [Day: Double] = [:], flares: [Day: Int] = [:], worst: [Day: Double] = [:]
         for check in checks where check.pain != nil {
             let day = Day(check.answeredAt ?? check.dueAt, in: localZone)
             guard day >= first, day <= last, let pain = check.pain else { continue }
-            if check.moment == .flare { flares[day, default: 0] += 1 }
+            if check.moment == .flare { flares[day, default: 0] += 1; worst[day] = max(worst[day] ?? pain, pain) }
             else { answers[day] = max(answers[day] ?? pain, pain) }
         }
         return (0...last.days(since: first)).map { offset in
@@ -48,7 +49,7 @@ extension AppModel {
             return CalendarDay(day: day, workouts: workouts,
                                workingSets: workouts.reduce(0) { $0 + (sets[$1.id]?.count ?? 0) },
                                painHigh: answers[day], setPain: workouts.compactMap { sets[$0.id]?.pain }.max(),
-                               flares: flares[day] ?? 0)
+                               flares: flares[day] ?? 0, flareHigh: worst[day])
         }
     }
 

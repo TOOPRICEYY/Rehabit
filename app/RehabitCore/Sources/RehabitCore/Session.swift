@@ -56,8 +56,9 @@ extension AppModel {
 
     /// Ends the hold being timed and saves the seconds actually held, to the
     /// half second. Kept from the clock, so time spent with the phone locked counts.
-    /// `asPlanned` saves the target instead when the hold ran at least that long:
-    /// stopping a 45 second hold a moment late is still a 45 second hold.
+    /// `asPlanned` saves the target when the hold ran that long and no more than
+    /// a tenth over it, two seconds at most: stopping a 45 second hold a moment
+    /// late is still a 45 second hold, and 9 seconds for a planned 5 is 9.
     @discardableResult
     public func stopHold(asPlanned: Bool = true) -> Bool {
         guard let run = holdRun else { return false }
@@ -65,7 +66,7 @@ extension AppModel {
         // The set must still be there and still be of the exercise that was being held.
         guard let set = activeSets.first(where: { $0.id == run.setID }), set.exercise == run.exercise else { return false }
         var held = min(run.elapsed(at: clock), 3600)
-        if asPlanned, let target = run.target, held >= target, held <= target + 5 { held = target }
+        if asPlanned, let target = run.target, held >= target, held <= target + min(2, target * 0.1) { held = target }
         finishHold(set, seconds: held)
         return activeSets.first { $0.id == set.id }?.isDone ?? false
     }
@@ -161,7 +162,7 @@ extension AppModel {
     /// A warm-up the person typed and did not tick is not one of them: only a
     /// warm-up laid out from a routine and left untouched is.
     public var unfinishedSets: [WorkoutSet] {
-        usesDoneMarks ? activeSets.filter { !$0.isDone && (!$0.isWarmup || $0.planned == true) } : []
+        activeSets.filter { !$0.isDone && ($0.planned == true || (usesDoneMarks && !$0.isWarmup)) }
     }
 
     /// True when sets of the workout in progress count only once marked done:
@@ -291,7 +292,13 @@ extension AppModel {
         // Stepping down from a load not entered leaves it not entered: unknown is not zero.
         if load != 0, set.loadValue != nil || load > 0 {
             let step = loadStep(for: set.exercise, unit: set.loadUnit)
-            out.loadValue = max(0, (set.loadValue ?? 0) + Double(load) * step)
+            let barbell = set.convention == .total && set.exercise.lowercased().contains("barbell")
+            if barbell, (set.loadValue ?? 0) <= 0, load > 0 {
+                // Nothing lighter than the empty bar can be on it.
+                out.loadValue = Plates.bar(set.loadUnit) + Double(load - 1) * step
+            } else {
+                out.loadValue = max(0, (set.loadValue ?? 0) + Double(load) * step)
+            }
         }
         if count != 0 {
             if set.kind == .hold {

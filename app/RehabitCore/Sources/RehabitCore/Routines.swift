@@ -21,6 +21,13 @@ extension AppModel {
         reload()
     }
 
+    /// The routine with this name, case and outer spaces aside: for offering
+    /// to replace it instead of saving a second one beside it.
+    public func routine(named name: String) -> Routine? {
+        let wanted = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return routines.first { $0.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == wanted }
+    }
+
     public func deleteRoutine(id: String) {
         attempt { try removeRoutine(id: id) }
         reload()
@@ -40,7 +47,8 @@ extension AppModel {
                                unilateral: entry.unilateral || block.mode != .together, kind: sample.kind,
                                mode: block.mode.rawValue, rounds: rounds.filter { !$0.isWarmup }.count,
                                warmups: rounds.filter(\.isWarmup).count, restSeconds: own,
-                               group: groups.firstIndex { $0.contains(block.exercise) })
+                               group: groups.firstIndex { $0.contains(block.exercise) },
+                               tempo: block.sets.first { !$0.isWarmup && $0.tempo != nil }?.tempo)
         }
         return Routine(name: name ?? workout.title, items: items, updatedAt: clock)
     }
