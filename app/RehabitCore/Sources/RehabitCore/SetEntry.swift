@@ -113,6 +113,13 @@ extension WorkoutSet {
                 Double(LoadConvention.allCases.firstIndex(of: convention) ?? 0), loadUnit == .kg ? 1 : 0, phases]
     }
 
+    /// The reps or seconds and how they are done; not the weight.
+    public var counts: [Double?] { [reps, holdSeconds, kind == .hold ? 1 : 0, prescription.last ?? nil] }
+
+    public mutating func copyCounts(from other: WorkoutSet) {
+        reps = other.reps; holdSeconds = other.holdSeconds; kind = other.kind; tempo = other.tempo
+    }
+
     public mutating func copyPrescription(from other: WorkoutSet) {
         loadValue = other.loadValue; reps = other.reps; holdSeconds = other.holdSeconds
         kind = other.kind; convention = other.convention; loadUnit = other.loadUnit
@@ -153,6 +160,20 @@ extension AppModel {
 
     public func setLinked(_ linked: Bool, for exercise: String) { linkOverrides[exercise] = linked }
 
+    /// True when this exercise's linked sides share reps or seconds and not weight.
+    public func linksCountsOnly(_ exercise: String) -> Bool { active?.linkCountsOnly?.contains(exercise) ?? false }
+
+    /// Links the sides for reps or seconds only (and links them, if they were
+    /// not), or goes back to linking the weight too.
+    public func setLinkCountsOnly(_ on: Bool, for exercise: String) {
+        changeActive { workout in
+            var names = (workout.linkCountsOnly ?? []).filter { $0 != exercise }
+            if on { names.append(exercise) }
+            workout.linkCountsOnly = names.isEmpty ? nil : names
+        }
+        if on { setLinked(true, for: exercise) }
+    }
+
     /// The mode a newly added exercise starts in.
     public func startingMode(for exercise: CatalogueExercise) -> SideMode {
         exercise.unilateral ? .perSide : .together
@@ -180,7 +201,10 @@ extension AppModel {
             // point for it. A linked right side that has drifted follows the left.
             let empty = added[1].loadValue == nil && added[1].reps == nil && added[1].holdSeconds == nil
             let injured = injuredSides(for: exercise).contains(added[1].side)
-            if ((empty && !injured) || isLinked(exercise.name)) && added[1].prescription != added[0].prescription {
+            if isLinked(exercise.name), linksCountsOnly(exercise.name) {
+                // Linked for reps only: the right keeps the weight it came with.
+                added[1].copyCounts(from: added[0])
+            } else if ((empty && !injured) || isLinked(exercise.name)) && added[1].prescription != added[0].prescription {
                 added[1].copyPrescription(from: added[0])
             }
             for set in added { update(set) }
@@ -204,6 +228,12 @@ extension AppModel {
         update(set)
         guard let before, set.prescription != before.prescription, let partner,
               var other = activeSets.first(where: { $0.id == partner.id }), isLinked(set.exercise) else { return }
+        if linksCountsOnly(set.exercise) {
+            // Only a change to the reps or seconds crosses over; each side's weight is its own.
+            guard set.counts != before.counts, other.counts != set.counts else { return }
+            if other.isDone { setLinked(false, for: set.exercise) } else { other.copyCounts(from: set); update(other) }
+            return
+        }
         guard other.prescription != set.prescription else { return }
         if other.isDone {
             setLinked(false, for: set.exercise)

@@ -142,3 +142,43 @@ final class SimulatorRoundTwoRegressionTests: XCTestCase {
         XCTAssertEqual(report.weeklyLoad.count, 1, "weeks before the first record were shown as weeks of no load")
     }
 }
+
+extension SimulatorRoundTwoRegressionTests {
+    func testSidesCanBeLinkedForRepsOnly() throws {
+        let m = try model()
+        let leg = try entry("Single-Leg Extension (Machine)", m)
+        m.startWorkout()
+        let pair = m.addRound(leg, sides: [.left, .right])
+        var left = pair[0], right = pair[1]
+        left.loadValue = 60; left.reps = 10; m.update(left)
+        right.loadValue = 20; right.reps = 10; m.update(right)
+        m.setLinkCountsOnly(true, for: leg.name)
+        XCTAssertTrue(m.isLinked(leg.name))
+        left.reps = 12
+        m.update(left, partner: right)
+        var other = try XCTUnwrap(m.activeSets.first { $0.id == right.id })
+        XCTAssertEqual(other.reps, 12); XCTAssertEqual(other.loadValue, 20, "the lighter side was given the heavier side's weight")
+        left.loadValue = 65
+        m.update(left, partner: other)
+        other = try XCTUnwrap(m.activeSets.first { $0.id == right.id })
+        XCTAssertEqual(other.loadValue, 20)
+        // The next round starts each side from its own weight, with the same reps.
+        let next = m.addRound(to: m.block(leg.name))
+        XCTAssertEqual(next.map(\.loadValue), [65, 20]); XCTAssertEqual(next.map(\.reps), [12, 12])
+        m.setLinkCountsOnly(false, for: leg.name)
+        XCTAssertFalse(m.linksCountsOnly(leg.name)); XCTAssertTrue(m.isLinked(leg.name))
+    }
+
+    func testOneReportCoversSeveralInjuries() throws {
+        let m = try model()
+        m.save(Injury(label: "Right quad", side: .right, onset: Day(clock, in: zone).adding(-30), tissues: ["quads"]))
+        m.save(Injury(label: "Left calf", side: .left, onset: Day(clock, in: zone).adding(-10), tissues: ["calf"]))
+        let text = m.reportText(for: m.injuries)
+        XCTAssertTrue(text.hasPrefix("# Injury report, "))
+        XCTAssertTrue(text.contains("## Right quad")); XCTAssertTrue(text.contains("## Left calf"))
+        XCTAssertTrue(text.contains("### Pain (0 to 10)"))
+        XCTAssertEqual(text.components(separatedBy: "Written by Rehabit").count, 2, "the closing line was said more than once")
+        XCTAssertEqual(text.split(separator: "\n").filter { $0.hasPrefix("# ") }.count, 1)
+        XCTAssertEqual(m.reportText(for: [Injury]()), "")
+    }
+}
