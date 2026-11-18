@@ -94,6 +94,8 @@ extension AppModel {
                     }
                     warm.isWarmup = true; warm.tag = nil
                     update(warm)
+                    warm.planned = true
+                    update(warm)
                 }
             }
             for round in 0..<item.rounds {
@@ -114,6 +116,8 @@ extension AppModel {
                         else { filled.reps = target; filled.holdSeconds = nil }
                     }
                     if let tempo = item.tempo { filled.tempo = tempo }
+                    update(filled)
+                    filled.planned = true
                     update(filled)
                 }
             }

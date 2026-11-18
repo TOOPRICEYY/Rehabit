@@ -169,6 +169,9 @@ public struct WorkoutSet: Record, Equatable {
     /// Seconds for each phase of a rep, as written: "3-1-1-0" is three down,
     /// one held, one up, none at the top. Nil when no tempo was set.
     public var tempo: String?
+    /// True for a set laid out from a routine or a repeat and not touched
+    /// since: its numbers are last time's, not something the person entered.
+    public var planned: Bool?
     public var notes: String
     public var updatedAt: Date
     public var parentID: String? { workoutID }

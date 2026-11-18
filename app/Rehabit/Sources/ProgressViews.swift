@@ -238,6 +238,7 @@ struct SymmetrySection: View {
     private func measure(_ m: SymmetryMeasure?) -> String {
         switch m {
         case .e1RM: return "estimated max"
+        case .loadReps: return "load × reps of the best set"
         case .holdLoad: return "load held × seconds"
         case .holdSeconds: return "hold time"
         case nil: return "–"
