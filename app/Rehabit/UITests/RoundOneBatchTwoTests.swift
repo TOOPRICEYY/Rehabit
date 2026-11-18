@@ -79,7 +79,7 @@ final class RoundOneBatchTwoTests: XCTestCase {
         let app = open()
         any(app, "Options for Goblet Squat (Dumbbell)").tap()
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Unit'")).firstMatch.tap()
-        app.buttons["Convert to kg"].tap()
+        app.buttons["Convert to kg, exact"].tap()
         sleep(1)
         let weight = app.textFields["Set 1, Goblet Squat (Dumbbell), kilograms"].firstMatch
         XCTAssertTrue(weight.waitForExistence(timeout: 3))

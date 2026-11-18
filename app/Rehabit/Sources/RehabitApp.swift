@@ -195,7 +195,15 @@ struct NumberField: View {
             .onChange(of: value) { _, changed in
                 // A change from elsewhere (a stepper, the linked side) shows even while
                 // typing; one that only echoes what was typed leaves the text alone.
-                if !focused || Self.parse(text) != changed { text = Format.number(changed) }
+                if !focused || Self.parse(text) != changed {
+                    text = Format.number(changed)
+                    // After − or +, typing a number replaces the stepped one, not appends to it.
+                    if focused, !text.isEmpty {
+                        DispatchQueue.main.async {
+                            UIApplication.shared.sendAction(#selector(UIResponder.selectAll(_:)), to: nil, from: nil, for: nil)
+                        }
+                    }
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: FieldFocus.note)) { note in
                 if let fieldID, note.object as? String == fieldID { focused = true }

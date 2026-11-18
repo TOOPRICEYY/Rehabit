@@ -12,7 +12,14 @@ enum Reminders {
     /// longer wanted are withdrawn and the rest scheduled (a round's id is the
     /// notification's id, so scheduling twice replaces it). Permission is only
     /// asked for when there is something to remind about.
+    private static let queue = DispatchQueue(label: "rehabit.reminders", qos: .utility)
+
+    /// Runs away from the main thread: the notification centre can block.
     static func sync(_ rounds: [ReminderRound]) {
+        queue.async { place(rounds) }
+    }
+
+    private static func place(_ rounds: [ReminderRound]) {
         let center = UNUserNotificationCenter.current()
         let wanted = Set(rounds.map(\.id))
         center.getPendingNotificationRequests { pending in

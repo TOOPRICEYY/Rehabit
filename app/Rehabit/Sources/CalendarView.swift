@@ -214,6 +214,9 @@ private struct DayCell: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // Days still to come have nothing to show yet.
+        .disabled(day.day > Day(Date()))
+        .opacity(day.day > Day(Date()) ? 0.35 : 1)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)

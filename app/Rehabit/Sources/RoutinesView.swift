@@ -350,6 +350,8 @@ struct RoutineItemEditor: View {
 private struct RoutineTargetSection: View {
     @Binding var item: RoutineItem
     @State private var tempoText = ""
+    /// The tempo saved before this edit, kept while the typed text is not a tempo.
+    @State private var savedTempo: String?
     @FocusState private var tempoFocused: Bool
     @ScaledMetric(relativeTo: .body) private var fieldWidth: CGFloat = 72
 
@@ -378,7 +380,7 @@ private struct RoutineTargetSection: View {
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.characters)
                         .multilineTextAlignment(.trailing)
-                        .frame(maxWidth: fieldWidth * 1.6)
+                        .frame(minWidth: fieldWidth * 1.4, maxWidth: fieldWidth * 2.2)
                         .focused($tempoFocused)
                         .submitLabel(.done)
                         .onSubmit { normalise() }
@@ -387,7 +389,8 @@ private struct RoutineTargetSection: View {
                         .accessibilityIdentifier("routine-tempo")
                 }
                 if tempoInvalid {
-                    Label("Not a tempo, so none is saved. Write three or four numbers, such as 3-1-1-0. X means as fast as possible.",
+                    Label(savedTempo.map { "Not a tempo, so \($0) stays saved. Write three or four numbers, such as 3-1-1-0. X means as fast as possible." }
+                          ?? "Not a tempo, so none is saved. Write three or four numbers, such as 3-1-1-0. X means as fast as possible.",
                           systemImage: "exclamationmark.circle")
                         .font(.footnote)
                         .foregroundStyle(.orange)
@@ -405,14 +408,20 @@ private struct RoutineTargetSection: View {
             Text(isHold ? "Leave the target empty to start each hold from last time."
                  : "Leave the target empty to start each set from last time. Tempo is seconds lowering, paused at the bottom, lifting and paused at the top.")
         }
-        .onAppear { tempoText = item.tempo ?? "" }
+        .onAppear { tempoText = item.tempo ?? ""; savedTempo = item.tempo }
         .onChange(of: tempoText) { _, typed in
+            // Emptying the field clears the tempo; text that is not a tempo
+            // leaves the last good one in place rather than erasing it.
             let trimmed = typed.trimmingCharacters(in: .whitespaces)
-            item.tempo = trimmed.isEmpty ? nil : Tempo(trimmed)?.text
+            if trimmed.isEmpty { item.tempo = nil; savedTempo = nil }
+            else if let tempo = Tempo(trimmed) { item.tempo = tempo.text; savedTempo = tempo.text }
         }
         .onChange(of: tempoFocused) { _, focused in
             // Shown as it is stored once typing is done: "31x0" becomes "3-1-X-0".
-            if !focused { normalise() }
+            if !focused {
+                // Leaving with text that is not a tempo shows the one kept.
+                if tempoInvalid { tempoText = savedTempo ?? "" } else { normalise() }
+            }
         }
     }
 

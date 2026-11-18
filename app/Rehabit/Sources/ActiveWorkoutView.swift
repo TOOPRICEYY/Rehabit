@@ -425,10 +425,10 @@ struct ExerciseCard: View {
             Menu {
                 let current = sample?.loadUnit ?? model.profile.unit
                 ForEach(WeightUnit.allCases.filter { $0 != current }, id: \.self) { unit in
-                    Button("Convert to \(unit.rawValue)") { model.setUnit(unit, for: block.exercise) }
                     Button("Convert to \(unit.rawValue), rounded to \(unit == .lb ? "whole pounds" : "half kilograms")") {
                         model.setUnit(unit, for: block.exercise, converting: true, rounding: true)
                     }
+                    Button("Convert to \(unit.rawValue), exact") { model.setUnit(unit, for: block.exercise) }
                     Button("Numbers were already in \(unit.rawValue)") {
                         model.setUnit(unit, for: block.exercise, converting: false)
                     }
@@ -1023,11 +1023,11 @@ struct SetCell: View {
                         }
                     }
                 }
-                if let last, lastDiffers(last) {
+                if let last = last.map(inDraftUnit), lastDiffers(last) {
                     Button {
                         draft.copyPrescription(from: last)
                     } label: {
-                        Text("last \(Format.short(last))")
+                        Text("last \(Format.short(last))\(last.convention == .bodyweight || last.loadValue == nil ? "" : " \(last.loadUnit.rawValue)")")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
@@ -1103,6 +1103,18 @@ struct SetCell: View {
         guard draft.convention == .total, let total = draft.loadValue, total > 0,
               draft.exercise.localizedCaseInsensitiveContains("barbell") else { return nil }
         return Plates.load(total: total, unit: draft.loadUnit)
+    }
+
+    /// Last session's set in this set's unit, so the chip reads and copies in
+    /// the unit the exercise is in now (rounded to whole pounds or half kilograms).
+    private func inDraftUnit(_ last: WorkoutSet) -> WorkoutSet {
+        guard last.loadUnit != draft.loadUnit, let load = last.loadValue else { return last }
+        var copy = last
+        let kg = load * last.loadUnit.kilograms
+        let raw = kg / draft.loadUnit.kilograms
+        copy.loadValue = draft.loadUnit == .lb ? raw.rounded() : (raw * 2).rounded() / 2
+        copy.loadUnit = draft.loadUnit
+        return copy
     }
 
     private func lastDiffers(_ last: WorkoutSet?) -> Bool {

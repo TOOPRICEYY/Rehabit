@@ -76,4 +76,26 @@ final class LinkAndReportTests: XCTestCase {
         sleep(2)
         shot("11-share-sheet")
     }
+
+    /// The first set marked done used to freeze the screen for about 30 s while
+    /// the rest notification was replaced on the main thread.
+    func testFirstDoneMarkIsQuick() {
+        XCUIDevice.shared.appearance = .light
+        let app = XCUIApplication()
+        app.launchArguments = ["-demo-workout"]
+        app.launch()
+        app.buttons["Resume workout"].tap()
+        let done = any(app, "label == 'Set 1, Goblet Squat (Dumbbell) done'")
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        let start = Date()
+        done.tap()
+        let rest = any(app, "label CONTAINS 'Rest'")
+        XCTAssertTrue(rest.waitForExistence(timeout: 8))
+        XCTAssertLessThan(Date().timeIntervalSince(start), 8, "the screen answers at once")
+        // And the screen still takes taps straight away.
+        let start2 = Date()
+        app.navigationBars.buttons["Finish"].tap()
+        XCTAssertLessThan(Date().timeIntervalSince(start2), 8)
+        shot("20-first-done")
+    }
 }

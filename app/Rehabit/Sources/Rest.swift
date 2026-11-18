@@ -53,12 +53,20 @@ enum RestNotice {
         }
     }
 
+    /// Notification-centre calls can block for many seconds the first time,
+    /// so they run on a serial queue away from the main thread.
+    private static let queue = DispatchQueue(label: "rehabit.rest-notice", qos: .utility)
+
     static func schedule(_ rest: RestTimer?) {
+        guard !Demo.isRunning else { return }
+        let delay = rest.map { $0.endsAt.timeIntervalSinceNow } ?? 0
+        queue.async { place(rest, delay: delay) }
+    }
+
+    private static func place(_ rest: RestTimer?, delay: TimeInterval) {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [id])
-        guard let rest, !Demo.isRunning else { return }
-        let delay = rest.endsAt.timeIntervalSinceNow
-        guard delay > 1 else { return }
+        guard let rest, delay > 1 else { return }
         center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
             guard granted else { return }
             let content = UNMutableNotificationContent()
