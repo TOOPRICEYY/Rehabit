@@ -89,7 +89,7 @@ struct WorkoutDetailView: View {
                                     Button("Delete", systemImage: "trash", role: .destructive) { model.removeSet(id: set.id) }
                                 }
                         } else {
-                            ReadOnlySetRow(set: set)
+                            ReadOnlySetRow(set: set, number: ordered.prefix(index + 1).filter { !$0.isWarmup }.count)
                         }
                     }
                     if editing, let last = block.sets.max(by: { $0.position < $1.position }) {
@@ -202,13 +202,55 @@ struct WorkoutDetailView: View {
     }
 }
 
-/// A set as logged, with its side named when it is one side only.
+/// A set as logged, with its side named when it is one side only. Only pain
+/// can be changed here: pain is often noted after the fact, imported sets included.
 struct ReadOnlySetRow: View {
+    @Environment(AppModel.self) private var model
     let set: WorkoutSet
+    var number: Int? = nil
+    @State private var pain: Double?
+    @State private var type: PainType?
+
+    init(set: WorkoutSet, number: Int? = nil) {
+        self.set = set
+        self.number = number
+        _pain = State(initialValue: set.pain)
+        _type = State(initialValue: set.painType)
+    }
 
     var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            details
+            Spacer(minLength: 4)
+            PainChip(pain: $pain, type: $type, context: context)
+        }
+        .onChange(of: pain) { _, _ in save() }
+        .onChange(of: type) { _, _ in save() }
+        // A change made elsewhere (Edit, the bridge) comes back in.
+        .onChange(of: set) { _, changed in
+            if changed.pain != pain { pain = changed.pain }
+            if changed.painType != type { type = changed.painType }
+        }
+    }
+
+    private var context: String {
+        let side = set.side == .both ? "" : ", \(Format.side(set.side).lowercased())"
+        let which = set.isWarmup ? "Warm-up set" : number.map { "Set \($0)" } ?? "Set"
+        return "\(which)\(side), \(set.exercise)"
+    }
+
+    /// Saves pain and how it feels together, and nothing else of the set.
+    private func save() {
+        var changed = set
+        changed.pain = pain
+        changed.painType = pain == nil ? nil : type
+        if changed.pain != set.pain || changed.painType != set.painType { model.update(changed) }
+    }
+
+    private var details: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(Format.summary(set))
+            // The chip beside it shows the pain.
+            Text(Format.summary({ var s = set; s.pain = nil; return s }()))
             let marks = [set.tag?.label, set.repsInReserve.map { "RIR \(Format.number($0))" }].compactMap { $0 }
             if !marks.isEmpty {
                 Text(marks.joined(separator: " · ")).font(.caption2).foregroundStyle(.secondary)
