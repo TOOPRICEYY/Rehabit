@@ -18,6 +18,13 @@ public struct RestAdjust: Equatable, Sendable {
 }
 
 /// Doing a workout: marking sets done, resting, stepping the load, warming up.
+/// What kind of set it is, as one choice.
+public enum SetLabel: String, CaseIterable, Sendable { case working, warmup, drop, failure }
+
+extension WorkoutSet {
+    public var label: SetLabel { isWarmup ? .warmup : tag == .drop ? .drop : tag == .failure ? .failure : .working }
+}
+
 /// A hold being timed: which set, since when, and how long it is meant to be.
 public struct HoldRun: Equatable, Sendable {
     public let setID: String
@@ -107,6 +114,16 @@ extension AppModel {
         }
         var changed = current
         changed.completedAt = done ? clock : nil
+        // Done with reps and no weight, where a weight is what the number means: the
+        // weight of the set before it in this workout, the same side first.
+        if done, changed.loadValue == nil, changed.convention == .perHand || changed.convention == .total {
+            let earlier = sets(ofWorkout: current.workoutID)
+                .filter { $0.exercise == current.exercise && $0.position < current.position && $0.loadValue != nil }
+                .sorted { $0.position > $1.position }
+            if let above = earlier.first(where: { $0.side == current.side }) ?? earlier.first {
+                changed.loadValue = above.loadValue; changed.loadUnit = above.loadUnit
+            }
+        }
         update(changed)
         // A countdown ended or changed by hand belonged to the mark just changed.
         if restAdjust?.setID == current.id { restAdjust = nil }
@@ -141,7 +158,11 @@ extension AppModel {
 
     /// Sets of the workout in progress not marked done, when some are. With
     /// nothing marked done the person is not using the marks, and none count as unfinished.
-    public var unfinishedSets: [WorkoutSet] { usesDoneMarks ? activeSets.filter { !$0.isDone } : [] }
+    /// A warm-up the person typed and did not tick is not one of them: only a
+    /// warm-up laid out from a routine and left untouched is.
+    public var unfinishedSets: [WorkoutSet] {
+        usesDoneMarks ? activeSets.filter { !$0.isDone && (!$0.isWarmup || $0.planned == true) } : []
+    }
 
     /// True when sets of the workout in progress count only once marked done:
     /// a set has been marked, or the workout was laid out ahead from a
@@ -239,7 +260,10 @@ extension AppModel {
     /// mistyped load does not change it; else 5 lb or 2.5 kg.
     public func loadStep(for exercise: String, unit: WeightUnit) -> Double {
         let usual = unit == .lb ? 5.0 : 2.5
-        let loads = Set(sets(named: exercise).filter { $0.loadUnit == unit }
+        // Working sets that were done: a warm-up at the bare bar, or a number
+        // still being typed, says nothing about the plates this exercise goes up by.
+        let activeID = active?.id
+        let loads = Set(sets(named: exercise).filter { $0.loadUnit == unit && !$0.isWarmup && ($0.workoutID != activeID || $0.isDone) }
             .compactMap(\.loadValue).filter { $0 > 0 && $0.isFinite }).sorted()
         var gaps: [Double] = []
         for (higher, lower) in zip(loads.dropFirst(), loads) {
@@ -253,6 +277,9 @@ extension AppModel {
         var counts: [Double: Int] = [:]
         for gap in gaps { counts[gap, default: 0] += 1 }
         let most = counts.values.max() ?? 0
+        // A gap seen once is two weights that happen to be that far apart, not a step.
+        // Unless it is small enough to be a stack's or a plate pair's step, it is not taken for one.
+        guard most >= 2 else { return smallest <= usual * 2 ? smallest : usual }
         let common = counts.filter { $0.value == most }.keys.min() ?? smallest
         return min(common, unit == .lb ? 25 : 10)
     }
@@ -352,6 +379,43 @@ extension AppModel {
         else if changed.tag != nil { changed.tag = nil }
         else { changed.isWarmup = true }
         update(changed)
+    }
+
+    /// Makes a set a working set, a warm-up, a drop set or a set to failure, directly.
+    public func setLabel(_ label: SetLabel, for set: WorkoutSet) {
+        guard var changed = activeSets.first(where: { $0.id == set.id }) ?? sets(ofWorkout: set.workoutID).first(where: { $0.id == set.id })
+        else { return }
+        changed.isWarmup = label == .warmup
+        changed.tag = label == .drop ? .drop : label == .failure ? .failure : nil
+        update(changed)
+    }
+
+    /// The same for both halves of a round.
+    public func setLabel(_ label: SetLabel, for round: SetRound) {
+        for member in round.members { setLabel(label, for: member) }
+    }
+
+    /// The unit an exercise's page is shown in: the unit of its latest set
+    /// with a load, else the person's own.
+    public func displayUnit(for exercise: String) -> WeightUnit {
+        sets(named: exercise).filter { $0.loadValue != nil }
+            .max { ($0.workoutDay, $0.updatedAt) < ($1.workoutDay, $1.updatedAt) }?.loadUnit ?? profile.unit
+    }
+
+    /// What an exercise's loads mean where that is not the number typed, for
+    /// its page. Nil for an exercise loaded by the bar or the hand.
+    public func loadNote(for exercise: String) -> String? {
+        let convention = sets(named: exercise).max { ($0.workoutDay, $0.updatedAt) < ($1.workoutDay, $1.updatedAt) }?.convention
+            ?? library.catalogue.first { $0.name.caseInsensitiveCompare(exercise) == .orderedSame }?.convention
+        guard let convention, convention != .perHand, convention != .total else { return nil }
+        guard profile.bodyweightKg != nil || !bodyweightHistory.isEmpty else {
+            return "Loads for this exercise include your body weight. Add it in Settings to see them."
+        }
+        switch convention {
+        case .bodyweightMinus: return "Loads are your share of body weight less the assistance, so less assistance reads as heavier."
+        case .bodyweightPlus: return "Loads are your share of body weight plus the weight added."
+        default: return "Loads are your share of body weight."
+        }
     }
 
     /// The same for both halves of a round, which are one kind of set.

@@ -184,9 +184,14 @@ extension AppModel {
         // of a period that is not whole weeks are in `days` and in no week:
         // three days headed "week" beside seven would read as a fall.
         let whole = line.count / 7
+        let recorded = firstRecordedDay
         let weeks = (0..<whole).map { index -> ArraySlice<InjuryDay> in
             let from = line.count - (whole - index) * 7
             return line[from..<(from + 7)]
+        }.filter { week in
+            // A week that ended before anything was recorded is not a week of no load; the latest always stands.
+            guard let last = week.last?.day, last != line.last?.day else { return true }
+            return recorded.map { last >= $0 } ?? false
         }
         // Exercises that load the injury, on the injured side.
         let tissues = Set(injury.tissues)
@@ -357,6 +362,7 @@ extension AppModel {
             for row in compared {
                 guard let ratio = row.ratio else { continue }
                 let what = row.latest.measure == .e1RM ? "estimated one-rep max"
+                    : row.latest.measure == .loadReps ? "load x reps of the best set"
                     : row.latest.measure == .holdLoad ? "load held x seconds" : "seconds held"
                 var text = "- \(row.exercise): \(percent(ratio)) of the other side (\(what)) on \(row.latest.day.readable)"
                 if let first = row.firstRatio { text += "; \(percent(first)) at the start of the period" }

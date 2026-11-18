@@ -36,6 +36,8 @@ public struct ExerciseSession: Identifiable, Equatable, Sendable {
     public let longestHoldLoadKg: Double?
     /// Highest pain reported during a working set; nil when none was recorded.
     public let maxPain: Double?
+    /// The most load x reps in one working set of reps with a known load, kg-reps. Nil when there was none.
+    public let bestLoadRepsKg: Double?
     public var id: String { workoutID + "|" + side.rawValue }
 }
 
@@ -83,6 +85,9 @@ public struct ExerciseRecords: Equatable, Sendable {
 public enum SymmetryMeasure: String, Sendable {
     /// Best estimated one-rep max, kg.
     case e1RM
+    /// Load x reps of the best set, kg-reps: for sets past the reps an
+    /// estimated one-rep max is trusted for.
+    case loadReps
     /// Longest hold x the load held, second-kg.
     case holdLoad
     /// Longest hold in seconds, when neither side had a known load.
@@ -263,11 +268,14 @@ extension ExerciseSession {
         longestHoldSeconds = hold?.holdSeconds
         longestHoldLoadKg = hold?.loadKg
         maxPain = working.compactMap(\.set.pain).max()
+        bestLoadRepsKg = working.compactMap { f in f.reps.flatMap { reps in f.realLoad.map { $0 * reps } } }.max()
     }
 
     /// The value compared across sides, if both use the same measure.
     static func symmetry(_ left: ExerciseSession, _ right: ExerciseSession) -> (SymmetryMeasure, Double, Double)? {
         if let l = left.bestE1RMKg, let r = right.bestE1RMKg { return (.e1RM, l, r) }
+        // A side that went past twelve reps has no estimated max: load x reps of the best set compares them.
+        if let l = left.bestLoadRepsKg, let r = right.bestLoadRepsKg { return (.loadReps, l, r) }
         guard let ls = left.longestHoldSeconds, let rs = right.longestHoldSeconds else { return nil }
         let ll = left.longestHoldLoadKg.flatMap { $0 > 0 ? $0 : nil }
         let rl = right.longestHoldLoadKg.flatMap { $0 > 0 ? $0 : nil }
@@ -340,6 +348,8 @@ extension AppModel {
             guard let start, let other = starts[session.workoutID] else { return true }
             return other < start
         }
+        // The first session of an exercise has nothing to beat: every set of it is a first, not a record.
+        guard !before.isEmpty else { return [] }
         var book = recordBook(before)
         // The sets before it in its own workout count too: the second of three
         // equal sets is not a record again.

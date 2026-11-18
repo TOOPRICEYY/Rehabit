@@ -263,6 +263,11 @@ public final class AppModel {
         if set.completedAt != nil, !((set.count ?? 0) > 0) { set.completedAt = nil }
         // A side changed by hand is the person's, and is never worked out again by rule.
         if set.side != allSets[index].side { set.sideInferred = false }
+        // Touched: no longer only a plan.
+        let before = allSets[index]
+        if set.planned == true, before.planned == true, set.prescription != before.prescription || set.pain != before.pain
+            || set.notes != before.notes || set.completedAt != before.completedAt || set.isWarmup != before.isWarmup
+            || set.tag != before.tag || set.repsInReserve != before.repsInReserve { set.planned = nil }
         guard set != allSets[index] else { return }
         set.updatedAt = now()
         attempt { try store.save(set) }
@@ -358,6 +363,7 @@ public final class AppModel {
         // Rows added and never filled in were not done: they are not kept.
         for set in activeSets where set.isBlank { removeSet(id: set.id) }
         pruneSupersets()
+        for var set in activeSets where set.planned != nil { set.planned = nil; update(set) }
         guard var workout = active else { return [] }
         restSkippedAt = nil; restAdjust = nil; restSkippedFor = nil; lastMarkedDone = nil; holdRun = nil
         if activeSets.isEmpty {
@@ -419,7 +425,8 @@ public final class AppModel {
     /// be asked about it. Answers already given stay: the pain was real. A
     /// workout with anything logged in it can be restored for 30 days.
     public func deleteWorkout(_ workout: Workout) {
-        let worthKeeping = allSets.contains { $0.workoutID == workout.id && !$0.isBlank }
+        // Sets laid out from a routine and never touched are last time's numbers, not something logged.
+        let worthKeeping = allSets.contains { $0.workoutID == workout.id && !$0.isBlank && $0.planned != true }
         if workout.id == active?.id { holdRun = nil; lastMarkedDone = nil; restAdjust = nil; restSkippedFor = nil }
         attempt {
             try store.deleteWorkout(id: workout.id, at: now(), keeping: worthKeeping)
