@@ -67,7 +67,7 @@ struct CheckInsList: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.injury.label).font(.headline).foregroundStyle(Color(uiColor: .label))
                         Text(item.check.moment.label).font(.subheadline)
-                        HStack(spacing: 10) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text(lastText(item.last))
                             if let during = item.sessionPain { Text("During the session: \(Format.number(during))") }
                             if let flare = recentFlare(item.injury) {

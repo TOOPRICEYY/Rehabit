@@ -456,7 +456,7 @@ private struct RecentlyDeletedView: View {
                     HStack(alignment: .firstTextBaseline) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(item.workout.title)
-                            Text("\(item.workout.startDay.readable) · \(Format.count(item.sets, "set"))")
+                            Text("\(item.workout.start.formatted(date: .abbreviated, time: .shortened)) · \(Format.count(item.sets, "set"))")
                                 .font(.caption).foregroundStyle(.secondary)
                             Text("Deleted \(item.deletedAt.formatted(.relative(presentation: .named)))")
                                 .font(.caption).foregroundStyle(.secondary)

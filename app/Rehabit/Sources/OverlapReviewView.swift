@@ -60,7 +60,7 @@ private struct OverlapSection: View {
         let watchSets = model.sets(of: overlap.watch)
         Section {
             VStack(alignment: .leading, spacing: 6) {
-                Text("From your watch: \(describe(overlap.watch, sets: watchSets.count))")
+                Text("Imported from your watch: \(describe(overlap.watch, sets: watchSets.count))")
                 Text("Logged in Rehabit: \(describe(overlap.logged, sets: model.sets(of: overlap.logged).count))")
             }
             .fixedSize(horizontal: false, vertical: true)

@@ -48,8 +48,8 @@ struct LoadPainChart: View {
                 .fixedSize(horizontal: false, vertical: true)
             let unweighed = days.reduce(0) { $0 + $1.unweighedSets }
             if measure == .weightMoved && unweighed > 0 {
-                Text("\(Format.count(unweighed, "set")) had no weight known (a body-weight movement without a body weight): they count in effective reps, not in weight moved.")
-                    .font(.caption).foregroundStyle(.orange)
+                Text("\(Format.count(unweighed, "set")) had no weight known: they count in effective reps, not in weight moved. Adding your body weight in Settings counts body-weight sets.")
+                    .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Chart {
@@ -92,6 +92,12 @@ struct LoadPainChart: View {
                 }
             }
             .chartForegroundStyleScale([sideName: Color.accentColor, "Other side": Color.accentColor.opacity(0.3)])
+            .onAppear {
+                // The latest day with anything in it starts selected, so its numbers show.
+                if selected == nil, let last = days.last(where: { $0.load > 0 || $0.painHigh != nil || $0.setPain != nil }) {
+                    selected = Format.date(last.day)
+                }
+            }
             .chartYAxis {
                 AxisMarks(position: .leading)
                 AxisMarks(position: .trailing, values: [0, 5, 10].map { $0 * scale }) { value in
@@ -187,7 +193,7 @@ struct TherapistReportView: View {
                 .font(.subheadline)
                 let unweighed = model.report(for: injury, days: weeks * 7).unweighedSets
                 if unweighed > 0 {
-                    Label("\(Format.count(unweighed, "set")) in this period had no weight known, so they are not in weight moved.",
+                    Label("\(Format.count(unweighed, "set")) in this period had no weight known, so they are not in weight moved. Adding your body weight in Settings counts body-weight sets.",
                           systemImage: "scalemass")
                         .font(.caption).foregroundStyle(.secondary)
                 }

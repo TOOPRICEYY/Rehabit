@@ -591,7 +591,7 @@ struct RoundRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             Button { model.cycleKind(round) } label: { badge }
-                .accessibilityLabel("Set \(number), \(kindName)")
+                .accessibilityLabel(round.isWarmup ? "Warm-up set" : "Set \(number), \(kindName)")
                 .accessibilityHint("Changes the kind of set: working, warm-up, drop set, to failure. Touch and hold the row for more.")
             if round.isPair {
                 // Left above right, each with its own done mark within reach of a thumb.
@@ -803,6 +803,9 @@ struct SetCell: View {
         return model.previousSet(exercise: set.exercise, side: set.side, index: index)
     }
 
+    /// "Set 2", or "Warm-up set" (whose number is 0).
+    private var setWords: String { draft.isWarmup ? "Warm-up set" : "Set \(number)" }
+
     private var sideWords: String { (self.set.side == .both ? "" : ", \(Format.side(self.set.side).lowercased())") + ", \(self.set.exercise)" }
     private var unitWords: String { draft.loadUnit == .lb ? "pounds" : "kilograms" }
 
@@ -820,18 +823,18 @@ struct SetCell: View {
                 } else {
                     NumberField(title: Format.number(last?.loadValue).ifEmpty(draft.convention == .bodyweightMinus ? "assist" : draft.loadUnit.rawValue),
                                 value: $draft.loadValue, width: loadWidth, step: loadStep, fieldID: draft.id + "|load")
-                        .accessibilityLabel(draft.convention == .bodyweightMinus ? "Set \(number)\(sideWords), assistance in \(unitWords)" : "Set \(number)\(sideWords), \(unitWords)")
+                        .accessibilityLabel(draft.convention == .bodyweightMinus ? "\(setWords)\(sideWords), assistance in \(unitWords)" : "\(setWords)\(sideWords), \(unitWords)")
                 }
                 Text("×").foregroundStyle(.secondary).accessibilityHidden(true)
                 if draft.kind == .hold {
                     NumberField(title: Format.number(last?.holdSeconds).ifEmpty("s"), value: $draft.holdSeconds,
                                 width: repsWidth, decimal: false, step: countStep, fieldID: draft.id + "|count")
-                        .accessibilityLabel("Set \(number)\(sideWords), seconds held")
+                        .accessibilityLabel("\(setWords)\(sideWords), seconds held")
                     Text("s").font(.caption).foregroundStyle(.secondary).accessibilityHidden(true)
                 } else {
                     NumberField(title: Format.number(last?.reps).ifEmpty("rep"), value: $draft.reps,
                                 width: repsWidth, decimal: false, step: countStep, fieldID: draft.id + "|count")
-                        .accessibilityLabel("Set \(number)\(sideWords), reps")
+                        .accessibilityLabel("\(setWords)\(sideWords), reps")
                 }
                 Spacer(minLength: 4)
                 if draft.kind == .hold && !draft.isDone {
@@ -863,7 +866,7 @@ struct SetCell: View {
             if showPain || draft.pain != nil || !tags.isEmpty {
                 WrapStack(spacing: 6) {
                     if showPain || draft.pain != nil {
-                        PainChip(pain: $draft.pain, type: $draft.painType, context: "Set \(number)\(sideWords)")
+                        PainChip(pain: $draft.pain, type: $draft.painType, context: "\(setWords)\(sideWords)")
                     }
                     ForEach(tags, id: \.self) { tag in
                         Text(tag)
@@ -876,7 +879,7 @@ struct SetCell: View {
                 if let refusal, !draft.isDone {
                     Label(refusal, systemImage: "exclamationmark.circle").font(.caption).foregroundStyle(.orange)
                 }
-                if !draft.isWarmup {
+                if !draft.isWarmup && draft.kind != .hold {
                     HStack(spacing: 6) {
                         // Reps in reserve on the row: one tap, a number.
                         Menu {
@@ -959,7 +962,7 @@ struct SetCell: View {
                 .frame(width: checkSize, height: checkSize)
                 .contentShape(Rectangle())
         }
-        .accessibilityLabel("Set \(number)\(sideWords) done")
+        .accessibilityLabel("\(setWords)\(sideWords) done")
         .accessibilityValue(draft.isDone ? "done" : "not done")
         .sheet(isPresented: $timingHold) {
             HoldTimerView(set: draft).presentationDetents([.medium])
