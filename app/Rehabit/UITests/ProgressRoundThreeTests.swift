@@ -69,7 +69,7 @@ final class ProgressRoundThreeTests: XCTestCase {
         finish.tap()
         let keep = app.buttons["Keep them"]
         if keep.waitForExistence(timeout: 3) { keep.tap() }
-        XCTAssertTrue(app.navigationBars["How hard was that session?"].waitForExistence(timeout: 6))
+        XCTAssertTrue(app.navigationBars["Session effort"].waitForExistence(timeout: 6))
         app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Effort 7'")).firstMatch.tap()
         app.buttons["effort-save"].tap()
         let checks = app.navigationBars["How does it feel?"]
