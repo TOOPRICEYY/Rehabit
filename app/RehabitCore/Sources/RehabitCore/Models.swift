@@ -95,6 +95,9 @@ public struct Workout: Record, Equatable {
     /// Exercises whose left and right sides were linked or unlinked by hand
     /// in this workout. Kept so a relaunch mid-workout does not forget it.
     public var linkOverrides: [String: Bool]?
+    /// Exercises whose linked sides share reps or seconds only: each side keeps
+    /// its own weight, as when the injured side works lighter.
+    public var linkCountsOnly: [String]?
     /// Groups of exercises done back to back, by name: the rest comes after
     /// the last of a group, not between them.
     public var supersets: [[String]]?

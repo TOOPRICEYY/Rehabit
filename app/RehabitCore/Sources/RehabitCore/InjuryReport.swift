@@ -251,6 +251,22 @@ extension AppModel {
 
     /// The report as plain Markdown, to share or print. It states what was
     /// logged, with the counts behind each number, and draws no conclusions.
+    /// One document for several injuries: each injury's report in turn, under
+    /// one title, with the closing line said once. Empty for no injuries.
+    public func reportText(for injuries: [Injury], days: Int = 28) -> String {
+        guard !injuries.isEmpty else { return "" }
+        let closing = "Written by Rehabit from what was logged. It reports numbers and counts; it is not an assessment or advice."
+        let parts = injuries.map { injury -> String in
+            var lines = reportText(for: injury, days: days).components(separatedBy: "\n")
+            if lines.last == closing { lines.removeLast() }
+            while lines.last == "" { lines.removeLast() }
+            // One level down: the injury's title sits under the document's.
+            return lines.map { $0.hasPrefix("#") ? "#" + $0 : $0 }.joined(separator: "\n")
+        }
+        let end = Day(clock, in: localZone)
+        return (["# Injury report, \(end.readable)", ""] + [parts.joined(separator: "\n\n")] + ["", closing]).joined(separator: "\n")
+    }
+
     public func reportText(for injury: Injury, days: Int = 28) -> String {
         let r = report(for: injury, days: days)
         func n(_ value: Double) -> String {
