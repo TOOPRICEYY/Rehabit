@@ -1,3 +1,4 @@
+import AudioToolbox
 import RehabitCore
 import SwiftUI
 import UserNotifications
@@ -71,47 +72,63 @@ enum RestNotice {
     }
 }
 
-/// A hold timed on the phone: counts up in large type, taps at the target,
-/// and Stop writes the seconds held and marks the set done.
+/// A hold timed on the phone, on the core's clock (time with the phone locked
+/// counts): a large countdown to the target that keeps counting up past it,
+/// a tap and a sound at the target, then Stop (saves the seconds and marks
+/// the set done) or Cancel (saves nothing).
 struct HoldTimerView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     let set: WorkoutSet
-    @State private var started: Date?
-    @State private var reachedTarget = false
+    @State private var reached = false
 
     var body: some View {
-        VStack(spacing: 20) {
+        let run = model.holdRun.flatMap { $0.setID == set.id ? $0 : nil }
+        VStack(spacing: 18) {
             Text(set.side == .both ? set.exercise : "\(set.exercise) · \(Format.side(set.side).lowercased())")
                 .font(.headline).multilineTextAlignment(.center)
-            if let target = set.holdSeconds, target > 0 {
+            if let target = set.holdSeconds, target > 0, !set.isDone {
                 Text("Target \(Format.number(target)) s").font(.subheadline).foregroundStyle(.secondary)
             }
             TimelineView(.periodic(from: .now, by: 0.1)) { context in
-                let held = started.map { context.date.timeIntervalSince($0) } ?? 0
-                Text(String(format: "%.1f", held))
-                    .font(.system(size: 72, weight: .bold, design: .rounded).monospacedDigit())
-                    .foregroundStyle(reachedTarget ? Color.green : Color.primary)
-                    .onChange(of: Int(held)) { _, whole in
-                        if let target = set.holdSeconds, target > 0, Double(whole) >= target, !reachedTarget {
-                            reachedTarget = true
-                        }
+                let elapsed = run?.elapsed(at: context.date) ?? 0
+                let left = run?.remaining(at: context.date)
+                let over = run?.reachedTarget(at: context.date) ?? false
+                VStack(spacing: 4) {
+                    // Down to the target, then up past it.
+                    Text(left.map { $0 > 0 ? String(format: "%.1f", $0) : "+" + String(format: "%.1f", elapsed - (run?.target ?? 0)) }
+                         ?? String(format: "%.1f", elapsed))
+                        .font(.system(size: 76, weight: .bold, design: .rounded).monospacedDigit())
+                        .foregroundStyle(over ? Color.green : Color.primary)
+                    Text(run == nil ? "Ready" : left.map { $0 > 0 ? "seconds to go" : "past the target, \(Format.number(elapsed.rounded())) s held" } ?? "seconds held")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                }
+                .onChange(of: over) { _, now in
+                    if now && !reached {
+                        reached = true
+                        AudioServicesPlaySystemSound(1057)
                     }
-                    .accessibilityLabel("\(Int(held)) seconds held")
+                }
+                .accessibilityElement(children: .combine)
             }
-            .sensoryFeedback(.success, trigger: reachedTarget)
-            if started == nil {
-                Button { started = Date() } label: { Text("Start").font(.title2.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 56) }
-                    .buttonStyle(.borderedProminent)
+            .sensoryFeedback(.success, trigger: reached)
+            if run == nil {
+                Button { reached = false; model.startHold(set) } label: {
+                    Text("Start").font(.title2.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 56)
+                }
+                .buttonStyle(.borderedProminent)
             } else {
                 Button {
-                    if let started { model.finishHold(set, seconds: Date().timeIntervalSince(started)) }
+                    model.stopHold()
                     dismiss()
-                } label: { Text("Stop").font(.title2.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 56) }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.red)
+                } label: {
+                    Text("Stop").font(.title2.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 56)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+                Button("Cancel, save nothing", role: .destructive) { model.cancelHold(); dismiss() }
             }
-            Button("Cancel", role: .cancel) { dismiss() }
+            if run == nil { Button("Close") { dismiss() } }
         }
         .padding(24)
     }

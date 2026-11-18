@@ -126,19 +126,25 @@ struct ActiveWorkoutView: View {
 
     /// Always in reach: the rest countdown after a set marked done (or the
     /// time since the last set) and the way to add the next exercise.
-    /// In a superset, the exercise to go to after the set just marked done.
-    private var supersetNextUp: String? {
-        guard let last = model.activeSets.filter(\.isDone).max(by: { ($0.completedAt ?? .distantPast) < ($1.completedAt ?? .distantPast) })
-        else { return nil }
-        return model.supersetNext(after: last)?.exercise
-    }
-
     private var bottomBar: some View {
         VStack(spacing: 6) {
-        if let next = supersetNextUp {
+        if let run = model.holdRun {
+            TimelineView(.periodic(from: .now, by: 0.5)) { context in
+                HStack {
+                    Label("Holding \(run.exercise): \(Format.elapsed(run.elapsed(at: context.date)))", systemImage: "stopwatch")
+                        .font(.subheadline.weight(.semibold)).monospacedDigit()
+                    Spacer()
+                    Button("Stop") { model.stopHold() }.buttonStyle(.borderedProminent).controlSize(.small)
+                }
+                .padding(.horizontal, 20).padding(.top, 8)
+            }
+        }
+        if let nextSet = model.nextUp {
+            let next = nextSet.exercise
+            let side = nextSet.side == .both ? "" : ", \(Format.side(nextSet.side).lowercased())"
             // Tapping it brings that exercise into view.
             Button { scrollTo = next } label: {
-                Label("Next: \(next)", systemImage: "arrow.turn.down.right")
+                Label("Next: \(next)\(side)", systemImage: "arrow.turn.down.right")
                     .font(.subheadline.weight(.semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -204,6 +210,8 @@ struct ExerciseCard: View {
     @State private var showingHistory = false
     @State private var confirmingLink = false
     @State private var pickingSuperset = false
+    @State private var editingExerciseNote = false
+    @State private var exerciseNoteText = ""
     @State private var reordering = false
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -284,6 +292,13 @@ struct ExerciseCard: View {
                 }
                 .accessibilityLabel("Options for \(block.exercise)")
             }
+            let note = model.exerciseNote(for: block.exercise)
+            if !note.isEmpty {
+                Label(note, systemImage: "note.text")
+                    .font(.footnote).italic()
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+            }
             if let group = model.superset(of: block.exercise) {
                 Label("Superset with \(group.filter { $0 != block.exercise }.joined(separator: ", "))",
                       systemImage: "rectangle.stack")
@@ -305,6 +320,13 @@ struct ExerciseCard: View {
         .padding(.top, 6)
         // On the header view: a sheet attached to a list section may not show.
         .sheet(isPresented: $pickingSuperset) { SupersetPicker(exercise: block.exercise) }
+        .alert("Note for \(block.exercise)", isPresented: $editingExerciseNote) {
+            TextField("Seat 4, slow on the way down", text: $exerciseNoteText)
+            Button("Save") { model.setExerciseNote(exerciseNoteText, for: block.exercise) }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Kept with the exercise and shown each time you do it.")
+        }
         .sheet(isPresented: $reordering) { ReorderExercises() }
         .contentShape(Rectangle())
         .contextMenu { cardMenu }
@@ -455,6 +477,13 @@ struct ExerciseCard: View {
             Button { showingHistory = true } label: {
                 Label("History and records", systemImage: "chart.xyaxis.line")
             }
+            Button {
+                exerciseNoteText = model.exerciseNote(for: block.exercise)
+                editingExerciseNote = true
+            } label: {
+                Label(model.exerciseNote(for: block.exercise).isEmpty ? "Note for this exercise…" : "Edit the note for this exercise…",
+                      systemImage: "note.text")
+            }
             if let group = model.superset(of: block.exercise) {
                 Button { model.removeFromSuperset(block.exercise) } label: {
                     Label("Remove from superset (\(group.filter { $0 != block.exercise }.joined(separator: ", ")))",
@@ -590,6 +619,9 @@ struct RoundRow: View {
     let injured: Set<Side>
     @State private var noteFor: WorkoutSet?
     @State private var noteText = ""
+    @State private var editingTempo = false
+    @State private var tempoText = ""
+    @State private var tempoRefused = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
@@ -613,6 +645,27 @@ struct RoundRow: View {
         // Done rounds look settled; planned ones stay plain.
         .listRowBackground(round.members.allSatisfy(\.isDone) && !round.members.isEmpty
                            ? Color.green.opacity(0.09) : Color(.secondarySystemGroupedBackground))
+        .alert("Tempo", isPresented: $editingTempo) {
+            TextField("3-1-1-0", text: $tempoText)
+            Button("Save") {
+                let typed = tempoText.trimmingCharacters(in: .whitespaces)
+                if typed.isEmpty {
+                    each { $0.tempo = nil }
+                } else if let tempo = Tempo(typed) {
+                    each { $0.tempo = tempo.text }
+                } else {
+                    tempoRefused = true
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Seconds down, held, up and at the top, such as 3-1-1-0. Leave empty for none.")
+        }
+        .alert("That tempo could not be read", isPresented: $tempoRefused) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Write four numbers of seconds with dashes, such as 3-1-1-0.")
+        }
         .alert(noteFor.map { noteTitle($0) } ?? "Note", isPresented: Binding(get: { noteFor != nil }, set: { if !$0 { noteFor = nil } })) {
             TextField("Note", text: $noteText)
             Button("Save") {
@@ -674,6 +727,24 @@ struct RoundRow: View {
     // MARK: Set menu
 
     @ViewBuilder private var setMenu: some View {
+        Section("Kind of set") {
+            Picker("Kind of set", selection: Binding(get: { round.members.first?.label ?? .working },
+                                                    set: { model.setLabel($0, for: round) })) {
+                Text("Working set").tag(SetLabel.working)
+                Text("Warm-up").tag(SetLabel.warmup)
+                Text("Drop set").tag(SetLabel.drop)
+                Text("To failure").tag(SetLabel.failure)
+            }
+            .pickerStyle(.inline)
+        }
+        Section {
+            Button {
+                tempoText = round.members.first?.tempo ?? ""
+                editingTempo = true
+            } label: {
+                Label(round.members.first?.tempo.map { "Tempo \($0)" } ?? "Tempo…", systemImage: "metronome")
+            }
+        }
         Section {
             let allDone = round.members.allSatisfy(\.isDone)
             Button { model.setDone(!allDone, round) } label: {
@@ -1011,6 +1082,9 @@ struct SetCell: View {
 
     private var tags: [String] {
         var out: [String] = []
+        if let tempo = draft.tempo {
+            out.append("tempo \(tempo)" + (draft.kind == .reps ? draft.timeUnderTension.map { " · \(Format.number($0.rounded())) s under tension" } ?? "" : ""))
+        }
         // A slip of the thumb ("1015 lb") is shown, not silently counted.
         let heavy = draft.loadUnit == .lb ? 1000.0 : 450.0
         if (draft.loadValue ?? 0) > heavy || (draft.reps ?? 0) > 100 || (draft.holdSeconds ?? 0) > 900 {

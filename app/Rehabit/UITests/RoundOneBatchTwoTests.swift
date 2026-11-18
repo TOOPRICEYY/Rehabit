@@ -67,7 +67,7 @@ final class RoundOneBatchTwoTests: XCTestCase {
         app.buttons["Start"].tap()
         sleep(3)
         shot("05-holding")
-        app.buttons["Stop"].tap()
+        app.buttons["Stop"].firstMatch.tap()
         let held = app.textFields.matching(NSPredicate(format: "label ENDSWITH 'seconds held'")).firstMatch
         XCTAssertTrue(held.waitForExistence(timeout: 3))
         let seconds = Double((held.value as? String) ?? "") ?? 0

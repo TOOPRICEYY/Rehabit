@@ -69,7 +69,7 @@ final class RoundTwoWorkoutTests: XCTestCase {
         XCTAssertTrue(any(app, "label BEGINSWITH 'Superset with Single-Leg Extension'").waitForExistence(timeout: 3))
         shot("04-superset")
         any(app, "label == 'Set 1, Goblet Squat (Dumbbell) done'").tap()
-        XCTAssertTrue(any(app, "label == 'Next: Single-Leg Extension (Machine)'").waitForExistence(timeout: 3))
+        XCTAssertTrue(any(app, "label BEGINSWITH 'Next: Single-Leg Extension (Machine)'").waitForExistence(timeout: 3))
         shot("05-next")
     }
 }
