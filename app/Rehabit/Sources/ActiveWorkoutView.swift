@@ -127,7 +127,7 @@ struct ActiveWorkoutView: View {
     }
 
     private func askUnfinishedOrFinish() {
-        if model.usesDoneMarks && !model.unfinishedSets.isEmpty { confirmingUnfinished = true } else { finish(removing: false) }
+        if !model.unfinishedSets.isEmpty { confirmingUnfinished = true } else { finish(removing: false) }
     }
 
     private func finish(removing: Bool) {
@@ -1050,7 +1050,7 @@ struct SetCell: View {
                 }
                 if let last = last.map(inDraftUnit), lastDiffers(last) {
                     Button {
-                        draft.copyPrescription(from: last)
+                        draft.copyPrescription(from: last, in: draft.loadUnit)
                     } label: {
                         Text("last \(Format.short(last))\(last.convention == .bodyweight || last.loadValue == nil ? "" : " \(last.loadUnit.rawValue)")")
                             .font(.caption2)

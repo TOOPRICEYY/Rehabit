@@ -205,7 +205,15 @@ private struct DayCell: View {
                             .background(Format.painColor(pain).opacity(0.25), in: Capsule())
                     }
                     if day.flares > 0 {
-                        Image(systemName: "bolt.fill").font(.caption2).foregroundStyle(.orange)
+                        HStack(spacing: 0) {
+                            Image(systemName: "bolt.fill").font(.caption2).foregroundStyle(.orange)
+                            if let flare = day.flareHigh, flare > (day.painHigh ?? -1) {
+                                Text(Format.number(flare))
+                                    .font(.caption2.weight(.semibold).monospacedDigit())
+                                    .foregroundStyle(.orange)
+                                    .lineLimit(1).minimumScaleFactor(0.7)
+                            }
+                        }
                     }
                 }
                 .frame(minHeight: 14)
@@ -230,7 +238,8 @@ private struct DayCell: View {
         var parts: [String] = []
         if !day.workouts.isEmpty { parts.append(Format.count(day.workouts.count, "session")) }
         if let pain = day.painHigh { parts.append("pain \(Format.number(pain))") }
-        if day.flares == 1 { parts.append("flare-up") } else if day.flares > 1 { parts.append("\(day.flares) flare-ups") }
+        let worst = day.flareHigh.map { " up to \(Format.number($0))" } ?? ""
+        if day.flares == 1 { parts.append("flare-up\(worst)") } else if day.flares > 1 { parts.append("\(day.flares) flare-ups\(worst)") }
         if parts.isEmpty { parts.append("nothing logged") }
         return "\(months[c.month - 1]) \(c.day)\(isToday ? ", today" : ""): " + parts.joined(separator: ", ")
     }
@@ -264,7 +273,8 @@ private struct DaySection: View {
             }
             if day.flares > 0 {
                 Label {
-                    Text(day.flares == 1 ? "1 flare-up logged" : "\(day.flares) flare-ups logged")
+                    Text((day.flares == 1 ? "1 flare-up logged" : "\(day.flares) flare-ups logged")
+                         + (day.flareHigh.map { ", worst \(Format.number($0))" } ?? ""))
                 } icon: {
                     Image(systemName: "bolt.fill").foregroundStyle(.orange)
                 }

@@ -10,6 +10,7 @@ struct InjuryPlanSections: View {
     @Environment(AppModel.self) private var model
     let injury: Injury
     let onEdit: () -> Void
+    @State private var datingMilestone: Milestone?
 
     var body: some View {
         let plan = injury.plan ?? InjuryPlan()
@@ -58,6 +59,21 @@ struct InjuryPlanSections: View {
                     MilestoneRow(progress: progress, text: model.milestoneText(progress.milestone)) {
                         model.setMilestone(progress.milestone.id, done: progress.milestone.doneOn == nil, for: injury)
                     }
+                    .contextMenu {
+                        Button { datingMilestone = progress.milestone } label: {
+                            Label("Done on a day…", systemImage: "calendar")
+                        }
+                        if progress.milestone.doneOn != nil {
+                            Button(role: .destructive) {
+                                model.setMilestone(progress.milestone.id, done: false, for: injury)
+                            } label: { Label("Take the tick away", systemImage: "xmark") }
+                        }
+                    }
+                }
+            }
+            .sheet(item: $datingMilestone) { milestone in
+                MilestoneDaySheet(milestone: milestone) { day in
+                    model.setMilestone(milestone.id, done: true, for: injury, on: day)
                 }
             }
         }
@@ -142,7 +158,7 @@ private struct MilestoneRow: View {
     var body: some View {
         let byHand = progress.milestone.exercise == nil
         let title = progress.milestone.title
-        if byHand {
+        if byHand || progress.milestone.doneOn != nil || !progress.isReached {
             Button(action: onToggle) {
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
                     Image(systemName: progress.milestone.doneOn == nil ? "square" : "checkmark.square.fill")
@@ -150,15 +166,19 @@ private struct MilestoneRow: View {
                         .foregroundStyle(Color.accentColor)
                         .frame(width: 28)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(title).foregroundStyle(.primary)
+                        Text(title.isEmpty ? text : title).foregroundStyle(.primary)
+                        if !byHand && !title.isEmpty && title != text {
+                            Text(text).font(.subheadline).foregroundStyle(.secondary)
+                        }
                         Text(progress.sentence).font(.subheadline).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
             .buttonStyle(.plain)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(title). \(progress.sentence)")
-            .accessibilityHint(progress.milestone.doneOn == nil ? "Ticks it as done today" : "Takes the tick away")
+            .accessibilityLabel("\(title.isEmpty ? text : title). \(progress.sentence)")
+            .accessibilityHint(progress.milestone.doneOn == nil ? "Ticks it as done today. Touch and hold to pick another day." : "Takes the tick away")
             .accessibilityAddTraits(progress.milestone.doneOn == nil ? [] : .isSelected)
         } else {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
@@ -177,6 +197,32 @@ private struct MilestoneRow: View {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(title.isEmpty ? "" : "\(title). ")\(text). \(progress.isReached ? "Reached" : "Not reached yet"). \(progress.sentence)")
         }
+    }
+}
+
+/// The day a milestone was reached, when it was not today (seen in clinic, say).
+private struct MilestoneDaySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let milestone: Milestone
+    let onPick: (Day) -> Void
+    @State private var date = Date()
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                DatePicker("Reached on", selection: $date, in: ...Date(), displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+            }
+            .navigationTitle(milestone.title.isEmpty ? "Milestone" : milestone.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") { onPick(Day(date)); dismiss() }
+                }
+            }
+        }
+        .presentationDetents([.large])
     }
 }
 

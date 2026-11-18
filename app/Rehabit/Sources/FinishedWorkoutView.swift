@@ -14,6 +14,7 @@ struct WorkoutDetailView: View {
     @State private var namingRoutine = false
     @State private var routineName = ""
     @State private var savedRoutine: String?
+    @State private var replacing: Routine?
     @State private var busy = false
 
     init(workout: Workout) { workoutID = workout.id }
@@ -26,6 +27,14 @@ struct WorkoutDetailView: View {
         } else {
             ContentUnavailableView("Workout deleted", systemImage: "trash")
         }
+    }
+
+    private func saveRoutine(replacing old: Routine?) {
+        guard let workout else { return }
+        var routine = model.routine(from: workout, name: routineName)
+        if let old { routine.id = old.id }
+        model.save(routine)
+        savedRoutine = model.routines.first { $0.id == routine.id }?.name ?? routine.name
     }
 
     private func content(_ workout: Workout) -> some View {
@@ -88,7 +97,7 @@ struct WorkoutDetailView: View {
                             var added = model.addSet(model.catalogueEntry(for: last), side: last.side, to: workout.id)
                             // Start from the last set's numbers, as a live workout does.
                             if var new = added {
-                                new.copyPrescription(from: last)
+                                new.copyPrescription(from: last, in: new.loadUnit)
                                 model.update(new)
                                 added = new
                             }
@@ -147,12 +156,18 @@ struct WorkoutDetailView: View {
             TextField("Routine name", text: $routineName)
             Button("Cancel", role: .cancel) {}
             Button("Save") {
-                let routine = model.routine(from: workout, name: routineName)
-                model.save(routine)
-                savedRoutine = model.routines.first { $0.id == routine.id }?.name ?? routine.name
+                if let existing = model.routine(named: routineName) { replacing = existing } else { saveRoutine(replacing: nil) }
             }
         } message: {
-            Text("Keeps the exercises, rounds, sides and supersets. Each set starts from the last session when the routine is started.")
+            Text("Keeps the exercises, rounds, sides, supersets and tempo. Each set starts from the last session when the routine is started.")
+        }
+        .confirmationDialog("A routine called \(replacing?.name ?? "") already exists",
+                            isPresented: Binding(get: { replacing != nil }, set: { if !$0 { replacing = nil } }),
+                            titleVisibility: .visible) {
+            Button("Replace it") { saveRoutine(replacing: replacing); replacing = nil }
+            Button("Keep both") { saveRoutine(replacing: nil); replacing = nil }
+        } message: {
+            Text("Replacing keeps its place in Routines and swaps in this workout's exercises.")
         }
         .alert("Routine saved", isPresented: Binding(get: { savedRoutine != nil }, set: { if !$0 { savedRoutine = nil } })) {
             Button("OK", role: .cancel) {}
