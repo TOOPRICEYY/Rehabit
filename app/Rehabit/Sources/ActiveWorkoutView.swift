@@ -251,7 +251,7 @@ struct ExerciseCard: View {
             }
         }
         .confirmationDialog(linkWarning, isPresented: $confirmingLink, titleVisibility: .visible) {
-            Button("Link anyway") { model.setLinked(true, for: block.exercise) }
+            Button("Link anyway") { linkEverything() }
         } message: {
             Text("While linked, a change on either side is copied to the other until that side is marked done, overwriting its numbers. Unlinking does not bring them back.")
         }
@@ -402,10 +402,12 @@ struct ExerciseCard: View {
             }
             .pickerStyle(.inline)
             if mode == .perSide {
-                Toggle(isOn: Binding(get: { model.isLinked(block.exercise) },
-                                     set: { requestLink($0) })) {
-                    Label("Link the two sides", systemImage: "link")
+                Picker("Link the two sides", selection: Binding(get: { linkChoice }, set: choose(link:))) {
+                    ForEach(LinkChoice.allCases, id: \.self) { choice in
+                        Label(choice.title, systemImage: choice.icon).tag(choice)
+                    }
                 }
+                .pickerStyle(.inline)
             }
         }
         Section {
@@ -533,19 +535,46 @@ struct ExerciseCard: View {
     /// Linking an exercise that loads a one-sided injury asks first: it would
     /// copy one side's load onto the other.
     private func requestLink(_ on: Bool) {
-        if on && injured.count == 1 { confirmingLink = true } else { model.setLinked(on, for: block.exercise) }
+        if on && injured.count == 1 { confirmingLink = true } else {
+            if !on { model.setLinkCountsOnly(false, for: block.exercise) }
+            model.setLinked(on, for: block.exercise)
+        }
+    }
+
+    private var linkChoice: LinkChoice {
+        guard model.isLinked(block.exercise) else { return .separate }
+        return model.linksCountsOnly(block.exercise) ? .countsOnly : .everything
+    }
+
+    /// Reps only copies no weight, so it needs no warning about an injured side.
+    private func choose(link: LinkChoice) {
+        switch link {
+        case .separate: requestLink(false)
+        case .countsOnly: model.setLinkCountsOnly(true, for: block.exercise)
+        case .everything:
+            if injured.count == 1 { confirmingLink = true } else { linkEverything() }
+        }
+    }
+
+    private func linkEverything() {
+        model.setLinkCountsOnly(false, for: block.exercise)
+        model.setLinked(true, for: block.exercise)
     }
 
     /// Whether the right follows the left, and which side is injured.
     private var columnHeader: some View {
         let linked = model.isLinked(block.exercise)
         return HStack(spacing: 8) {
-            Button {
-                requestLink(!linked)
+            Menu {
+                Picker("Link the two sides", selection: Binding(get: { linkChoice }, set: choose(link:))) {
+                    ForEach(LinkChoice.allCases, id: \.self) { choice in
+                        Label(choice.title, systemImage: choice.icon).tag(choice)
+                    }
+                }
             } label: {
                 HStack(spacing: 3) {
                     Image(systemName: linked ? "link" : "link.badge.plus")
-                    Text(linked ? "Sides linked" : "Sides separate")
+                    Text(linkChoice.short)
                 }
                 .lineLimit(1)
                 .font(.caption.weight(.semibold))
@@ -554,7 +583,8 @@ struct ExerciseCard: View {
                 .background(linked ? Color.accentColor.opacity(0.12) : Color(.tertiarySystemFill), in: Capsule())
             }
             .buttonStyle(.borderless)
-            .accessibilityHint("When linked, a change on either side is copied to the other until that side is marked done")
+            .accessibilityLabel(linkChoice.short)
+            .accessibilityHint("Choose whether a change on one side is copied to the other until that side is marked done")
             if injured.count == 1, let side = injured.first {
                 Label("\(Format.side(side)) injured", systemImage: "bandage.fill")
                     .font(.caption.weight(.semibold)).foregroundStyle(.orange)
@@ -1286,5 +1316,34 @@ struct ReorderExercises: View {
             .toolbar { Button("Done") { dismiss() } }
         }
         .presentationDetents([.medium, .large])
+    }
+}
+
+/// How the left and right of a per-side exercise follow each other.
+enum LinkChoice: CaseIterable {
+    case separate, everything, countsOnly
+
+    var title: String {
+        switch self {
+        case .separate: "Keep sides separate"
+        case .everything: "Link reps and weight"
+        case .countsOnly: "Link reps only"
+        }
+    }
+
+    var short: String {
+        switch self {
+        case .separate: "Sides separate"
+        case .everything: "Sides linked"
+        case .countsOnly: "Reps linked"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .separate: "rectangle.split.2x1"
+        case .everything: "link"
+        case .countsOnly: "number"
+        }
     }
 }

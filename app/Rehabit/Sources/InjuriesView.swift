@@ -36,6 +36,18 @@ struct InjuriesView: View {
                 .onDelete { offsets in
                     deleting = offsets.first.map { model.injuries[$0] }
                 }
+                let active = model.injuries.filter(\.isActive)
+                if active.count > 1 {
+                    Section {
+                        ShareLink(item: model.reportText(for: active),
+                                  subject: Text("Rehabit report: all injuries"),
+                                  preview: SharePreview("Rehabit report: all injuries")) {
+                            Label("Report for all injuries", systemImage: "doc.on.doc")
+                        }
+                    } footer: {
+                        Text("One document covering the last 4 weeks of the \(active.count) injuries still healing.")
+                    }
+                }
             }
             .navigationTitle("Injuries")
             .onAppear { sync.checkInbox(model) }
