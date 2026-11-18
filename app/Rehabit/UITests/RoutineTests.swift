@@ -44,9 +44,16 @@ final class RoutineTests: XCTestCase {
         field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length + 2))
     }
 
+    private func openRoutines(_ app: XCUIApplication) {
+        let routines = app.buttons["Routines"]
+        if !routines.exists { for _ in 0..<3 where !routines.exists { app.swipeDown() } }
+        if !routines.exists { for _ in 0..<4 where !routines.exists { app.swipeUp() } }
+        routines.tap()
+    }
+
     func testStartFromRoutine() {
         let app = launch()
-        app.buttons["Routines"].tap()
+        openRoutines(app)
         let start = app.buttons["Start Lower B"]
         XCTAssertTrue(start.waitForExistence(timeout: 5))
         shot("01-list-while-active")
@@ -57,7 +64,7 @@ final class RoutineTests: XCTestCase {
         app.navigationBars.buttons.firstMatch.tap()
 
         discardActive(app)
-        app.buttons["Routines"].tap()
+        openRoutines(app)
         XCTAssertTrue(start.waitForExistence(timeout: 5))
         shot("03-list")
         start.tap()
@@ -93,7 +100,7 @@ final class RoutineTests: XCTestCase {
         shot("12-saved")
         app.alerts.buttons["OK"].tap()
         app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["Routines"].tap()
+        openRoutines(app)
         XCTAssertTrue(app.buttons["Start Leg day"].waitForExistence(timeout: 5))
         shot("13-in-list")
     }
@@ -134,7 +141,7 @@ final class RoutineTests: XCTestCase {
 
     func testEditRoutine() {
         let app = launch()
-        app.buttons["Routines"].tap()
+        openRoutines(app)
         let routine = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Lower B'")).firstMatch
         XCTAssertTrue(routine.waitForExistence(timeout: 5))
         routine.tap()

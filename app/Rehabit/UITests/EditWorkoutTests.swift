@@ -18,6 +18,8 @@ final class EditWorkoutTests: XCTestCase {
     private func openPushDay(_ app: XCUIApplication) {
         app.tabBars.buttons["Workouts"].tap()
         let row = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Push day'")).firstMatch
+        // History sits below the week cards; scroll until the row is there.
+        for _ in 0..<6 where !(row.exists && row.isHittable) { app.swipeUp() }
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
     }
@@ -76,6 +78,7 @@ final class EditWorkoutTests: XCTestCase {
         app.launch()
         app.tabBars.buttons["Workouts"].tap()
         let row = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Push day, edited'")).firstMatch
+        for _ in 0..<6 where !(row.exists && row.isHittable) { app.swipeUp() }
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         XCTAssertTrue(row.label.contains("4 sets"))
         row.tap()
