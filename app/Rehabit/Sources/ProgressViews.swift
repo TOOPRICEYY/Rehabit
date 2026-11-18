@@ -29,39 +29,108 @@ extension Format {
 
 // MARK: - Exercise history
 
+/// What the exercise page charts. An estimated one-rep max when there is one;
+/// past twelve reps there is none, so the heaviest set; holds only when the
+/// sessions really were holds.
+enum HistoryMeasure {
+    case e1RM, topLoad, reps, hold
+
+    init?(_ sessions: [ExerciseSession]) {
+        if sessions.contains(where: { $0.bestE1RMKg != nil }) { self = .e1RM }
+        else if sessions.contains(where: { ($0.topLoadKg ?? 0) > 0 }) { self = .topLoad }
+        else if sessions.contains(where: { ($0.topSet?.reps ?? 0) > 0 }) { self = .reps }
+        else if sessions.contains(where: { $0.longestHoldSeconds != nil }) { self = .hold }
+        else { return nil }
+    }
+
+    var title: String {
+        switch self {
+        case .e1RM: return "Best estimated one-rep max"
+        case .topLoad: return "Top load"
+        case .reps: return "Most reps in a set"
+        case .hold: return "Longest hold"
+        }
+    }
+
+    func axis(_ unit: WeightUnit) -> String {
+        switch self {
+        case .e1RM, .topLoad: return unit.rawValue
+        case .reps: return "reps"
+        case .hold: return "seconds"
+        }
+    }
+
+    func value(_ s: ExerciseSession, _ unit: WeightUnit) -> Double? {
+        switch self {
+        case .e1RM: return s.bestE1RMKg.map { $0 / unit.kilograms }
+        case .topLoad: return s.topLoadKg.flatMap { $0 > 0 ? $0 / unit.kilograms : nil }
+        case .reps: return s.topSet?.reps
+        case .hold: return s.longestHoldSeconds
+        }
+    }
+
+    var footer: String? {
+        switch self {
+        case .topLoad: return "The heaviest set of each session. Past 12 reps a set says more about endurance than strength, so no one-rep max is estimated."
+        default: return nil
+        }
+    }
+}
+
 /// Every session of one exercise, per side: the top set, the best estimated
-/// one-rep max (or the longest hold), volume, pain, and the records.
+/// one-rep max (or the top load, or the longest hold), volume, pain, and the records.
 struct ExerciseHistoryView: View {
     @Environment(AppModel.self) private var model
     let exercise: String
 
     var body: some View {
         let sessions = model.exerciseHistory(exercise)
-        let unit = model.profile.unit
+        let unit = model.displayUnit(for: exercise)
         let sides = Side.allCases.filter { side in sessions.contains { $0.side == side } }
-        let holdsOnly = sessions.allSatisfy { $0.bestE1RMKg == nil }
+        let note = model.exerciseNote(for: exercise).trimmingCharacters(in: .whitespacesAndNewlines)
         List {
+            if !note.isEmpty {
+                Section("Your note") {
+                    Text(note)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityLabel("Your note: \(note)")
+                }
+            }
             if sessions.isEmpty {
                 ContentUnavailableView("No finished sessions yet", systemImage: "chart.xyaxis.line",
                                        description: Text("Finish a workout with \(exercise) to see it here."))
             } else {
-                Section(holdsOnly ? "Longest hold" : "Best estimated one-rep max") {
-                    Chart {
-                        ForEach(sessions) { s in
-                            if let y = holdsOnly ? s.longestHoldSeconds : s.bestE1RMKg.map({ $0 / unit.kilograms }) {
-                                LineMark(x: .value("Day", Format.date(s.day)), y: .value("Value", y))
-                                    .foregroundStyle(by: .value("Side", Format.side(s.side)))
-                                PointMark(x: .value("Day", Format.date(s.day)), y: .value("Value", y))
-                                    .foregroundStyle(by: .value("Side", Format.side(s.side)))
+                if let measure = HistoryMeasure(sessions) {
+                    Section {
+                        Chart {
+                            ForEach(sessions) { s in
+                                if let y = measure.value(s, unit) {
+                                    LineMark(x: .value("Day", Format.date(s.day)), y: .value("Value", y))
+                                        .foregroundStyle(by: .value("Side", Format.side(s.side)))
+                                    PointMark(x: .value("Day", Format.date(s.day)), y: .value("Value", y))
+                                        .foregroundStyle(by: .value("Side", Format.side(s.side)))
+                                        .symbol(by: .value("Side", Format.side(s.side)))
+                                }
                             }
                         }
+                        .chartYAxisLabel(measure.axis(unit))
+                        .frame(height: 200)
+                        .accessibilityLabel("\(measure.title) over time, per side, in \(measure.axis(unit))")
+                    } header: {
+                        Text(measure.title)
+                    } footer: {
+                        if let footer = measure.footer { Text(footer) }
                     }
-                    .chartYAxisLabel(holdsOnly ? "seconds" : unit.rawValue)
-                    .frame(height: 200)
-                    .accessibilityLabel(holdsOnly ? "Longest hold over time, per side" : "Best estimated one-rep max over time, per side")
                 }
                 ForEach(sides, id: \.self) { side in
-                    RecordsSection(exercise: exercise, side: side, showSide: sides.count > 1)
+                    RecordsSection(exercise: exercise, side: side, showSide: sides.count > 1, unit: unit)
+                }
+                if let loadNote = model.loadNote(for: exercise) {
+                    Section {
+                        Label(loadNote, systemImage: "info.circle")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
                 Section("Sessions") {
                     ForEach(sessions.reversed()) { s in
@@ -90,14 +159,26 @@ struct ExerciseHistoryView: View {
 
     private func summary(_ s: ExerciseSession, _ unit: WeightUnit) -> String {
         var parts: [String] = []
-        if let top = s.topSet { parts.append("top \(Format.short(top))") }
+        if let top = s.topSet { parts.append("top \(Self.topText(top, unit))") }
         if let e = s.bestE1RMKg { parts.append("est. max \(Format.weight(e, unit))") }
-        if s.volumeKg > 0 { parts.append("volume \(Format.weight(s.volumeKg, unit))") }
+        if s.volumeKg > 0 { parts.append("volume \(Format.weight(s.volumeKg, unit, decimals: false))") }
         if let hold = s.longestHoldSeconds {
-            parts.append("hold \(Format.number(hold)) s" + (s.longestHoldLoadKg.map { " at \(Format.weight($0, unit))" } ?? ""))
+            parts.append("hold \(Format.number(hold)) s" + (s.longestHoldLoadKg.flatMap { $0 > 0 ? " at \(Format.weight($0, unit))" : nil } ?? ""))
         }
         parts.append(Format.count(s.sets.count, "set"))
         return parts.joined(separator: " · ")
+    }
+
+    /// The top set as typed, its load turned into the page's unit: "44 lb × 15", "BW × 12".
+    static func topText(_ set: WorkoutSet, _ unit: WeightUnit) -> String {
+        let count = set.kind == .hold ? "\(set.holdSeconds.map { Format.number($0) } ?? "–") s"
+            : (set.reps.map { Format.number($0) } ?? "–")
+        guard set.convention != .bodyweight else { return "BW × \(count)" }
+        guard let typed = set.loadValue else { return "– × \(count)" }
+        let value = ((typed * set.loadUnit.kilograms / unit.kilograms) * 10).rounded() / 10
+        let suffix = set.convention == .perHand ? " per hand" : set.convention == .bodyweightPlus ? " added"
+            : set.convention == .bodyweightMinus ? " assistance" : ""
+        return "\(Format.number(value)) \(unit.rawValue)\(suffix) × \(count)"
     }
 }
 
@@ -106,10 +187,10 @@ struct RecordsSection: View {
     let exercise: String
     let side: Side
     let showSide: Bool
+    let unit: WeightUnit
 
     var body: some View {
         let r = model.records(for: exercise, side: side)
-        let unit = model.profile.unit
         if !r.isEmpty {
             Section(showSide ? "Records, \(side == .both ? "both sides" : Format.side(side).lowercased())" : "Records") {
                 if let m = r.heaviestLoad {
@@ -264,6 +345,9 @@ struct SettlingSection: View {
                         if let during = item.during {
                             Text("Highest during the session: \(Format.number(during))").font(.caption)
                         }
+                        if let peak = item.summary?.peak ?? item.readings.compactMap(\.pain).max() {
+                            Text("Highest answer afterwards: \(Format.number(peak))").font(.caption)
+                        }
                         ForEach(item.readings) { r in
                             HStack {
                                 Text(r.moment.label).font(.caption)
@@ -286,7 +370,6 @@ struct SettlingSection: View {
             return item.baseline == nil ? "Needs a reading from before a session to compare" : "Needs a later reading"
         }
         var parts: [String] = []
-        if let peak = s.peak { parts.append("peak \(Format.number(peak))") }
         if let hours = s.hoursToSettle {
             parts.append("back to baseline after \(Int(hours.rounded())) h")
         } else {
@@ -311,6 +394,11 @@ struct WeekHeader: View {
                 stat("\(week.sessions)", week.sessions == 1 ? "session" : "sessions")
                 stat("\(week.workingSets)", "working sets")
                 stat(Format.weight(week.volumeKg, unit, decimals: false), "volume")
+            }
+            if week.effortSessions > 0 {
+                Text("Session load \(Int(week.sessionLoad.rounded()).formatted()) effort × minutes, from \(week.effortSessions) of \(Format.count(week.sessions, "session"))")
+                    .font(.caption)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             if !week.setsByRegion.isEmpty {
                 Text(week.setsByRegion.sorted { $0.value > $1.value }.map { "\($0.key) \($0.value)" }.joined(separator: " · "))

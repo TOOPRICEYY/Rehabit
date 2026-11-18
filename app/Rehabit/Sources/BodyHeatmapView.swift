@@ -414,6 +414,9 @@ struct TissueDetailSheet: View {
                         Label(injury.label, systemImage: "bandage.fill").foregroundStyle(.orange)
                     }
                 }
+                ForEach(hurt) { injury in
+                    WeightMovedSection(injury: injury, weeksAgo: weeksAgo)
+                }
                 Section(weeksAgo == 0 ? "This week, by activity" : "That week, by activity") {
                     if detail.contributions.isEmpty {
                         Text("Nothing loaded this tissue.").foregroundStyle(.secondary)
@@ -474,5 +477,37 @@ struct WeekBars: View {
         .accessibilityElement()
         .accessibilityLabel("Last five weeks, oldest first")
         .accessibilityValue(weekly.map { "\(Int($0.rounded()))" }.joined(separator: ", "))
+    }
+}
+
+/// For an injured tissue: weight moved on each side in the sheet's week by the
+/// sets that load the injury, in the person's unit. The same unit on both
+/// sides, unlike effective reps, which follow each side's own usual weight.
+struct WeightMovedSection: View {
+    @Environment(AppModel.self) private var model
+    let injury: Injury
+    let weeksAgo: Int
+
+    var body: some View {
+        // The timeline ends today; the sheet's week is its first seven days.
+        let days = model.timeline(for: injury, days: 7 * (weeksAgo + 1)).prefix(7)
+        let unit = model.profile.unit
+        let injured = days.reduce(0) { $0 + $1.volumeKg }
+        let other: Double? = injury.side == .both ? nil : days.reduce(0) { $0 + ($1.otherVolumeKg ?? 0) }
+        let unweighed = days.reduce(0) { $0 + $1.unweighedSets }
+        Section {
+            if injury.side == .both {
+                LabeledContent("Both sides, injured", value: Format.weight(injured, unit, decimals: false))
+            } else {
+                let otherSide: Side = injury.side == .left ? .right : .left
+                LabeledContent("\(Format.side(injury.side)), injured", value: Format.weight(injured, unit, decimals: false))
+                LabeledContent(Format.side(otherSide), value: Format.weight(other ?? 0, unit, decimals: false))
+            }
+        } header: {
+            Text(weeksAgo == 0 ? "Weight moved, last 7 days" : "Weight moved that week")
+        } footer: {
+            Text("Load × reps of the sets that load \(injury.label.lowercased()), a hold counting 5 seconds as a rep. A load shared by both sides counts half for each."
+                 + (unweighed > 0 ? " \(Format.count(unweighed, "set")) with no known weight \(unweighed == 1 ? "is" : "are") left out." : ""))
+        }
     }
 }
