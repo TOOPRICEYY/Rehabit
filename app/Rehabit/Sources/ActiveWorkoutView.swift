@@ -91,7 +91,7 @@ struct ActiveWorkoutView: View {
                 Button("Keep them") { finish(removing: false) }
                 Button("Remove them", role: .destructive) { finish(removing: true) }
             } message: {
-                Text("Sets you planned but did not mark done can be kept as logged or left out of this workout.")
+                Text("Sets not ticked done, warm-ups included, can be kept as they are or left out of this workout. Sets with nothing entered are dropped either way.")
             }
             .confirmationDialog("Discard this workout?", isPresented: $confirmingDiscard) {
                 Button("Discard workout", role: .destructive) {
@@ -136,10 +136,13 @@ struct ActiveWorkoutView: View {
     private var bottomBar: some View {
         VStack(spacing: 6) {
         if let next = supersetNextUp {
-            Label("Next: \(next)", systemImage: "arrow.turn.down.right")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Color.accentColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            // Tapping it brings that exercise into view.
+            Button { scrollTo = next } label: {
+                Label("Next: \(next)", systemImage: "arrow.turn.down.right")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .accessibilityHint("Scrolls to \(next)")
                 .padding(.horizontal, 20)
                 .padding(.top, 8)
         }
@@ -566,7 +569,7 @@ struct PreviousSetsNote: View {
         let previous = model.previousSets(exercise: exercise, side: side)
         if let first = previous.first {
             let sets = previous.map(Format.short).joined(separator: ", ")
-            Text("Last time\(showSide ? ", \(Format.side(side).lowercased())" : "") (\(first.workoutDay.description)): \(sets)")
+            Text("Last time\(showSide ? ", \(Format.side(side).lowercased())" : "") (\(first.workoutDay.readable)): \(sets)")
         }
     }
 }
@@ -1013,7 +1016,7 @@ struct SetCell: View {
         if (draft.loadValue ?? 0) > heavy || (draft.reps ?? 0) > 100 || (draft.holdSeconds ?? 0) > 900 {
             out.append("check this number")
         }
-        if let rir = draft.repsInReserve { out.append("RIR \(Format.number(rir))") }
+        if let rir = draft.repsInReserve, draft.kind == .hold { out.append("RIR \(Format.number(rir))") }
         switch draft.range {
         case .partial: out.append("partial")
         case .shortOfEndRange: out.append("short of end range")

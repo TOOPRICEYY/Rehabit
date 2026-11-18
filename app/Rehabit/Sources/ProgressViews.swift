@@ -96,7 +96,7 @@ struct ExerciseHistoryView: View {
         if let hold = s.longestHoldSeconds {
             parts.append("hold \(Format.number(hold)) s" + (s.longestHoldLoadKg.map { " at \(Format.weight($0, unit))" } ?? ""))
         }
-        parts.append("\(s.sets.count) sets")
+        parts.append(Format.count(s.sets.count, "set"))
         return parts.joined(separator: " · ")
     }
 }

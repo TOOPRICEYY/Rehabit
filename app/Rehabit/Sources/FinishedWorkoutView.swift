@@ -176,6 +176,10 @@ struct ReadOnlySetRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(Format.summary(set))
+            let marks = [set.tag?.label, set.repsInReserve.map { "RIR \(Format.number($0))" }].compactMap { $0 }
+            if !marks.isEmpty {
+                Text(marks.joined(separator: " · ")).font(.caption2).foregroundStyle(.secondary)
+            }
             if set.side != .both {
                 Text("\(Format.side(set.side).lowercased()) side\(set.sideInferred == true ? ", inferred" : "")")
                     .font(.caption2).foregroundStyle(.secondary)
