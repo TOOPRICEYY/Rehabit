@@ -33,8 +33,9 @@ final class RoundTwoWorkoutTests: XCTestCase {
         let badge = any(app, "label == 'Set 1, Working set'")
         XCTAssertTrue(badge.waitForExistence(timeout: 3))
         badge.tap()                                   // working -> warm-up
-        XCTAssertTrue(any(app, "label ENDSWITH ', Warm-up'").waitForExistence(timeout: 3))
-        any(app, "label ENDSWITH ', Warm-up'").tap()  // warm-up -> drop set
+        let warmups = app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Warm-up set'"))
+        XCTAssertTrue(warmups.element(boundBy: 1).waitForExistence(timeout: 3))
+        warmups.element(boundBy: 1).tap()             // warm-up -> drop set
         XCTAssertTrue(any(app, "label ENDSWITH ', Drop set'").waitForExistence(timeout: 3))
         shot("01-drop-set")
         any(app, "label ENDSWITH ', Drop set'").tap() // drop -> to failure
