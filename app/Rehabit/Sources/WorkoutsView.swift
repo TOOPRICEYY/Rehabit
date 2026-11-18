@@ -13,6 +13,12 @@ struct WorkoutsView: View {
     @State private var undoable: Workout?
     @State private var undoTask: Task<Void, Never>?
     @State private var reviewingOverlaps = false
+    /// The workout on the live screen, kept so it can be found once finished.
+    @State private var liveID: String?
+    /// The workout just finished, waiting for the effort question until the live screen has closed.
+    @State private var effortWaiting: Workout?
+    /// The workout the effort question is showing for.
+    @State private var askingEffort: Workout?
 
     var body: some View {
         NavigationStack {
@@ -48,6 +54,12 @@ struct WorkoutsView: View {
                     }
                 }
                 Section("History") {
+                    NavigationLink {
+                        CalendarView()
+                    } label: {
+                        Label("Calendar", systemImage: "calendar")
+                    }
+                    .accessibilityHint("Shows the sessions, pain and flare-ups of each day in a month")
                     let overlaps = model.sessionOverlaps.count
                     if overlaps > 0 {
                         Button {
@@ -129,14 +141,34 @@ struct WorkoutsView: View {
             // The pain questions are shown once the workout screen has finished
             // closing; asking for a second screen while the first is still on its
             // way out is ignored by the system.
+            // How hard the session was comes first, then the pain questions.
             .fullScreenCover(isPresented: $showingActive, onDismiss: {
-                showingChecks = checksWaiting
-                checksWaiting = false
+                if let workout = effortWaiting {
+                    effortWaiting = nil
+                    askingEffort = workout
+                } else {
+                    showingChecks = checksWaiting
+                    checksWaiting = false
+                }
             }) {
                 ActiveWorkoutView { dueNow in
                     checksWaiting = !dueNow.isEmpty
+                    // Only a finished workout is asked about: a discarded one is gone.
+                    if model.profile.askEffort, let liveID,
+                       let finished = model.workouts.first(where: { $0.id == liveID && $0.end != nil }) {
+                        effortWaiting = finished
+                    }
                     showingActive = false
                 }
+            }
+            .sheet(item: $askingEffort, onDismiss: {
+                showingChecks = checksWaiting
+                checksWaiting = false
+            }) { workout in
+                EffortPrompt(workout: workout)
+            }
+            .onChange(of: model.active?.id, initial: true) { _, id in
+                if let id { liveID = id }
             }
             .sheet(isPresented: $showingChecks) {
                 NavigationStack {

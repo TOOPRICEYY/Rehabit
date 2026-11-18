@@ -87,6 +87,15 @@ struct SettingsView: View {
                     Text("A daily question, asked in the morning, gives each injury a baseline to compare the after-session readings with. It is only saved when you answer it.")
                 }
                 Section {
+                    Toggle("Ask how hard each session was", isOn: Binding(
+                        get: { model.profile.askEffort },
+                        set: { on in var p = model.profile; p.askEffort = on; model.profile = p }))
+                } header: {
+                    Text("Session effort")
+                } footer: {
+                    Text("After a workout is finished, asks for a number from 0 to 10 before the pain questions. It can be skipped, and added or changed later on the finished workout.")
+                }
+                Section {
                     Button("Read from Apple Health") {
                         Task {
                             healthStatus = "Reading…"

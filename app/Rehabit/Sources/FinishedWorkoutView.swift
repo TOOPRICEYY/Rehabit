@@ -41,8 +41,26 @@ struct WorkoutDetailView: View {
                     if let source = Self.source(workout) {
                         Text("Imported from \(source)").font(.caption).foregroundStyle(.secondary)
                     }
+                    if !editing, let effort = workout.effort {
+                        Text(Format.effort(effort))
+                            .font(.subheadline.weight(.medium))
+                            .padding(.top, 2)
+                            .accessibilityIdentifier("workout-effort")
+                    }
                     if !workout.notes.isEmpty {
                         Text(workout.notes).font(.callout).padding(.top, 4)
+                    }
+                }
+                if editing {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(workout.effort.map { "How hard it was: \(Format.number($0)) of 10" } ?? "How hard it was: not given")
+                            .font(.subheadline)
+                            .accessibilityIdentifier("workout-effort")
+                        EffortChipStrip(value: Binding(get: { workout.effort },
+                                                       set: { model.setEffort($0, for: workout) }))
+                        Text("0 is no effort at all, 10 is the hardest you could do. Tap the chosen number to clear it.")
+                            .font(.caption).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 if editing {

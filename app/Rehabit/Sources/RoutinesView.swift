@@ -66,6 +66,10 @@ enum RoutineFormat {
 
     static func summary(_ item: RoutineItem, letters: [Int: String]) -> String {
         var parts = [Format.count(item.rounds, "round"), mode(item.mode).lowercased()]
+        if let target = item.targetCount {
+            parts.append(item.kind == .hold ? "\(Format.number(target)) s" : "\(Format.number(target)) reps")
+        }
+        if item.kind != .hold, let tempo = item.tempo { parts.append("tempo \(tempo)") }
         if item.warmups > 0 { parts.append(Format.count(item.warmups, "warm-up")) }
         if let rest = item.restSeconds { parts.append("rest \(Format.restLength(rest))") }
         if let group = item.group, let letter = letters[group] { parts.append("superset \(letter)") }
@@ -303,6 +307,7 @@ struct RoutineItemEditor: View {
             } footer: {
                 Text("Warm-up rounds come before the working rounds.")
             }
+            RoutineTargetSection(item: item)
             Section {
                 Picker("Sides", selection: item.mode) {
                     ForEach(SideMode.allCases, id: \.rawValue) { mode in
@@ -337,5 +342,90 @@ struct RoutineItemEditor: View {
         }
         .navigationTitle(item.wrappedValue.exercise)
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// The reps (or seconds, for a hold) each working set is to be, and the tempo
+/// each rep is done at. A tempo is only kept when it can be read.
+private struct RoutineTargetSection: View {
+    @Binding var item: RoutineItem
+    @State private var tempoText = ""
+    @FocusState private var tempoFocused: Bool
+    @ScaledMetric(relativeTo: .body) private var fieldWidth: CGFloat = 72
+
+    private var isHold: Bool { item.kind == .hold }
+    private var typedTempo: Tempo? { Tempo(tempoText) }
+    private var tempoInvalid: Bool {
+        !tempoText.trimmingCharacters(in: .whitespaces).isEmpty && typedTempo == nil
+    }
+
+    var body: some View {
+        Section {
+            HStack {
+                Text(isHold ? "Target seconds" : "Target reps")
+                Spacer()
+                NumberField(title: isHold ? "s" : "reps", value: $item.targetCount, width: fieldWidth, decimal: false)
+                    .accessibilityLabel(isHold ? "Target seconds for each hold" : "Target reps for each set")
+                    .accessibilityIdentifier("routine-target")
+            }
+            if !isHold {
+                HStack {
+                    Text("Tempo")
+                    Spacer()
+                    TextField("3-1-1-0", text: $tempoText)
+                        .textFieldStyle(.roundedBorder)
+                        .keyboardType(.numbersAndPunctuation)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.characters)
+                        .multilineTextAlignment(.trailing)
+                        .frame(maxWidth: fieldWidth * 1.6)
+                        .focused($tempoFocused)
+                        .submitLabel(.done)
+                        .onSubmit { normalise() }
+                        .accessibilityLabel("Tempo")
+                        .accessibilityHint("Seconds lowering, paused, lifting and paused, such as 3-1-1-0")
+                        .accessibilityIdentifier("routine-tempo")
+                }
+                if tempoInvalid {
+                    Label("Not a tempo, so none is saved. Write three or four numbers, such as 3-1-1-0. X means as fast as possible.",
+                          systemImage: "exclamationmark.circle")
+                        .font(.footnote)
+                        .foregroundStyle(.orange)
+                        .accessibilityIdentifier("routine-tempo-invalid")
+                } else if let tempo = typedTempo {
+                    Text(tension(tempo))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("routine-tension")
+                }
+            }
+        } header: {
+            Text("Target")
+        } footer: {
+            Text(isHold ? "Leave the target empty to start each hold from last time."
+                 : "Leave the target empty to start each set from last time. Tempo is seconds lowering, paused at the bottom, lifting and paused at the top.")
+        }
+        .onAppear { tempoText = item.tempo ?? "" }
+        .onChange(of: tempoText) { _, typed in
+            let trimmed = typed.trimmingCharacters(in: .whitespaces)
+            item.tempo = trimmed.isEmpty ? nil : Tempo(trimmed)?.text
+        }
+        .onChange(of: tempoFocused) { _, focused in
+            // Shown as it is stored once typing is done: "31x0" becomes "3-1-X-0".
+            if !focused { normalise() }
+        }
+    }
+
+    private func normalise() {
+        if let tempo = typedTempo, tempo.text != tempoText { tempoText = tempo.text }
+    }
+
+    /// "Time under tension 40 s a set (5 s a rep)", or per rep without a target.
+    private func tension(_ tempo: Tempo) -> String {
+        let perRep = Format.number(tempo.secondsPerRep)
+        if let reps = item.targetCount, reps > 0 {
+            return "Saved as \(tempo.text). Time under tension \(Format.number(reps * tempo.secondsPerRep)) s a set (\(perRep) s a rep)."
+        }
+        return "Saved as \(tempo.text). Time under tension \(perRep) s a rep."
     }
 }
