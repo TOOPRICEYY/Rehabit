@@ -73,6 +73,7 @@ struct InjuryDetailView: View {
     @State private var editing = false
     @State private var baseline: Double?
     @State private var logging = false
+    @State private var planning = false
 
     var body: some View {
         if let injury = model.injuries.first(where: { $0.id == injuryID }) {
@@ -110,6 +111,7 @@ struct InjuryDetailView: View {
                 Section {
                     Button { logging = true } label: { Label("Log pain now", systemImage: "plus.circle") }
                 }
+                InjuryPlanSections(injury: injury) { planning = true }
                 Section("Load and pain") {
                     LoadPainChart(injury: injury)
                     NavigationLink {
@@ -139,6 +141,7 @@ struct InjuryDetailView: View {
             .sheet(isPresented: $logging) { LogPainSheet(injuryID: injury.id) }
             .toolbar { Button("Edit") { editing = true } }
             .sheet(isPresented: $editing) { InjuryEditorView(injury: injury) }
+            .sheet(isPresented: $planning) { InjuryPlanEditorView(injury: injury) }
         } else {
             ContentUnavailableView("Injury removed", systemImage: "bandage")
         }
@@ -152,7 +155,10 @@ struct InjuryEditorView: View {
     @State private var label = ""
     /// Nil until the name says which side or the person picks one: never assumed.
     @State private var side: Side?
-    @State private var onset = Date()
+    /// Nil for a new injury until the person picks the day it began: never assumed to be today.
+    @State private var onset: Date?
+    @State private var pickingDate = false
+    @State private var draftOnset = Date()
     @State private var precision: OnsetPrecision = .day
     @State private var tissues: Set<String> = []
     @State private var mechanism = ""
@@ -215,7 +221,7 @@ struct InjuryEditorView: View {
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                     }
-                    DatePicker("Onset", selection: $onset, displayedComponents: .date)
+                    onsetRow
                     Picker("Date is known to the", selection: $precision) {
                         ForEach(OnsetPrecision.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                     }
@@ -247,10 +253,49 @@ struct InjuryEditorView: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
-                        .disabled(label.trimmingCharacters(in: .whitespaces).isEmpty || tissues.isEmpty || side == nil)
+                        .disabled(label.trimmingCharacters(in: .whitespaces).isEmpty || tissues.isEmpty || side == nil
+                                  || onset == nil)
                 }
             }
             .onAppear(perform: load)
+        }
+    }
+
+    /// The day it began: picked on purpose for a new injury, kept for one being edited.
+    @ViewBuilder private var onsetRow: some View {
+        if let chosen = onset {
+            DatePicker("Began", selection: Binding(get: { chosen }, set: { onset = $0 }),
+                       in: ...Date(), displayedComponents: .date)
+        } else if pickingDate {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("When it began")
+                DatePicker("When it began", selection: $draftOnset, in: ...Date(), displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+                    .labelsHidden()
+                Button {
+                    onset = draftOnset
+                    pickingDate = false
+                } label: {
+                    Text("Use \(Day(draftOnset).readable)").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("Began")
+                    Spacer()
+                    Button("Pick the date") {
+                        // The calendar opens below the name; the keyboard would cover it.
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        pickingDate = true
+                    }
+                        .buttonStyle(.bordered)
+                        .accessibilityLabel("Pick the date it began")
+                }
+                Text("Choose the day it began to save. A rough day is fine: say below how well it is known.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
         }
     }
 
@@ -262,7 +307,7 @@ struct InjuryEditorView: View {
     }
 
     private func save() {
-        guard let side else { return }
+        guard let side, let onset else { return }
         var record = injury ?? Injury(label: label, side: side, onset: Day(onset), tissues: [])
         record.label = label.trimmingCharacters(in: .whitespaces)
         record.side = side

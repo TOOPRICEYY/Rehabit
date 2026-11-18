@@ -66,7 +66,7 @@ struct CheckInsList: View {
                 } header: {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.injury.label).font(.headline).foregroundStyle(Color(uiColor: .label))
-                        Text(item.check.moment.label).font(.subheadline)
+                        Text(isFirst(item) ? "First reading" : item.check.moment.label).font(.subheadline)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(lastText(item.last))
                             if let during = item.sessionPain { Text("During the session: \(Format.number(during))") }
@@ -98,6 +98,11 @@ struct CheckInsList: View {
 
     private func binding(_ id: String) -> Binding<Double?> {
         Binding(get: { pain[id] }, set: { pain[id] = $0 })
+    }
+
+    /// The injury's first question: nothing answered for it yet, not even a flare-up.
+    private func isFirst(_ item: CheckInItem) -> Bool {
+        item.last == nil && model.painHistory(for: item.injury).isEmpty
     }
 
     /// A flare-up logged in the last day, shown beside the question so it does not look lost.

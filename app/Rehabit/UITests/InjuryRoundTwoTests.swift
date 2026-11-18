@@ -52,6 +52,12 @@ final class InjuryRoundTwoTests: XCTestCase {
         shot("02-right-rotator-cuff")
         chip.tap()
         XCTAssertFalse(chip.exists)
+        // A new injury also needs the date it began.
+        XCTAssertFalse(save.isEnabled, "Save waits for a date")
+        app.buttons["Pick the date it began"].tap()
+        let use = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Use '")).firstMatch
+        XCTAssertTrue(use.waitForExistence(timeout: 3))
+        use.tap()
         XCTAssertTrue(save.isEnabled)
         shot("03-chip-added")
 
