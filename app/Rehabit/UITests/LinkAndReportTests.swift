@@ -98,4 +98,57 @@ final class LinkAndReportTests: XCTestCase {
         XCTAssertLessThan(Date().timeIntervalSince(start2), 8)
         shot("20-first-done")
     }
+
+    /// A plan's pain limit shows on the injured side's sets, and a pain above it is flagged.
+    func testPlanPainLimitInTheWorkout() {
+        XCUIDevice.shared.appearance = .light
+        let app = XCUIApplication()
+        app.launchArguments = ["-demo-workout"]
+        app.launch()
+        app.tabBars.buttons["Injuries"].tap()
+        let quad = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Left quad strain'")).firstMatch
+        XCTAssertTrue(quad.waitForExistence(timeout: 5))
+        quad.tap()
+        let add = app.buttons["Add a plan"]
+        for _ in 0..<8 where !(add.exists && add.isHittable) { app.swipeUp() }
+        add.tap()
+        XCTAssertTrue(app.navigationBars["Plan"].waitForExistence(timeout: 3))
+        app.buttons["Pain 3"].firstMatch.tap()
+        app.navigationBars.buttons["Save"].tap()
+
+        app.tabBars.buttons["Workouts"].tap()
+        app.buttons["Resume workout"].tap()
+        let chip = any(app, "label BEGINSWITH 'Set 1, left, Single-Leg Extension' AND label ENDSWITH ', pain'")
+        let from = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
+        for _ in 0..<10 where !(chip.exists && chip.isHittable && chip.frame.minY < 600) {
+            from.press(forDuration: 0.05, thenDragTo: from.withOffset(CGVector(dx: 0, dy: -200)))
+        }
+        XCTAssertTrue(chip.waitForExistence(timeout: 5))
+        XCTAssertTrue(any(app, "label BEGINSWITH 'Plan' AND label CONTAINS 'pain limit 3'").exists, "the limit is shown")
+        chip.tap()
+        let five = app.buttons["5"].firstMatch
+        XCTAssertTrue(five.waitForExistence(timeout: 3))
+        five.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["pain-over-limit"].waitForExistence(timeout: 3))
+        shot("30-over-limit")
+    }
+
+    /// Check-ins at the largest text: the buttons stack instead of breaking words.
+    func testCheckInsAtLargestText() {
+        XCUIDevice.shared.appearance = .light
+        let app = XCUIApplication()
+        app.launchArguments = ["-demo-workout", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        app.launch()
+        app.buttons["Resume workout"].tap()
+        app.navigationBars.buttons["Finish"].tap()
+        let keep = app.buttons["Keep them"]
+        if keep.waitForExistence(timeout: 3) { keep.tap() }
+        let skip = app.buttons["effort-skip"]
+        if skip.waitForExistence(timeout: 5) { skip.tap() } else if app.buttons["Skip"].exists { app.buttons["Skip"].firstMatch.tap() }
+        let save = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Save'")).firstMatch
+        XCTAssertTrue(save.waitForExistence(timeout: 6))
+        sleep(1)
+        shot("40-checkins-axxxl")
+        XCTAssertTrue(app.buttons["Pain 0.5"].firstMatch.exists)
+    }
 }

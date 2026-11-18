@@ -22,6 +22,7 @@ struct ActiveWorkoutView: View {
     @State private var picker: PickerPurpose?
     @State private var confirmingDiscard = false
     @State private var confirmingUnfinished = false
+    @State private var confirmingHold = false
     @State private var keyboardUp = false
     @State private var scrollTo: String?
 
@@ -81,10 +82,16 @@ struct ActiveWorkoutView: View {
                         // Close the keyboard first so a field still being typed in hands over its value.
                         dismissKeyboard()
                         model.renameActive(title)
-                        if model.usesDoneMarks && !model.unfinishedSets.isEmpty { confirmingUnfinished = true } else { finish(removing: false) }
+                        if model.holdRun != nil { confirmingHold = true } else { askUnfinishedOrFinish() }
                     }
                     .fontWeight(.semibold)
                 }
+            }
+            .confirmationDialog("A hold is still being timed", isPresented: $confirmingHold, titleVisibility: .visible) {
+                Button("Stop it and save the hold") { model.stopHold(); askUnfinishedOrFinish() }
+                Button("Finish without it", role: .destructive) { model.cancelHold(); askUnfinishedOrFinish() }
+            } message: {
+                Text("Finishing now would leave the hold unsaved.")
             }
             .confirmationDialog("\(Format.count(model.unfinishedSets.count, "set")) not marked done", isPresented: $confirmingUnfinished,
                                 titleVisibility: .visible) {
@@ -119,6 +126,10 @@ struct ActiveWorkoutView: View {
         }
     }
 
+    private func askUnfinishedOrFinish() {
+        if model.usesDoneMarks && !model.unfinishedSets.isEmpty { confirmingUnfinished = true } else { finish(removing: false) }
+    }
+
     private func finish(removing: Bool) {
         RestNotice.schedule(nil)
         onClose(model.finishWorkout(removingUnfinished: removing))
@@ -134,6 +145,8 @@ struct ActiveWorkoutView: View {
                     Label("Holding \(run.exercise): \(Format.elapsed(run.elapsed(at: context.date)))", systemImage: "stopwatch")
                         .font(.subheadline.weight(.semibold)).monospacedDigit()
                     Spacer()
+                    Button("Cancel") { model.cancelHold() }.controlSize(.small)
+                        .accessibilityHint("Stops timing and saves nothing")
                     Button("Stop") { model.stopHold() }.buttonStyle(.borderedProminent).controlSize(.small)
                 }
                 .padding(.horizontal, 20).padding(.top, 8)
@@ -971,6 +984,11 @@ struct SetCell: View {
                 WrapStack(spacing: 6) {
                     if showPain || draft.pain != nil {
                         PainChip(pain: $draft.pain, type: $draft.painType, context: "\(setWords)\(sideWords)")
+                        if let limit = painLimit, draft.pain == nil {
+                            Text("limit \(Format.number(limit.max))")
+                                .font(.caption2).foregroundStyle(.secondary)
+                                .accessibilityLabel("Plan's pain limit \(Format.number(limit.max)) for \(limit.injury)")
+                        }
                     }
                     ForEach(tags, id: \.self) { tag in
                         Text(tag)
@@ -979,6 +997,13 @@ struct SetCell: View {
                             .background(Color(.tertiarySystemFill), in: Capsule())
                     }
                 }
+            }
+            if let limit = painLimit, let pain = draft.pain, pain > limit.max {
+                Label("Above the limit of \(Format.number(limit.max)) in the plan for \(limit.injury)",
+                      systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.red)
+                    .accessibilityIdentifier("pain-over-limit")
             }
                 if let refusal, !draft.isDone {
                     Label(refusal, systemImage: "exclamationmark.circle").font(.caption).foregroundStyle(.orange)
@@ -1107,6 +1132,18 @@ struct SetCell: View {
 
     /// Last session's set in this set's unit, so the chip reads and copies in
     /// the unit the exercise is in now (rounded to whole pounds or half kilograms).
+    /// The lowest pain-during limit set in a plan for an active injury on this
+    /// set's side, when the exercise loads an injured tissue.
+    private var painLimit: (max: Double, injury: String)? {
+        guard showPain else { return nil }
+        let limits = model.injuries.compactMap { injury -> (max: Double, injury: String)? in
+            guard injury.isActive, let max = injury.plan?.rule?.duringMax,
+                  draft.side == .both || injury.side.bodySides.contains(draft.side) else { return nil }
+            return (max, injury.label)
+        }
+        return limits.min { $0.max < $1.max }
+    }
+
     private func inDraftUnit(_ last: WorkoutSet) -> WorkoutSet {
         guard last.loadUnit != draft.loadUnit, let load = last.loadValue else { return last }
         var copy = last

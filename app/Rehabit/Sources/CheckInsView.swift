@@ -120,7 +120,22 @@ struct CheckInsList: View {
         let answered = round.filter { pain[$0.check.id] != nil }
         let open = round.filter { pain[$0.check.id] == nil }
         return VStack(spacing: 8) {
-            HStack(spacing: 10) {
+            // Side by side while the words fit; stacked rather than broken mid-word.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) { actions(answered: answered, open: open).fixedSize(horizontal: true, vertical: false) }
+                VStack(spacing: 8) { actions(answered: answered, open: open).frame(maxWidth: .infinity) }
+            }
+            .controlSize(.large)
+            Text("Unchanged copies a number entered in the last three days. Skip leaves it unanswered, never zero.")
+                .font(.caption2).foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 10)
+        .background(.bar)
+        // The bar stays small enough to leave the questions in view.
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+    }
+
+    @ViewBuilder private func actions(answered: [CheckInItem], open: [CheckInItem]) -> some View {
                 Button("Skip") {
                     saveAnswered(answered)
                     model.skip(open.map(\.check))
@@ -139,17 +154,10 @@ struct CheckInsList: View {
                     saveAnswered(answered)
                     if open.isEmpty { reset() }
                 } label: {
-                    Text(answered.isEmpty ? "Save" : "Save \(answered.count)").frame(maxWidth: .infinity)
+                    Text(answered.isEmpty ? "Save" : "Save \(answered.count)").lineLimit(1).frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(answered.isEmpty)
-            }
-            .controlSize(.large)
-            Text("Unchanged copies a number entered in the last three days. Skip leaves it unanswered, never zero.")
-                .font(.caption2).foregroundStyle(.secondary)
-        }
-        .padding(.horizontal, 16).padding(.vertical, 10)
-        .background(.bar)
     }
 
     private func saveAnswered(_ items: [CheckInItem]) {
@@ -170,10 +178,13 @@ struct CheckInsList: View {
 /// until one is tapped, so an untouched row is never read as zero.
 struct PainChipStrip: View {
     @Binding var value: Double?
+    @Environment(\.dynamicTypeSize) private var typeSize
 
-    /// All of 0 to 10 at once, in three rows, so no number is hidden off-screen.
+    /// All of 0 to 10 at once, in rows, so no number is hidden off-screen:
+    /// seven to a row, fewer at the accessibility sizes so "0.5" is not cut.
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 7), spacing: 6) {
+        let columns = typeSize >= .accessibility3 ? 3 : typeSize.isAccessibilitySize ? 4 : 7
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: columns), spacing: 6) {
             ForEach(Format.painSteps, id: \.self) { step in
                 let chosen = value == step
                 Button {
@@ -181,6 +192,8 @@ struct PainChipStrip: View {
                 } label: {
                     Text(Format.number(step))
                         .font(.callout.monospacedDigit().weight(chosen ? .bold : .regular))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity, minHeight: 44)
                         .background(chosen ? Format.painColor(step) : Format.painColor(step).opacity(0.15),
                                     in: RoundedRectangle(cornerRadius: 10))
