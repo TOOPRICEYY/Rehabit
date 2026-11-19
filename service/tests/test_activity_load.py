@@ -46,6 +46,19 @@ def load(con, tissue, side="left", day=DAY):
     ("indoor_cardio", "Cardio", None),                  # a machine nobody named
     ("indoor_cardio", "Rowing", "rowing"),              # named: the name decides
     ("other", None, None),
+    ("hand_cycling", None, None),                       # the arms turn it, not the legs
+    ("motorcycling", None, None),
+    ("wheelchair_push_run", None, None),
+    ("backcountry_skiing", None, None),
+    ("ice_hockey", None, None),                         # skating, not running steps
+    ("e_bike_fitness", None, "cycling"),
+    ("virtual_ride", None, "cycling"),
+    ("floor_climbing", None, "stair_climbing"),
+    ("rucking", None, "hiking"),
+    ("hiit", None, "hiit"),
+    ("indoor_cardio", "Stationary bike", "cycling"),
+    ("indoor_cardio", "Peloton", "cycling"),
+    ("indoor_cardio", "Assault bike", "cycling"),
     (None, None, None),
 ])
 def test_activity_types_map_to_a_pattern_or_to_nothing(type_key, name, expected):
@@ -121,3 +134,12 @@ def test_length_is_capped(con):
     add(con, DAY, "cycling", 100000)
     ledger.compute(con)
     assert load(con, "quads")[0] == pytest.approx(600 * 0.25)
+
+
+def test_the_persons_answer_wins_over_the_type(con):
+    add(con, DAY, "indoor_cardio", 20, title="Cardio")
+    con.execute("UPDATE session SET counts_as = 'cycling'")
+    add(con, DAY, "cycling", 30, title="Ride", n=1)
+    con.execute("UPDATE session SET counts_as = 'none' WHERE title = 'Ride'")
+    ledger.compute(con)
+    assert load(con, "quads")[0] == pytest.approx(20 * 0.25)     # the bike counts, the "none" ride does not

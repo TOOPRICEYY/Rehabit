@@ -98,7 +98,8 @@ Android.
    hiking, stairs and sports it is only what they add beyond their steps, which the
    step count already holds. Intensity is the heart-rate reserve used against that of a
    moderate effort (half), kept between 0.5 and 2, and 1 when a heart rate is unknown.
-   A type with no rate adds nothing: an "indoor cardio" recording is often a sauna.
+   A type with no rate adds nothing: an "indoor cardio" recording is often a sauna. What
+   the person says a recording was (`counts_as`, "none" for no load) wins over its type.
 6. **Replay** (`replay.py`). For each injury with a known onset, lists the flags that
    fired in the two weeks before it, next to the base rate: the share of all comparable
    two-week windows in which the same flag fired. A flag that fires before an injury but

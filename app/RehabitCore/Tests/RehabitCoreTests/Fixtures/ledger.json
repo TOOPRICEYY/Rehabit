@@ -149,7 +149,8 @@
    "name": "Morning Ride",
    "minutes": 45.0,
    "averageHR": 118.0,
-   "maxHR": 150.0
+   "maxHR": 150.0,
+   "countsAs": null
   },
   {
    "day": "2025-01-10",
@@ -157,7 +158,8 @@
    "name": "Indoor Rowing",
    "minutes": 12.0,
    "averageHR": 140.0,
-   "maxHR": 172.0
+   "maxHR": 172.0,
+   "countsAs": null
   },
   {
    "day": "2025-01-12",
@@ -165,7 +167,8 @@
    "name": "Easy Run",
    "minutes": 25.5,
    "averageHR": 150.0,
-   "maxHR": 181.0
+   "maxHR": 181.0,
+   "countsAs": null
   },
   {
    "day": "2025-01-14",
@@ -173,7 +176,8 @@
    "name": "Sauna",
    "minutes": 20.0,
    "averageHR": 120.0,
-   "maxHR": 150.0
+   "maxHR": 150.0,
+   "countsAs": null
   },
   {
    "day": "2025-01-16",
@@ -181,7 +185,8 @@
    "name": "Yoga",
    "minutes": 30.0,
    "averageHR": 80.0,
-   "maxHR": 105.0
+   "maxHR": 105.0,
+   "countsAs": null
   },
   {
    "day": "2025-01-17",
@@ -189,7 +194,8 @@
    "name": "Walk",
    "minutes": 50.0,
    "averageHR": 95.0,
-   "maxHR": 120.0
+   "maxHR": 120.0,
+   "countsAs": null
   },
   {
    "day": "2025-01-18",
@@ -197,7 +203,35 @@
    "name": "Stairmaster",
    "minutes": 15.0,
    "averageHR": null,
-   "maxHR": null
+   "maxHR": null,
+   "countsAs": null
+  },
+  {
+   "day": "2025-01-19",
+   "type": "indoor_cardio",
+   "name": "Cardio",
+   "minutes": 20.0,
+   "averageHR": 135.0,
+   "maxHR": 170.0,
+   "countsAs": "cycling"
+  },
+  {
+   "day": "2025-01-20",
+   "type": "hiit",
+   "name": "HIIT",
+   "minutes": 18.0,
+   "averageHR": 140.0,
+   "maxHR": 175.0,
+   "countsAs": null
+  },
+  {
+   "day": "2025-01-21",
+   "type": "cycling",
+   "name": "Ride",
+   "minutes": 30.0,
+   "averageHR": 120.0,
+   "maxHR": 150.0,
+   "countsAs": "none"
   },
   {
    "day": "2025-02-16",
@@ -205,7 +239,8 @@
    "name": "Pool",
    "minutes": 30.0,
    "averageHR": 125.0,
-   "maxHR": 160.0
+   "maxHR": 160.0,
+   "countsAs": null
   }
  ],
  "restingHR": {
@@ -5982,41 +6017,41 @@
    "day": "2025-01-19",
    "tissue": "calf",
    "side": "left",
-   "dose": 32.5,
+   "dose": 34.434,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.3475,
-   "chronic": 27.6514
+   "acute": 41.605,
+   "chronic": 27.7192
   },
   {
    "day": "2025-01-19",
    "tissue": "calf",
    "side": "right",
-   "dose": 32.5,
+   "dose": 34.434,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.3475,
-   "chronic": 27.6514
+   "acute": 41.605,
+   "chronic": 27.7192
   },
   {
    "day": "2025-01-19",
    "tissue": "glute_max",
    "side": "left",
-   "dose": 6.5,
+   "dose": 9.724,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.3283,
-   "chronic": 6.0463
+   "acute": 9.7575,
+   "chronic": 6.1594
   },
   {
    "day": "2025-01-19",
    "tissue": "glute_max",
    "side": "right",
-   "dose": 6.5,
+   "dose": 9.724,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.3283,
-   "chronic": 6.0463
+   "acute": 9.7575,
+   "chronic": 6.1594
   },
   {
    "day": "2025-01-19",
@@ -6042,121 +6077,181 @@
    "day": "2025-01-19",
    "tissue": "hamstrings",
    "side": "left",
-   "dose": 6.5,
+   "dose": 9.079,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.2144,
-   "chronic": 6.1317
+   "acute": 9.5577,
+   "chronic": 6.2221
   },
   {
    "day": "2025-01-19",
    "tissue": "hamstrings",
    "side": "right",
-   "dose": 6.5,
+   "dose": 9.079,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.2144,
-   "chronic": 6.1317
+   "acute": 9.5577,
+   "chronic": 6.2221
   },
   {
    "day": "2025-01-19",
    "tissue": "hip_flexors",
    "side": "left",
-   "dose": 9.75,
+   "dose": 11.04,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.331,
-   "chronic": 8.2941
+   "acute": 12.5026,
+   "chronic": 8.3393
   },
   {
    "day": "2025-01-19",
    "tissue": "hip_flexors",
    "side": "right",
-   "dose": 9.75,
+   "dose": 11.04,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.331,
-   "chronic": 8.2941
+   "acute": 12.5026,
+   "chronic": 8.3393
+  },
+  {
+   "day": "2025-01-19",
+   "tissue": "patellar_tendon",
+   "side": "left",
+   "dose": 3.224,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 4.8095,
+   "chronic": 2.5184
+  },
+  {
+   "day": "2025-01-19",
+   "tissue": "patellar_tendon",
+   "side": "right",
+   "dose": 3.224,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.2421,
+   "chronic": 3.1962
   },
   {
    "day": "2025-01-19",
    "tissue": "quads",
    "side": "left",
-   "dose": 9.75,
+   "dose": 16.198,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.145,
-   "chronic": 10.3231
+   "acute": 17.0033,
+   "chronic": 10.5493
   },
   {
    "day": "2025-01-19",
    "tissue": "quads",
    "side": "right",
-   "dose": 9.75,
+   "dose": 16.198,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 17.9358,
-   "chronic": 11.1704
+   "acute": 18.7941,
+   "chronic": 11.3966
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "abs",
+   "side": "left",
+   "dose": 4.92,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.7402,
+   "chronic": 0.2229
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "abs",
+   "side": "right",
+   "dose": 4.92,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.7402,
+   "chronic": 0.2229
   },
   {
    "day": "2025-01-20",
    "tissue": "achilles",
    "side": "left",
-   "dose": 32.5,
+   "dose": 38.651,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.0974,
-   "chronic": 27.7447
+   "acute": 40.9161,
+   "chronic": 27.9605
   },
   {
    "day": "2025-01-20",
    "tissue": "achilles",
    "side": "right",
-   "dose": 32.5,
+   "dose": 38.651,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.0974,
-   "chronic": 27.7447
+   "acute": 40.9161,
+   "chronic": 27.9605
   },
   {
    "day": "2025-01-20",
    "tissue": "calf",
    "side": "left",
-   "dose": 32.5,
+   "dose": 38.651,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.1697,
-   "chronic": 27.8215
+   "acute": 41.2117,
+   "chronic": 28.1027
   },
   {
    "day": "2025-01-20",
    "tissue": "calf",
    "side": "right",
-   "dose": 32.5,
+   "dose": 38.651,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.1697,
-   "chronic": 27.8215
+   "acute": 41.2117,
+   "chronic": 28.1027
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "front_delt",
+   "side": "left",
+   "dose": 4.92,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.1163,
+   "chronic": 0.6183
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "front_delt",
+   "side": "right",
+   "dose": 4.92,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.1163,
+   "chronic": 0.6183
   },
   {
    "day": "2025-01-20",
    "tissue": "glute_max",
    "side": "left",
-   "dose": 6.5,
+   "dose": 13.881,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.9518,
-   "chronic": 6.0622
+   "acute": 10.3064,
+   "chronic": 6.4303
   },
   {
    "day": "2025-01-20",
    "tissue": "glute_max",
    "side": "right",
-   "dose": 6.5,
+   "dose": 13.881,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.9518,
-   "chronic": 6.0622
+   "acute": 10.3064,
+   "chronic": 6.4303
   },
   {
    "day": "2025-01-20",
@@ -6185,8 +6280,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.853,
-   "chronic": 6.1446
+   "acute": 9.1506,
+   "chronic": 6.2319
   },
   {
    "day": "2025-01-20",
@@ -6195,48 +6290,108 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.853,
-   "chronic": 6.1446
+   "acute": 9.1506,
+   "chronic": 6.2319
   },
   {
    "day": "2025-01-20",
    "tissue": "hip_flexors",
    "side": "left",
-   "dose": 9.75,
+   "dose": 13.44,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.9874,
-   "chronic": 8.3452
+   "acute": 12.6275,
+   "chronic": 8.5183
   },
   {
    "day": "2025-01-20",
    "tissue": "hip_flexors",
    "side": "right",
-   "dose": 9.75,
+   "dose": 13.44,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.9874,
-   "chronic": 8.3452
+   "acute": 12.6275,
+   "chronic": 8.5183
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "patellar_tendon",
+   "side": "left",
+   "dose": 6.151,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 4.988,
+   "chronic": 2.6458
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "patellar_tendon",
+   "side": "right",
+   "dose": 6.151,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.23,
+   "chronic": 3.2999
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "pec_major",
+   "side": "left",
+   "dose": 4.92,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.5339,
+   "chronic": 1.0811
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "pec_major",
+   "side": "right",
+   "dose": 4.92,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.5339,
+   "chronic": 1.0811
   },
   {
    "day": "2025-01-20",
    "tissue": "quads",
    "side": "left",
-   "dose": 9.75,
+   "dose": 22.051,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 15.2937,
-   "chronic": 10.303
+   "acute": 17.6753,
+   "chronic": 10.9528
   },
   {
    "day": "2025-01-20",
    "tissue": "quads",
    "side": "right",
-   "dose": 9.75,
+   "dose": 22.051,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.8461,
-   "chronic": 11.1206
+   "acute": 19.2277,
+   "chronic": 11.7704
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "triceps",
+   "side": "left",
+   "dose": 3.69,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.9412,
+   "chronic": 0.5706
+  },
+  {
+   "day": "2025-01-20",
+   "tissue": "triceps",
+   "side": "right",
+   "dose": 3.69,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.9412,
+   "chronic": 0.5706
   },
   {
    "day": "2025-01-21",
@@ -6245,8 +6400,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 39.086,
-   "chronic": 27.9116
+   "acute": 39.7958,
+   "chronic": 28.1198
   },
   {
    "day": "2025-01-21",
@@ -6255,8 +6410,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 39.086,
-   "chronic": 27.9116
+   "acute": 39.7958,
+   "chronic": 28.1198
   },
   {
    "day": "2025-01-21",
@@ -6265,8 +6420,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 39.1487,
-   "chronic": 27.9856
+   "acute": 40.052,
+   "chronic": 28.257
   },
   {
    "day": "2025-01-21",
@@ -6275,8 +6430,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 39.1487,
-   "chronic": 27.9856
+   "acute": 40.052,
+   "chronic": 28.257
   },
   {
    "day": "2025-01-21",
@@ -6285,8 +6440,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.6254,
-   "chronic": 6.0776
+   "acute": 9.7997,
+   "chronic": 6.4327
   },
   {
    "day": "2025-01-21",
@@ -6295,8 +6450,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.6254,
-   "chronic": 6.0776
+   "acute": 9.7997,
+   "chronic": 6.4327
   },
   {
    "day": "2025-01-21",
@@ -6325,8 +6480,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5398,
-   "chronic": 6.157
+   "acute": 8.7978,
+   "chronic": 6.2413
   },
   {
    "day": "2025-01-21",
@@ -6335,8 +6490,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5398,
-   "chronic": 6.157
+   "acute": 8.7978,
+   "chronic": 6.2413
   },
   {
    "day": "2025-01-21",
@@ -6345,8 +6500,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.6895,
-   "chronic": 8.3945
+   "acute": 12.2444,
+   "chronic": 8.5615
   },
   {
    "day": "2025-01-21",
@@ -6355,8 +6510,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.6895,
-   "chronic": 8.3945
+   "acute": 12.2444,
+   "chronic": 8.5615
   },
   {
    "day": "2025-01-21",
@@ -6365,8 +6520,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.5557,
-   "chronic": 10.2836
+   "acute": 16.6203,
+   "chronic": 10.9106
   },
   {
    "day": "2025-01-21",
@@ -6375,8 +6530,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 15.9014,
-   "chronic": 11.0725
+   "acute": 17.966,
+   "chronic": 11.6995
   },
   {
    "day": "2025-01-22",
@@ -6385,8 +6540,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 38.2092,
-   "chronic": 28.0726
+   "acute": 38.8245,
+   "chronic": 28.2735
   },
   {
    "day": "2025-01-22",
@@ -6395,8 +6550,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 38.2092,
-   "chronic": 28.0726
+   "acute": 38.8245,
+   "chronic": 28.2735
   },
   {
    "day": "2025-01-22",
@@ -6405,8 +6560,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 38.2636,
-   "chronic": 28.144
+   "acute": 39.0466,
+   "chronic": 28.4059
   },
   {
    "day": "2025-01-22",
@@ -6415,8 +6570,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 38.2636,
-   "chronic": 28.144
+   "acute": 39.0466,
+   "chronic": 28.4059
   },
   {
    "day": "2025-01-22",
@@ -6425,8 +6580,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.3425,
-   "chronic": 6.0924
+   "acute": 9.3604,
+   "chronic": 6.4351
   },
   {
    "day": "2025-01-22",
@@ -6435,8 +6590,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.3425,
-   "chronic": 6.0924
+   "acute": 9.3604,
+   "chronic": 6.4351
   },
   {
    "day": "2025-01-22",
@@ -6465,8 +6620,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.2682,
-   "chronic": 6.1691
+   "acute": 8.4919,
+   "chronic": 6.2504
   },
   {
    "day": "2025-01-22",
@@ -6475,8 +6630,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.2682,
-   "chronic": 6.1691
+   "acute": 8.4919,
+   "chronic": 6.2504
   },
   {
    "day": "2025-01-22",
@@ -6485,8 +6640,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.4313,
-   "chronic": 8.442
+   "acute": 11.9123,
+   "chronic": 8.6032
   },
   {
    "day": "2025-01-22",
@@ -6495,8 +6650,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.4313,
-   "chronic": 8.442
+   "acute": 11.9123,
+   "chronic": 8.6032
   },
   {
    "day": "2025-01-22",
@@ -6505,8 +6660,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.9159,
-   "chronic": 10.2649
+   "acute": 15.7057,
+   "chronic": 10.8699
   },
   {
    "day": "2025-01-22",
@@ -6515,8 +6670,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 15.0825,
-   "chronic": 11.0261
+   "acute": 16.8723,
+   "chronic": 11.6311
   },
   {
    "day": "2025-01-23",
@@ -6525,8 +6680,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 37.4492,
-   "chronic": 28.2279
+   "acute": 37.9826,
+   "chronic": 28.4218
   },
   {
    "day": "2025-01-23",
@@ -6535,8 +6690,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 37.4492,
-   "chronic": 28.2279
+   "acute": 37.9826,
+   "chronic": 28.4218
   },
   {
    "day": "2025-01-23",
@@ -6545,8 +6700,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 37.4963,
-   "chronic": 28.2968
+   "acute": 38.1751,
+   "chronic": 28.5495
   },
   {
    "day": "2025-01-23",
@@ -6555,8 +6710,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 37.4963,
-   "chronic": 28.2968
+   "acute": 38.1751,
+   "chronic": 28.5495
   },
   {
    "day": "2025-01-23",
@@ -6565,8 +6720,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0972,
-   "chronic": 6.1067
+   "acute": 8.9796,
+   "chronic": 6.4374
   },
   {
    "day": "2025-01-23",
@@ -6575,8 +6730,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0972,
-   "chronic": 6.1067
+   "acute": 8.9796,
+   "chronic": 6.4374
   },
   {
    "day": "2025-01-23",
@@ -6605,8 +6760,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0328,
-   "chronic": 6.1807
+   "acute": 8.2267,
+   "chronic": 6.2591
   },
   {
    "day": "2025-01-23",
@@ -6615,8 +6770,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0328,
-   "chronic": 6.1807
+   "acute": 8.2267,
+   "chronic": 6.2591
   },
   {
    "day": "2025-01-23",
@@ -6625,8 +6780,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.2075,
-   "chronic": 8.4879
+   "acute": 11.6245,
+   "chronic": 8.6434
   },
   {
    "day": "2025-01-23",
@@ -6635,8 +6790,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.2075,
-   "chronic": 8.4879
+   "acute": 11.6245,
+   "chronic": 8.6434
   },
   {
    "day": "2025-01-23",
@@ -6645,8 +6800,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3614,
-   "chronic": 10.2468
+   "acute": 14.9129,
+   "chronic": 10.8306
   },
   {
    "day": "2025-01-23",
@@ -6655,8 +6810,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.3727,
-   "chronic": 10.9813
+   "acute": 15.9242,
+   "chronic": 11.5651
   },
   {
    "day": "2025-01-24",
@@ -6665,8 +6820,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.7904,
-   "chronic": 28.3778
+   "acute": 37.2527,
+   "chronic": 28.5648
   },
   {
    "day": "2025-01-24",
@@ -6675,8 +6830,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.7904,
-   "chronic": 28.3778
+   "acute": 37.2527,
+   "chronic": 28.5648
   },
   {
    "day": "2025-01-24",
@@ -6685,8 +6840,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.8312,
-   "chronic": 28.4443
+   "acute": 37.4196,
+   "chronic": 28.6881
   },
   {
    "day": "2025-01-24",
@@ -6695,8 +6850,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.8312,
-   "chronic": 28.4443
+   "acute": 37.4196,
+   "chronic": 28.6881
   },
   {
    "day": "2025-01-24",
@@ -6705,8 +6860,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.8846,
-   "chronic": 6.1205
+   "acute": 8.6495,
+   "chronic": 6.4396
   },
   {
    "day": "2025-01-24",
@@ -6715,8 +6870,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.8846,
-   "chronic": 6.1205
+   "acute": 8.6495,
+   "chronic": 6.4396
   },
   {
    "day": "2025-01-24",
@@ -6745,8 +6900,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.8288,
-   "chronic": 6.1919
+   "acute": 7.9969,
+   "chronic": 6.2676
   },
   {
    "day": "2025-01-24",
@@ -6755,8 +6910,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.8288,
-   "chronic": 6.1919
+   "acute": 7.9969,
+   "chronic": 6.2676
   },
   {
    "day": "2025-01-24",
@@ -6765,8 +6920,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.0135,
-   "chronic": 8.5322
+   "acute": 11.375,
+   "chronic": 8.6823
   },
   {
    "day": "2025-01-24",
@@ -6775,8 +6930,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.0135,
-   "chronic": 8.5322
+   "acute": 11.375,
+   "chronic": 8.6823
   },
   {
    "day": "2025-01-24",
@@ -6785,8 +6940,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.8806,
-   "chronic": 10.2294
+   "acute": 14.2256,
+   "chronic": 10.7927
   },
   {
    "day": "2025-01-24",
@@ -6795,8 +6950,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.7573,
-   "chronic": 10.9381
+   "acute": 15.1022,
+   "chronic": 11.5015
   },
   {
    "day": "2025-01-25",
@@ -6805,8 +6960,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.2192,
-   "chronic": 28.5224
+   "acute": 36.6201,
+   "chronic": 28.7029
   },
   {
    "day": "2025-01-25",
@@ -6815,8 +6970,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.2192,
-   "chronic": 28.5224
+   "acute": 36.6201,
+   "chronic": 28.7029
   },
   {
    "day": "2025-01-25",
@@ -6825,8 +6980,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.2546,
-   "chronic": 28.5866
+   "acute": 36.7647,
+   "chronic": 28.8218
   },
   {
    "day": "2025-01-25",
@@ -6835,8 +6990,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.2546,
-   "chronic": 28.5866
+   "acute": 36.7647,
+   "chronic": 28.8218
   },
   {
    "day": "2025-01-25",
@@ -6845,8 +7000,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.7003,
-   "chronic": 6.1338
+   "acute": 8.3634,
+   "chronic": 6.4417
   },
   {
    "day": "2025-01-25",
@@ -6855,8 +7010,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.7003,
-   "chronic": 6.1338
+   "acute": 8.3634,
+   "chronic": 6.4417
   },
   {
    "day": "2025-01-25",
@@ -6885,8 +7040,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.6519,
-   "chronic": 6.2027
+   "acute": 7.7976,
+   "chronic": 6.2757
   },
   {
    "day": "2025-01-25",
@@ -6895,8 +7050,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.6519,
-   "chronic": 6.2027
+   "acute": 7.7976,
+   "chronic": 6.2757
   },
   {
    "day": "2025-01-25",
@@ -6905,8 +7060,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.8453,
-   "chronic": 8.5749
+   "acute": 11.1586,
+   "chronic": 8.7197
   },
   {
    "day": "2025-01-25",
@@ -6915,8 +7070,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.8453,
-   "chronic": 8.5749
+   "acute": 11.1586,
+   "chronic": 8.7197
   },
   {
    "day": "2025-01-25",
@@ -6925,8 +7080,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.4639,
-   "chronic": 10.2126
+   "acute": 13.6298,
+   "chronic": 10.7561
   },
   {
    "day": "2025-01-25",
@@ -6935,2808 +7090,2808 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2238,
+   "acute": 14.3897,
+   "chronic": 11.44
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 36.0716,
+   "chronic": 28.8361
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 36.0716,
+   "chronic": 28.8361
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 36.197,
+   "chronic": 28.9509
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 36.197,
+   "chronic": 28.9509
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 8.1153,
+   "chronic": 6.4437
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 8.1153,
+   "chronic": 6.4437
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.838,
+   "chronic": 10.952
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.838,
+   "chronic": 10.952
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.6249,
+   "chronic": 6.2836
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.6249,
+   "chronic": 6.2836
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.9711,
+   "chronic": 8.7559
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.9711,
+   "chronic": 8.7559
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.1133,
+   "chronic": 10.7208
+  },
+  {
+   "day": "2025-01-26",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.7721,
+   "chronic": 11.3807
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 35.5961,
+   "chronic": 28.9647
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 35.5961,
+   "chronic": 28.9647
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 35.7048,
+   "chronic": 29.0754
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 35.7048,
+   "chronic": 29.0754
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.9003,
+   "chronic": 6.4457
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.9003,
+   "chronic": 6.4457
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.7265,
+   "chronic": 11.0238
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.7265,
+   "chronic": 11.0238
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.4751,
+   "chronic": 6.2912
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.4751,
+   "chronic": 6.2912
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.8086,
+   "chronic": 8.7908
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.8086,
+   "chronic": 8.7908
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 12.6656,
+   "chronic": 10.6868
+  },
+  {
+   "day": "2025-01-27",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.2367,
+   "chronic": 11.3235
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 35.184,
+   "chronic": 29.0887
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 35.184,
+   "chronic": 29.0887
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 35.2782,
+   "chronic": 29.1956
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 35.2782,
+   "chronic": 29.1956
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.7139,
+   "chronic": 6.4476
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.7139,
+   "chronic": 6.4476
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.6297,
+   "chronic": 11.0932
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.6297,
+   "chronic": 11.0932
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.3453,
+   "chronic": 6.2985
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.3453,
+   "chronic": 6.2985
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.6676,
+   "chronic": 8.8244
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.6676,
+   "chronic": 8.8244
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 12.2774,
+   "chronic": 10.6539
+  },
+  {
+   "day": "2025-01-28",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 12.7725,
+   "chronic": 11.2683
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.8267,
+   "chronic": 29.2084
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.8267,
+   "chronic": 29.2084
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.9084,
+   "chronic": 29.3115
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.9084,
+   "chronic": 29.3115
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.5523,
+   "chronic": 6.4494
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.5523,
+   "chronic": 6.4494
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.5459,
+   "chronic": 11.1601
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.5459,
+   "chronic": 11.1601
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.2328,
+   "chronic": 6.3056
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.2328,
+   "chronic": 6.3056
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.5455,
+   "chronic": 8.8569
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.5455,
+   "chronic": 8.8569
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.941,
+   "chronic": 10.6222
+  },
+  {
+   "day": "2025-01-29",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 12.3701,
+   "chronic": 11.215
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.5169,
+   "chronic": 29.3239
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.5169,
+   "chronic": 29.3239
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.5878,
+   "chronic": 29.4234
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.5878,
+   "chronic": 29.4234
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.4122,
+   "chronic": 6.4512
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.4122,
+   "chronic": 6.4512
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.4732,
+   "chronic": 11.2246
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.4732,
+   "chronic": 11.2246
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.1352,
+   "chronic": 6.3124
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.1352,
+   "chronic": 6.3124
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.4396,
+   "chronic": 8.8882
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.4396,
+   "chronic": 8.8882
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.6493,
+   "chronic": 10.5916
+  },
+  {
+   "day": "2025-01-30",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 12.0213,
+   "chronic": 11.1636
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.2484,
+   "chronic": 29.4353
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.2484,
+   "chronic": 29.4353
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.3098,
+   "chronic": 29.5313
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.3098,
+   "chronic": 29.5313
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.2908,
+   "chronic": 6.4529
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.2908,
+   "chronic": 6.4529
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.4102,
+   "chronic": 11.2869
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.4102,
+   "chronic": 11.2869
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.0507,
+   "chronic": 6.319
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.0507,
+   "chronic": 6.319
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.3478,
+   "chronic": 8.9184
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.3478,
+   "chronic": 8.9184
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.3965,
+   "chronic": 10.5621
+  },
+  {
+   "day": "2025-01-31",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.719,
+   "chronic": 11.114
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.0157,
+   "chronic": 29.5428
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.0157,
+   "chronic": 29.5428
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.0689,
+   "chronic": 29.6355
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 34.0689,
+   "chronic": 29.6355
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.1855,
+   "chronic": 6.4546
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.1855,
+   "chronic": 6.4546
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.3556,
+   "chronic": 11.347
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.3556,
+   "chronic": 11.347
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.9774,
+   "chronic": 6.3253
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.9774,
+   "chronic": 6.3253
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.2682,
+   "chronic": 8.9476
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.2682,
+   "chronic": 8.9476
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.1773,
+   "chronic": 10.5336
+  },
+  {
+   "day": "2025-02-01",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.4569,
+   "chronic": 11.0662
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.8139,
+   "chronic": 29.6466
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.8139,
+   "chronic": 29.6466
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.86,
+   "chronic": 29.736
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.86,
+   "chronic": 29.736
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.0942,
+   "chronic": 6.4562
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.0942,
+   "chronic": 6.4562
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.3083,
+   "chronic": 11.405
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.3083,
+   "chronic": 11.405
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.9138,
+   "chronic": 6.3315
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.9138,
+   "chronic": 6.3315
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.1992,
+   "chronic": 8.9758
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.1992,
+   "chronic": 8.9758
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.9873,
+   "chronic": 10.5061
+  },
+  {
+   "day": "2025-02-02",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.2296,
+   "chronic": 11.02
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.639,
+   "chronic": 29.7467
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.639,
+   "chronic": 29.7467
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.679,
+   "chronic": 29.8329
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.679,
+   "chronic": 29.8329
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.0151,
+   "chronic": 6.4577
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.0151,
+   "chronic": 6.4577
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.2672,
+   "chronic": 11.461
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.2672,
+   "chronic": 11.461
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.8587,
+   "chronic": 6.3374
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.8587,
+   "chronic": 6.3374
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.1394,
+   "chronic": 9.0029
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.1394,
+   "chronic": 9.0029
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.8226,
+   "chronic": 10.4796
+  },
+  {
+   "day": "2025-02-03",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.0327,
+   "chronic": 10.9754
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.4874,
+   "chronic": 29.8433
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.4874,
+   "chronic": 29.8433
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.522,
+   "chronic": 29.9265
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.522,
+   "chronic": 29.9265
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.9466,
+   "chronic": 6.4592
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.9466,
+   "chronic": 6.4592
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.2317,
+   "chronic": 11.515
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.2317,
+   "chronic": 11.515
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.811,
+   "chronic": 6.3431
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.811,
+   "chronic": 6.3431
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.0876,
+   "chronic": 9.0291
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.0876,
+   "chronic": 9.0291
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.6798,
+   "chronic": 10.454
+  },
+  {
+   "day": "2025-02-04",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.8619,
+   "chronic": 10.9325
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.3559,
+   "chronic": 29.9365
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.3559,
+   "chronic": 29.9365
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.386,
+   "chronic": 30.0168
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.386,
+   "chronic": 30.0168
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.8871,
+   "chronic": 6.4606
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.8871,
+   "chronic": 6.4606
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.2008,
+   "chronic": 11.5671
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.2008,
+   "chronic": 11.5671
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7696,
+   "chronic": 6.3486
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7696,
+   "chronic": 6.3486
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.0426,
+   "chronic": 9.0544
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.0426,
+   "chronic": 9.0544
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.556,
+   "chronic": 10.4293
+  },
+  {
+   "day": "2025-02-05",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.7139,
+   "chronic": 10.891
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.242,
+   "chronic": 30.0264
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.242,
+   "chronic": 30.0264
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.268,
+   "chronic": 30.1039
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.268,
+   "chronic": 30.1039
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.8356,
+   "chronic": 6.462
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.8356,
+   "chronic": 6.462
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.1741,
+   "chronic": 11.6173
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.1741,
+   "chronic": 11.6173
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7337,
+   "chronic": 6.3539
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7337,
+   "chronic": 6.3539
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.0037,
+   "chronic": 9.0788
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.0037,
+   "chronic": 9.0788
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.4487,
+   "chronic": 10.4054
+  },
+  {
+   "day": "2025-02-06",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.5856,
+   "chronic": 10.8509
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.1432,
+   "chronic": 30.1132
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.1432,
+   "chronic": 30.1132
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.1658,
+   "chronic": 30.188
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.1658,
+   "chronic": 30.188
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7909,
+   "chronic": 6.4633
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7909,
+   "chronic": 6.4633
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.1509,
+   "chronic": 11.6658
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.1509,
+   "chronic": 11.6658
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7026,
+   "chronic": 6.359
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7026,
+   "chronic": 6.359
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 9.9699,
+   "chronic": 9.1024
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 9.9699,
+   "chronic": 9.1024
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.3557,
+   "chronic": 10.3824
+  },
+  {
+   "day": "2025-02-07",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.4743,
+   "chronic": 10.8123
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.0576,
+   "chronic": 30.1969
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.0576,
+   "chronic": 30.1969
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.0772,
+   "chronic": 30.2691
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 32.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.0772,
+   "chronic": 30.2691
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7522,
+   "chronic": 6.4646
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7522,
+   "chronic": 6.4646
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.1308,
+   "chronic": 11.7127
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.1308,
+   "chronic": 11.7127
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.6756,
+   "chronic": 6.364
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.6756,
+   "chronic": 6.364
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 9.9406,
+   "chronic": 9.1251
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 9.9406,
+   "chronic": 9.1251
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.2751,
+   "chronic": 10.3603
+  },
+  {
+   "day": "2025-02-08",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.3779,
+   "chronic": 10.775
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 33.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.0499,
+   "chronic": 30.2953
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 33.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.0499,
+   "chronic": 30.2953
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 33.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.0669,
+   "chronic": 30.3649
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 33.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.0669,
+   "chronic": 30.3649
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7319,
+   "chronic": 6.4694
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7319,
+   "chronic": 6.4694
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.14,
+   "chronic": 11.7648
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.14,
+   "chronic": 11.7648
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.6655,
+   "chronic": 6.3723
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.6655,
+   "chronic": 6.3723
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 9.9,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 9.9352,
+   "chronic": 9.1523
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 9.9,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 9.9352,
+   "chronic": 9.1523
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 9.9,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.2251,
+   "chronic": 10.3441
+  },
+  {
+   "day": "2025-02-09",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 9.9,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.3143,
+   "chronic": 10.7443
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 34.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.1764,
+   "chronic": 30.4253
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 34.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.1764,
+   "chronic": 30.4253
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 34.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.1911,
+   "chronic": 30.4924
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 34.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.1911,
+   "chronic": 30.4924
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 6.8,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.741,
+   "chronic": 6.481
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 6.8,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.741,
+   "chronic": 6.481
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 13.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.2013,
+   "chronic": 11.8292
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 13.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.2013,
+   "chronic": 11.8292
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 6.8,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.6834,
+   "chronic": 6.3873
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 6.8,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.6834,
+   "chronic": 6.3873
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 10.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 9.9705,
+   "chronic": 9.1891
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 10.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 9.9705,
+   "chronic": 9.1891
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 10.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.2218,
+   "chronic": 10.3391
+  },
+  {
+   "day": "2025-02-10",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 10.2,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.2991,
+   "chronic": 10.7252
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 35.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.4192,
+   "chronic": 30.5858
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 35.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.4192,
+   "chronic": 30.5858
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 35.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.4319,
+   "chronic": 30.6506
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 35.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.4319,
+   "chronic": 30.6506
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 7.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7755,
+   "chronic": 6.4992
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 7.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7755,
+   "chronic": 6.4992
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 14.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.3076,
+   "chronic": 11.9054
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 14.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.3076,
+   "chronic": 11.9054
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 7.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7256,
+   "chronic": 6.4088
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 7.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7256,
+   "chronic": 6.4088
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 10.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.041,
+   "chronic": 9.235
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 10.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.041,
+   "chronic": 9.235
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 10.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.2588,
+   "chronic": 10.3447
+  },
+  {
+   "day": "2025-02-11",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 10.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.3258,
+   "chronic": 10.7173
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 35.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.6296,
+   "chronic": 30.7406
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 35.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.6296,
+   "chronic": 30.7406
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 35.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.6407,
+   "chronic": 30.8032
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 35.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 33.6407,
+   "chronic": 30.8032
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 7.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.8054,
+   "chronic": 6.5168
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 7.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.8054,
+   "chronic": 6.5168
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 14.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.3998,
+   "chronic": 11.9789
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 14.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 13.3998,
+   "chronic": 11.9789
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 7.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7621,
+   "chronic": 6.4295
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 7.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7621,
+   "chronic": 6.4295
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 10.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.1021,
+   "chronic": 9.2794
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 10.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.1021,
+   "chronic": 9.2794
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 10.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.2909,
+   "chronic": 10.3501
+  },
+  {
+   "day": "2025-02-12",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 10.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.349,
+   "chronic": 10.7097
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 51.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 36.0085,
+   "chronic": 31.469
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 51.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 36.0085,
+   "chronic": 31.469
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 51.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 36.0181,
+   "chronic": 31.5293
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 51.5,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 36.0181,
+   "chronic": 31.5293
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 10.3,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.2706,
+   "chronic": 6.6495
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 10.3,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.2706,
+   "chronic": 6.6495
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 20.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 14.3583,
+   "chronic": 12.2813
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 20.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 14.3583,
+   "chronic": 12.2813
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 10.3,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.2331,
+   "chronic": 6.5653
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 10.3,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 7.2331,
+   "chronic": 6.5653
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 15.45,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.814,
+   "chronic": 9.4959
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 15.45,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.814,
+   "chronic": 9.4959
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 15.45,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.9777,
+   "chronic": 10.5291
+  },
+  {
+   "day": "2025-02-13",
+   "tissue": "quads",
+   "side": "right",
+   "dose": 15.45,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.0281,
+   "chronic": 10.876
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "achilles",
+   "side": "left",
+   "dose": 70.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 40.5336,
+   "chronic": 32.8208
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "achilles",
+   "side": "right",
+   "dose": 70.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 40.5336,
+   "chronic": 32.8208
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "calf",
+   "side": "left",
+   "dose": 70.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 40.5419,
+   "chronic": 32.879
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "calf",
+   "side": "right",
+   "dose": 70.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 40.5419,
+   "chronic": 32.879
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "glute_max",
+   "side": "left",
+   "dose": 14.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 8.1664,
+   "chronic": 6.9074
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "glute_max",
+   "side": "right",
+   "dose": 14.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 8.1664,
+   "chronic": 6.9074
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "glute_med",
+   "side": "left",
+   "dose": 28.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 16.1743,
+   "chronic": 12.8328
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "glute_med",
+   "side": "right",
+   "dose": 28.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 16.1743,
+   "chronic": 12.8328
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "hamstrings",
+   "side": "left",
+   "dose": 14.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 8.1339,
+   "chronic": 6.8261
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "hamstrings",
+   "side": "right",
+   "dose": 14.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 8.1339,
+   "chronic": 6.8261
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "hip_flexors",
+   "side": "left",
+   "dose": 21.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 12.17,
+   "chronic": 9.8995
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "hip_flexors",
+   "side": "right",
+   "dose": 21.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 12.17,
+   "chronic": 9.8995
+  },
+  {
+   "day": "2025-02-14",
+   "tissue": "quads",
+   "side": "left",
+   "dose": 21.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 12.3119,
    "chronic": 10.8964
   },
   {
-   "day": "2025-01-26",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.7241,
-   "chronic": 28.662
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.7241,
-   "chronic": 28.662
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.7548,
-   "chronic": 28.7239
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.7548,
-   "chronic": 28.7239
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.5405,
-   "chronic": 6.1466
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.5405,
-   "chronic": 6.1466
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.838,
-   "chronic": 10.952
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.838,
-   "chronic": 10.952
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.4986,
-   "chronic": 6.2131
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.4986,
-   "chronic": 6.2131
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.6995,
-   "chronic": 8.6161
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.6995,
-   "chronic": 8.6161
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 12.1026,
-   "chronic": 10.1963
-  },
-  {
-   "day": "2025-01-26",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 12.7614,
-   "chronic": 10.8562
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.2949,
-   "chronic": 28.7966
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.2949,
-   "chronic": 28.7966
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.3215,
-   "chronic": 28.8564
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.3215,
-   "chronic": 28.8564
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.402,
-   "chronic": 6.159
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.402,
-   "chronic": 6.159
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.7265,
-   "chronic": 11.0238
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.7265,
-   "chronic": 11.0238
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.3656,
-   "chronic": 6.2232
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.3656,
-   "chronic": 6.2232
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.5731,
-   "chronic": 8.6559
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.5731,
-   "chronic": 8.6559
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 11.7894,
-   "chronic": 10.1807
-  },
-  {
-   "day": "2025-01-27",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 12.3605,
-   "chronic": 10.8174
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.9228,
-   "chronic": 28.9265
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.9228,
-   "chronic": 28.9265
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.9459,
-   "chronic": 28.9842
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.9459,
-   "chronic": 28.9842
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.2819,
-   "chronic": 6.171
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.2819,
-   "chronic": 6.171
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.6297,
-   "chronic": 11.0932
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.6297,
-   "chronic": 11.0932
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.2504,
-   "chronic": 6.2329
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.2504,
-   "chronic": 6.2329
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.4635,
-   "chronic": 8.6943
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.4635,
-   "chronic": 8.6943
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 11.5179,
-   "chronic": 10.1656
-  },
-  {
-   "day": "2025-01-28",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 12.013,
-   "chronic": 10.78
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.6003,
-   "chronic": 29.0519
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.6003,
-   "chronic": 29.0519
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.6203,
-   "chronic": 29.1075
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.6203,
-   "chronic": 29.1075
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.1778,
-   "chronic": 6.1825
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.1778,
-   "chronic": 6.1825
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.5459,
-   "chronic": 11.1601
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.5459,
-   "chronic": 11.1601
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.1505,
-   "chronic": 6.2423
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.1505,
-   "chronic": 6.2423
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.3685,
-   "chronic": 8.7313
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.3685,
-   "chronic": 8.7313
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 11.2826,
-   "chronic": 10.151
-  },
-  {
-   "day": "2025-01-29",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 11.7117,
-   "chronic": 10.7438
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.3207,
-   "chronic": 29.1729
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.3207,
-   "chronic": 29.1729
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.338,
-   "chronic": 29.2266
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.338,
-   "chronic": 29.2266
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.0876,
-   "chronic": 6.1937
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.0876,
-   "chronic": 6.1937
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.4732,
-   "chronic": 11.2246
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.4732,
-   "chronic": 11.2246
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.0639,
-   "chronic": 6.2513
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.0639,
-   "chronic": 6.2513
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.2862,
-   "chronic": 8.7671
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.2862,
-   "chronic": 8.7671
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 11.0785,
-   "chronic": 10.1369
-  },
-  {
-   "day": "2025-01-30",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 11.4506,
-   "chronic": 10.7089
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.0783,
-   "chronic": 29.2896
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.0783,
-   "chronic": 29.2896
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.0934,
-   "chronic": 29.3414
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 34.0934,
-   "chronic": 29.3414
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.0094,
-   "chronic": 6.2044
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.0094,
-   "chronic": 6.2044
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.4102,
-   "chronic": 11.2869
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.4102,
-   "chronic": 11.2869
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.9888,
-   "chronic": 6.26
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.9888,
-   "chronic": 6.26
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.2148,
-   "chronic": 8.8016
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.2148,
-   "chronic": 8.8016
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.9017,
-   "chronic": 10.1233
-  },
-  {
-   "day": "2025-01-31",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 11.2242,
-   "chronic": 10.6753
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.8682,
-   "chronic": 29.4022
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.8682,
-   "chronic": 29.4022
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.8812,
-   "chronic": 29.4522
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.8812,
-   "chronic": 29.4522
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.9415,
-   "chronic": 6.2148
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.9415,
-   "chronic": 6.2148
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.3556,
-   "chronic": 11.347
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.3556,
-   "chronic": 11.347
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.9238,
-   "chronic": 6.2685
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.9238,
-   "chronic": 6.2685
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.1529,
-   "chronic": 8.8348
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.1529,
-   "chronic": 8.8348
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.7484,
-   "chronic": 10.1102
-  },
-  {
-   "day": "2025-02-01",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 11.0279,
-   "chronic": 10.6428
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.6861,
-   "chronic": 29.5109
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.6861,
-   "chronic": 29.5109
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.6974,
-   "chronic": 29.5591
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.6974,
-   "chronic": 29.5591
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.8828,
-   "chronic": 6.2248
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.8828,
-   "chronic": 6.2248
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.3083,
-   "chronic": 11.405
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.3083,
-   "chronic": 11.405
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.8673,
-   "chronic": 6.2766
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.8673,
-   "chronic": 6.2766
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0993,
-   "chronic": 8.8669
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0993,
-   "chronic": 8.8669
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.6155,
-   "chronic": 10.0976
-  },
-  {
-   "day": "2025-02-02",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.8578,
-   "chronic": 10.6115
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.5282,
-   "chronic": 29.6158
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.5282,
-   "chronic": 29.6158
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.538,
-   "chronic": 29.6623
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.538,
-   "chronic": 29.6623
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.8318,
-   "chronic": 6.2345
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.8318,
-   "chronic": 6.2345
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.2672,
-   "chronic": 11.461
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.2672,
-   "chronic": 11.461
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.8184,
-   "chronic": 6.2844
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.8184,
-   "chronic": 6.2844
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0528,
-   "chronic": 8.8979
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0528,
-   "chronic": 8.8979
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.5003,
-   "chronic": 10.0854
-  },
-  {
-   "day": "2025-02-03",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.7104,
-   "chronic": 10.5813
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.3913,
-   "chronic": 29.717
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.3913,
-   "chronic": 29.717
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.3998,
-   "chronic": 29.7619
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.3998,
-   "chronic": 29.7619
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7876,
-   "chronic": 6.2438
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7876,
-   "chronic": 6.2438
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.2317,
-   "chronic": 11.515
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.2317,
-   "chronic": 11.515
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7761,
-   "chronic": 6.292
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7761,
-   "chronic": 6.292
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0125,
-   "chronic": 8.9278
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0125,
-   "chronic": 8.9278
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.4004,
-   "chronic": 10.0736
-  },
-  {
-   "day": "2025-02-04",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.5825,
-   "chronic": 10.5521
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.2727,
-   "chronic": 29.8146
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.2727,
-   "chronic": 29.8146
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.28,
-   "chronic": 29.8579
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.28,
-   "chronic": 29.8579
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7493,
-   "chronic": 6.2528
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7493,
-   "chronic": 6.2528
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.2008,
-   "chronic": 11.5671
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.2008,
-   "chronic": 11.5671
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7393,
-   "chronic": 6.2993
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7393,
-   "chronic": 6.2993
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.9775,
-   "chronic": 8.9567
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.9775,
-   "chronic": 8.9567
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.3138,
-   "chronic": 10.0623
-  },
-  {
-   "day": "2025-02-05",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.4717,
-   "chronic": 10.524
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.1698,
-   "chronic": 29.9088
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.1698,
-   "chronic": 29.9088
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.1762,
-   "chronic": 29.9506
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.1762,
-   "chronic": 29.9506
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7162,
-   "chronic": 6.2614
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7162,
-   "chronic": 6.2614
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.1741,
-   "chronic": 11.6173
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.1741,
-   "chronic": 11.6173
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7074,
-   "chronic": 6.3063
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7074,
-   "chronic": 6.3063
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.9473,
-   "chronic": 8.9845
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.9473,
-   "chronic": 8.9845
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.2387,
-   "chronic": 10.0513
-  },
-  {
-   "day": "2025-02-06",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.3756,
-   "chronic": 10.4968
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0806,
-   "chronic": 29.9997
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0806,
-   "chronic": 29.9997
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0862,
-   "chronic": 30.0401
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0862,
-   "chronic": 30.0401
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6874,
-   "chronic": 6.2698
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6874,
-   "chronic": 6.2698
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.1509,
-   "chronic": 11.6658
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.1509,
-   "chronic": 11.6658
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6798,
-   "chronic": 6.3131
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6798,
-   "chronic": 6.3131
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.921,
-   "chronic": 9.0114
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.921,
-   "chronic": 9.0114
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.1737,
-   "chronic": 10.0408
-  },
-  {
-   "day": "2025-02-07",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.2923,
-   "chronic": 10.4706
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0033,
-   "chronic": 30.0875
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0033,
-   "chronic": 30.0875
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0081,
-   "chronic": 30.1264
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 32.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0081,
-   "chronic": 30.1264
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6624,
-   "chronic": 6.2779
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6624,
-   "chronic": 6.2779
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.1308,
-   "chronic": 11.7127
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.1308,
-   "chronic": 11.7127
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6559,
-   "chronic": 6.3197
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6559,
-   "chronic": 6.3197
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.8982,
-   "chronic": 9.0373
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.8982,
-   "chronic": 9.0373
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.1173,
-   "chronic": 10.0306
-  },
-  {
-   "day": "2025-02-08",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.75,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.2201,
-   "chronic": 10.4453
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 33.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0029,
-   "chronic": 30.1896
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 33.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.0029,
-   "chronic": 30.1896
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 33.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.007,
-   "chronic": 30.2272
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 33.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.007,
-   "chronic": 30.2272
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.6,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6541,
-   "chronic": 6.2892
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.6,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6541,
-   "chronic": 6.2892
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.2,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.14,
-   "chronic": 11.7648
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.2,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.14,
-   "chronic": 11.7648
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.6,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6485,
-   "chronic": 6.3295
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.6,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6485,
-   "chronic": 6.3295
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 9.9,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.8985,
-   "chronic": 9.0675
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 9.9,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.8985,
-   "chronic": 9.0675
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 9.9,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0884,
-   "chronic": 10.026
-  },
-  {
-   "day": "2025-02-09",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 9.9,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.1775,
-   "chronic": 10.4262
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 34.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.1356,
-   "chronic": 30.3233
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 34.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.1356,
-   "chronic": 30.3233
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 34.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.1392,
-   "chronic": 30.3596
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 34.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.1392,
-   "chronic": 30.3596
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 6.8,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6735,
-   "chronic": 6.3071
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 6.8,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6735,
-   "chronic": 6.3071
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 13.6,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.2013,
-   "chronic": 11.8292
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 13.6,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.2013,
-   "chronic": 11.8292
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 6.8,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6686,
-   "chronic": 6.346
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 6.8,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.6686,
-   "chronic": 6.346
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 10.2,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.9386,
-   "chronic": 9.1073
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 10.2,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 9.9386,
-   "chronic": 9.1073
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 10.2,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.1032,
-   "chronic": 10.0321
-  },
-  {
-   "day": "2025-02-10",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 10.2,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.1805,
-   "chronic": 10.4183
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 35.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.3838,
-   "chronic": 30.4874
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 35.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.3838,
-   "chronic": 30.4874
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 35.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.3869,
-   "chronic": 30.5224
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 35.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.3869,
-   "chronic": 30.5224
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 7.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.717,
-   "chronic": 6.3314
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 7.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.717,
-   "chronic": 6.3314
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 14.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.3076,
-   "chronic": 11.9054
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 14.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.3076,
-   "chronic": 11.9054
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 7.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7127,
-   "chronic": 6.369
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 7.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7127,
-   "chronic": 6.369
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 10.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0133,
-   "chronic": 9.1561
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 10.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0133,
-   "chronic": 9.1561
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 10.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.156,
-   "chronic": 10.0485
-  },
-  {
-   "day": "2025-02-11",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 10.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.223,
-   "chronic": 10.4211
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 35.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.599,
-   "chronic": 30.6457
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 35.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.599,
-   "chronic": 30.6457
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 35.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.6017,
-   "chronic": 30.6795
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 35.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 33.6017,
-   "chronic": 30.6795
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 7.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7547,
-   "chronic": 6.3549
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 7.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.7547,
-   "chronic": 6.3549
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 14.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.3998,
-   "chronic": 11.9789
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 14.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 13.3998,
-   "chronic": 11.9789
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 7.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.751,
-   "chronic": 6.3911
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 7.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 6.751,
-   "chronic": 6.3911
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 10.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0781,
-   "chronic": 9.2033
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 10.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.0781,
-   "chronic": 9.2033
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 10.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.2018,
-   "chronic": 10.0643
-  },
-  {
-   "day": "2025-02-12",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 10.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.2599,
-   "chronic": 10.4239
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 51.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.982,
-   "chronic": 31.3774
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 51.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.982,
-   "chronic": 31.3774
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 51.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.9843,
-   "chronic": 31.4099
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 51.5,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 35.9843,
-   "chronic": 31.4099
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 10.3,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.2266,
-   "chronic": 6.4933
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 10.3,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.2266,
-   "chronic": 6.4933
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 20.6,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 14.3583,
-   "chronic": 12.2813
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 20.6,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 14.3583,
-   "chronic": 12.2813
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 10.3,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.2234,
-   "chronic": 6.5282
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 10.3,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 7.2234,
-   "chronic": 6.5282
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 15.45,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.7932,
-   "chronic": 9.4224
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 15.45,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.7932,
-   "chronic": 9.4224
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 15.45,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.9005,
-   "chronic": 10.2533
-  },
-  {
-   "day": "2025-02-13",
-   "tissue": "quads",
-   "side": "right",
-   "dose": 15.45,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 10.9508,
-   "chronic": 10.6002
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "achilles",
-   "side": "left",
-   "dose": 70.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 40.5105,
-   "chronic": 32.7324
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "achilles",
-   "side": "right",
-   "dose": 70.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 40.5105,
-   "chronic": 32.7324
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "calf",
-   "side": "left",
-   "dose": 70.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 40.5126,
-   "chronic": 32.7638
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "calf",
-   "side": "right",
-   "dose": 70.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 40.5126,
-   "chronic": 32.7638
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "glute_max",
-   "side": "left",
-   "dose": 14.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 8.1283,
-   "chronic": 6.7566
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "glute_max",
-   "side": "right",
-   "dose": 14.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 8.1283,
-   "chronic": 6.7566
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "glute_med",
-   "side": "left",
-   "dose": 28.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 16.1743,
-   "chronic": 12.8328
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "glute_med",
-   "side": "right",
-   "dose": 28.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 16.1743,
-   "chronic": 12.8328
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "hamstrings",
-   "side": "left",
-   "dose": 14.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 8.1255,
-   "chronic": 6.7904
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "hamstrings",
-   "side": "right",
-   "dose": 14.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 8.1255,
-   "chronic": 6.7904
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "hip_flexors",
-   "side": "left",
-   "dose": 21.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 12.152,
-   "chronic": 9.8286
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "hip_flexors",
-   "side": "right",
-   "dose": 21.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 12.152,
-   "chronic": 9.8286
-  },
-  {
-   "day": "2025-02-14",
-   "tissue": "quads",
-   "side": "left",
-   "dose": 21.0,
-   "sets": 0.0,
-   "reps": 0.0,
-   "acute": 12.2449,
-   "chronic": 10.6303
-  },
-  {
    "day": "2025-02-14",
    "tissue": "quads",
    "side": "right",
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.2886,
-   "chronic": 10.9651
+   "acute": 12.3556,
+   "chronic": 11.2312
   },
   {
    "day": "2025-02-15",
@@ -9745,8 +9900,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 44.4362,
-   "chronic": 34.0399
+   "acute": 44.4562,
+   "chronic": 34.1252
   },
   {
    "day": "2025-02-15",
@@ -9755,8 +9910,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 44.4362,
-   "chronic": 34.0399
+   "acute": 44.4562,
+   "chronic": 34.1252
   },
   {
    "day": "2025-02-15",
@@ -9765,8 +9920,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 44.438,
-   "chronic": 34.0702
+   "acute": 44.4634,
+   "chronic": 34.1814
   },
   {
    "day": "2025-02-15",
@@ -9775,8 +9930,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 44.438,
-   "chronic": 34.0702
+   "acute": 44.4634,
+   "chronic": 34.1814
   },
   {
    "day": "2025-02-15",
@@ -9785,8 +9940,8 @@
    "dose": 5.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.6769,
-   "chronic": 0.3515
+   "acute": 0.6928,
+   "chronic": 0.4197
   },
   {
    "day": "2025-02-15",
@@ -9795,8 +9950,8 @@
    "dose": 5.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.6769,
-   "chronic": 0.3515
+   "acute": 0.6928,
+   "chronic": 0.4197
   },
   {
    "day": "2025-02-15",
@@ -9805,8 +9960,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.91,
-   "chronic": 7.0108
+   "acute": 8.943,
+   "chronic": 7.1562
   },
   {
    "day": "2025-02-15",
@@ -9815,8 +9970,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.91,
-   "chronic": 7.0108
+   "acute": 8.943,
+   "chronic": 7.1562
   },
   {
    "day": "2025-02-15",
@@ -9845,8 +10000,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.9076,
-   "chronic": 7.0433
+   "acute": 8.9148,
+   "chronic": 7.0778
   },
   {
    "day": "2025-02-15",
@@ -9855,8 +10010,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.9076,
-   "chronic": 7.0433
+   "acute": 8.9148,
+   "chronic": 7.0778
   },
   {
    "day": "2025-02-15",
@@ -9865,8 +10020,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3299,
-   "chronic": 10.2206
+   "acute": 13.3455,
+   "chronic": 10.289
   },
   {
    "day": "2025-02-15",
@@ -9875,8 +10030,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3299,
-   "chronic": 10.2206
+   "acute": 13.3455,
+   "chronic": 10.289
   },
   {
    "day": "2025-02-15",
@@ -9885,8 +10040,8 @@
    "dose": 10.0,
    "sets": 1.0,
    "reps": 10.0,
-   "acute": 1.3526,
-   "chronic": 0.7098
+   "acute": 1.3686,
+   "chronic": 0.778
   },
   {
    "day": "2025-02-15",
@@ -9895,8 +10050,8 @@
    "dose": 10.0,
    "sets": 1.0,
    "reps": 10.0,
-   "acute": 1.3526,
-   "chronic": 0.7098
+   "acute": 1.3686,
+   "chronic": 0.778
   },
   {
    "day": "2025-02-15",
@@ -9905,8 +10060,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.4104,
-   "chronic": 10.9941
+   "acute": 13.4685,
+   "chronic": 11.2509
   },
   {
    "day": "2025-02-15",
@@ -9915,8 +10070,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.4483,
-   "chronic": 11.3172
+   "acute": 13.5063,
+   "chronic": 11.5739
   },
   {
    "day": "2025-02-15",
@@ -9945,8 +10100,8 @@
    "dose": 5.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.6766,
-   "chronic": 0.3497
+   "acute": 0.6886,
+   "chronic": 0.4009
   },
   {
    "day": "2025-02-15",
@@ -9955,8 +10110,8 @@
    "dose": 5.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.6766,
-   "chronic": 0.3497
+   "acute": 0.6886,
+   "chronic": 0.4009
   },
   {
    "day": "2025-02-16",
@@ -9965,8 +10120,8 @@
    "dose": 12.0,
    "sets": 1.0,
    "reps": 12.0,
-   "acute": 1.5993,
-   "chronic": 0.4402
+   "acute": 1.6131,
+   "chronic": 0.506
   },
   {
    "day": "2025-02-16",
@@ -9975,8 +10130,8 @@
    "dose": 12.0,
    "sets": 1.0,
    "reps": 12.0,
-   "acute": 1.5993,
-   "chronic": 0.4402
+   "acute": 1.6131,
+   "chronic": 0.506
   },
   {
    "day": "2025-02-16",
@@ -9985,8 +10140,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 42.8473,
-   "chronic": 33.9859
+   "acute": 42.8646,
+   "chronic": 34.0682
   },
   {
    "day": "2025-02-16",
@@ -9995,8 +10150,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 42.8473,
-   "chronic": 33.9859
+   "acute": 42.8646,
+   "chronic": 34.0682
   },
   {
    "day": "2025-02-16",
@@ -10005,8 +10160,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 42.8488,
-   "chronic": 34.0151
+   "acute": 42.8708,
+   "chronic": 34.1224
   },
   {
    "day": "2025-02-16",
@@ -10015,8 +10170,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 42.8488,
-   "chronic": 34.0151
+   "acute": 42.8708,
+   "chronic": 34.1224
   },
   {
    "day": "2025-02-16",
@@ -10025,8 +10180,8 @@
    "dose": 26.668,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 4.1369,
-   "chronic": 1.2748
+   "acute": 4.1507,
+   "chronic": 1.3406
   },
   {
    "day": "2025-02-16",
@@ -10035,8 +10190,8 @@
    "dose": 26.668,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 4.1369,
-   "chronic": 1.2748
+   "acute": 4.1507,
+   "chronic": 1.3406
   },
   {
    "day": "2025-02-16",
@@ -10045,8 +10200,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5892,
-   "chronic": 6.9929
+   "acute": 8.6178,
+   "chronic": 7.1332
   },
   {
    "day": "2025-02-16",
@@ -10055,8 +10210,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5892,
-   "chronic": 6.9929
+   "acute": 8.6178,
+   "chronic": 7.1332
   },
   {
    "day": "2025-02-16",
@@ -10085,8 +10240,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5871,
-   "chronic": 7.0243
+   "acute": 8.5934,
+   "chronic": 7.0576
   },
   {
    "day": "2025-02-16",
@@ -10095,8 +10250,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5871,
-   "chronic": 7.0243
+   "acute": 8.5934,
+   "chronic": 7.0576
   },
   {
    "day": "2025-02-16",
@@ -10105,8 +10260,8 @@
    "dose": 17.834,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.9295,
-   "chronic": 10.4877
+   "acute": 13.943,
+   "chronic": 10.5537
   },
   {
    "day": "2025-02-16",
@@ -10115,8 +10270,8 @@
    "dose": 17.834,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.9295,
-   "chronic": 10.4877
+   "acute": 13.943,
+   "chronic": 10.5537
   },
   {
    "day": "2025-02-16",
@@ -10165,8 +10320,8 @@
    "dose": 50.211,
    "sets": 1.0,
    "reps": 5.0,
-   "acute": 7.8567,
-   "chronic": 2.4465
+   "acute": 7.8705,
+   "chronic": 2.5123
   },
   {
    "day": "2025-02-16",
@@ -10175,8 +10330,8 @@
    "dose": 50.211,
    "sets": 1.0,
    "reps": 5.0,
-   "acute": 7.8567,
-   "chronic": 2.4465
+   "acute": 7.8705,
+   "chronic": 2.5123
   },
   {
    "day": "2025-02-16",
@@ -10185,8 +10340,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.9232,
-   "chronic": 10.9505
+   "acute": 12.9735,
+   "chronic": 11.1982
   },
   {
    "day": "2025-02-16",
@@ -10195,8 +10350,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.956,
-   "chronic": 11.2622
+   "acute": 13.0063,
+   "chronic": 11.51
   },
   {
    "day": "2025-02-16",
@@ -10245,8 +10400,8 @@
    "dose": 26.668,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 4.1367,
-   "chronic": 1.2731
+   "acute": 4.147,
+   "chronic": 1.3225
   },
   {
    "day": "2025-02-16",
@@ -10255,8 +10410,8 @@
    "dose": 26.668,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 4.1367,
-   "chronic": 1.2731
+   "acute": 4.147,
+   "chronic": 1.3225
   },
   {
    "day": "2025-02-17",
@@ -10265,8 +10420,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.4698,
-   "chronic": 33.9338
+   "acute": 41.4848,
+   "chronic": 34.0131
   },
   {
    "day": "2025-02-17",
@@ -10275,8 +10430,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.4698,
-   "chronic": 33.9338
+   "acute": 41.4848,
+   "chronic": 34.0131
   },
   {
    "day": "2025-02-17",
@@ -10285,8 +10440,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.4711,
-   "chronic": 33.962
+   "acute": 41.4902,
+   "chronic": 34.0655
   },
   {
    "day": "2025-02-17",
@@ -10295,8 +10450,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.4711,
-   "chronic": 33.962
+   "acute": 41.4902,
+   "chronic": 34.0655
   },
   {
    "day": "2025-02-17",
@@ -10305,8 +10460,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.311,
-   "chronic": 6.9756
+   "acute": 8.3358,
+   "chronic": 7.111
   },
   {
    "day": "2025-02-17",
@@ -10315,8 +10470,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.311,
-   "chronic": 6.9756
+   "acute": 8.3358,
+   "chronic": 7.111
   },
   {
    "day": "2025-02-17",
@@ -10345,8 +10500,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.3092,
-   "chronic": 7.0059
+   "acute": 8.3147,
+   "chronic": 7.038
   },
   {
    "day": "2025-02-17",
@@ -10355,8 +10510,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.3092,
-   "chronic": 7.0059
+   "acute": 8.3147,
+   "chronic": 7.038
   },
   {
    "day": "2025-02-17",
@@ -10365,8 +10520,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3731,
-   "chronic": 10.4618
+   "acute": 13.3848,
+   "chronic": 10.5255
   },
   {
    "day": "2025-02-17",
@@ -10375,8 +10530,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3731,
-   "chronic": 10.4618
+   "acute": 13.3848,
+   "chronic": 10.5255
   },
   {
    "day": "2025-02-17",
@@ -10385,8 +10540,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.5007,
-   "chronic": 10.9084
+   "acute": 12.5444,
+   "chronic": 11.1474
   },
   {
    "day": "2025-02-17",
@@ -10395,8 +10550,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.5292,
-   "chronic": 11.2091
+   "acute": 12.5728,
+   "chronic": 11.4482
   },
   {
    "day": "2025-02-18",
@@ -10405,8 +10560,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.2757,
-   "chronic": 33.8835
+   "acute": 40.2887,
+   "chronic": 33.9601
   },
   {
    "day": "2025-02-18",
@@ -10415,8 +10570,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.2757,
-   "chronic": 33.8835
+   "acute": 40.2887,
+   "chronic": 33.9601
   },
   {
    "day": "2025-02-18",
@@ -10425,8 +10580,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.2769,
-   "chronic": 33.9107
+   "acute": 40.2934,
+   "chronic": 34.0105
   },
   {
    "day": "2025-02-18",
@@ -10435,8 +10590,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.2769,
-   "chronic": 33.9107
+   "acute": 40.2934,
+   "chronic": 34.0105
   },
   {
    "day": "2025-02-18",
@@ -10445,8 +10600,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0699,
-   "chronic": 6.9589
+   "acute": 8.0915,
+   "chronic": 7.0895
   },
   {
    "day": "2025-02-18",
@@ -10455,8 +10610,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0699,
-   "chronic": 6.9589
+   "acute": 8.0915,
+   "chronic": 7.0895
   },
   {
    "day": "2025-02-18",
@@ -10485,8 +10640,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0684,
-   "chronic": 6.9881
+   "acute": 8.0731,
+   "chronic": 7.0191
   },
   {
    "day": "2025-02-18",
@@ -10495,8 +10650,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0684,
-   "chronic": 6.9881
+   "acute": 8.0731,
+   "chronic": 7.0191
   },
   {
    "day": "2025-02-18",
@@ -10505,8 +10660,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.8908,
-   "chronic": 10.4368
+   "acute": 12.9009,
+   "chronic": 10.4983
   },
   {
    "day": "2025-02-18",
@@ -10515,8 +10670,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.8908,
-   "chronic": 10.4368
+   "acute": 12.9009,
+   "chronic": 10.4983
   },
   {
    "day": "2025-02-18",
@@ -10525,8 +10680,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.1346,
-   "chronic": 10.8677
+   "acute": 12.1724,
+   "chronic": 11.0984
   },
   {
    "day": "2025-02-18",
@@ -10535,8 +10690,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.1592,
-   "chronic": 11.1579
+   "acute": 12.197,
+   "chronic": 11.3886
   },
   {
    "day": "2025-02-19",
@@ -10545,8 +10700,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 1.0418,
-   "chronic": 0.3954
+   "acute": 1.0508,
+   "chronic": 0.4546
   },
   {
    "day": "2025-02-19",
@@ -10555,8 +10710,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 1.0418,
-   "chronic": 0.3954
+   "acute": 1.0508,
+   "chronic": 0.4546
   },
   {
    "day": "2025-02-19",
@@ -10565,8 +10720,8 @@
    "dose": 40.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.239,
-   "chronic": 34.098
+   "acute": 40.2503,
+   "chronic": 34.172
   },
   {
    "day": "2025-02-19",
@@ -10575,8 +10730,8 @@
    "dose": 40.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.239,
-   "chronic": 34.098
+   "acute": 40.2503,
+   "chronic": 34.172
   },
   {
    "day": "2025-02-19",
@@ -10605,8 +10760,8 @@
    "dose": 40.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.24,
-   "chronic": 34.1243
+   "acute": 40.2544,
+   "chronic": 34.2207
   },
   {
    "day": "2025-02-19",
@@ -10615,8 +10770,8 @@
    "dose": 40.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.24,
-   "chronic": 34.1243
+   "acute": 40.2544,
+   "chronic": 34.2207
   },
   {
    "day": "2025-02-19",
@@ -10665,8 +10820,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 2.6949,
-   "chronic": 1.1453
+   "acute": 2.704,
+   "chronic": 1.2044
   },
   {
    "day": "2025-02-19",
@@ -10675,8 +10830,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 2.6949,
-   "chronic": 1.1453
+   "acute": 2.704,
+   "chronic": 1.2044
   },
   {
    "day": "2025-02-19",
@@ -10685,8 +10840,8 @@
    "dose": 8.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0606,
-   "chronic": 6.9954
+   "acute": 8.0793,
+   "chronic": 7.1215
   },
   {
    "day": "2025-02-19",
@@ -10695,8 +10850,8 @@
    "dose": 8.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0606,
-   "chronic": 6.9954
+   "acute": 8.0793,
+   "chronic": 7.1215
   },
   {
    "day": "2025-02-19",
@@ -10725,8 +10880,8 @@
    "dose": 8.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0593,
-   "chronic": 7.0236
+   "acute": 8.0634,
+   "chronic": 7.0535
   },
   {
    "day": "2025-02-19",
@@ -10735,8 +10890,8 @@
    "dose": 8.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0593,
-   "chronic": 7.0236
+   "acute": 8.0634,
+   "chronic": 7.0535
   },
   {
    "day": "2025-02-19",
@@ -10745,8 +10900,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.7722,
-   "chronic": 10.4917
+   "acute": 12.781,
+   "chronic": 10.551
   },
   {
    "day": "2025-02-19",
@@ -10755,8 +10910,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.7722,
-   "chronic": 10.4917
+   "acute": 12.781,
+   "chronic": 10.551
   },
   {
    "day": "2025-02-19",
@@ -10825,8 +10980,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0523,
-   "chronic": 0.7949
+   "acute": 0.0687,
+   "chronic": 0.9062
   },
   {
    "day": "2025-02-19",
@@ -10835,8 +10990,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0694,
-   "chronic": 1.019
+   "acute": 0.0857,
+   "chronic": 1.1303
   },
   {
    "day": "2025-02-19",
@@ -10845,8 +11000,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 5.1182,
-   "chronic": 2.1979
+   "acute": 5.1272,
+   "chronic": 2.257
   },
   {
    "day": "2025-02-19",
@@ -10855,8 +11010,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 5.1182,
-   "chronic": 2.1979
+   "acute": 5.1272,
+   "chronic": 2.257
   },
   {
    "day": "2025-02-19",
@@ -10865,8 +11020,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.1166,
-   "chronic": 10.9075
+   "acute": 12.1494,
+   "chronic": 11.13
   },
   {
    "day": "2025-02-19",
@@ -10875,8 +11030,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.138,
-   "chronic": 11.1875
+   "acute": 12.1708,
+   "chronic": 11.4101
   },
   {
    "day": "2025-02-19",
@@ -10945,8 +11100,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 2.6948,
-   "chronic": 1.1437
+   "acute": 2.7015,
+   "chronic": 1.1881
   },
   {
    "day": "2025-02-19",
@@ -10955,8 +11110,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 2.6948,
-   "chronic": 1.1437
+   "acute": 2.7015,
+   "chronic": 1.1881
   }
  ]
 }

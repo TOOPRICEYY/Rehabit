@@ -326,8 +326,12 @@ def test_app_export_carries_a_recorded_activity_into_the_load(con, profile, tmp_
     sauna = {"id": "garmin:10", "title": "Sauna", "start": "2026-11-13T13:00:00.000Z",
              "end": "2026-11-13T13:20:00.000Z", "startDay": "2026-11-13", "notes": "",
              "updatedAt": "2026-11-13T13:20:00.000Z",
-             "activity": {"type": "indoor_cardio", "averageHeartRate": "fast"}}
-    app.import_export(con, _app_export(tmp_path, workouts=[ride, sauna], sets=[]), profile)
+             "activity": {"type": "indoor_cardio", "averageHeartRate": "fast", "countsAs": {"odd": 1}}}
+    bike = {"id": "garmin:11", "title": "Cardio", "start": "2026-11-14T13:00:00.000Z",
+            "end": "2026-11-14T13:20:00.000Z", "startDay": "2026-11-14", "notes": "",
+            "updatedAt": "2026-11-14T13:20:00.000Z",
+            "activity": {"type": "indoor_cardio", "countsAs": "cycling"}}
+    app.import_export(con, _app_export(tmp_path, workouts=[ride, sauna, bike], sets=[]), profile)
     row = con.execute("SELECT * FROM session WHERE id = 'app:garmin:9'").fetchone()
     assert (row["kind"], row["activity_type"], row["distance_km"], row["avg_hr"], row["max_hr"]) == \
         ("cardio", "cycling", 15.0, 120.0, 150.0)
@@ -337,3 +341,6 @@ def test_app_export_carries_a_recorded_activity_into_the_load(con, profile, tmp_
                         " AND day = '2026-11-12'").fetchone()[0]
     assert quads == pytest.approx(40 * 0.25)        # too few heart rates to trust a maximum: intensity 1
     assert con.execute("SELECT COUNT(*) FROM tissue_load_day WHERE day = '2026-11-13' AND dose > 0").fetchone()[0] == 0
+    bike_quads = con.execute("SELECT dose FROM tissue_load_day WHERE tissue_id = 'quads' AND side = 'left'"
+                             " AND day = '2026-11-14'").fetchone()[0]
+    assert bike_quads == pytest.approx(20 * 0.25)   # he said the "Cardio" was the bike
