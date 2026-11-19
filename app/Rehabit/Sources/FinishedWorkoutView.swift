@@ -241,7 +241,7 @@ struct ActivitySection: View {
                 Picker("Counts as", selection: Binding(get: { activity.countsAs ?? "" }, set: { choose($0.isEmpty ? nil : $0) })) {
                     Text("What Garmin recorded (\(activity.name))").tag("")
                     ForEach(model.activityKinds, id: \.id) { kind in Text(kind.name).tag(kind.id) }
-                    Text("Not counted").tag(AppModel.notCounted)
+                    Text("Doesn't count").tag(AppModel.notCounted)
                 }
             } label: {
                 LabeledContent("Counts as", value: countsAsName)
@@ -270,7 +270,7 @@ struct ActivitySection: View {
 
     private var countsAsName: String {
         guard let kind = activity.countsAs else { return "As recorded" }
-        if kind == AppModel.notCounted { return "Not counted" }
+        if kind == AppModel.notCounted { return "Doesn't count" }
         return model.activityKinds.first { $0.id == kind }?.name ?? kind
     }
 

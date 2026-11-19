@@ -351,26 +351,15 @@ public final class AppModel {
     }
 
     private func ledgerActivity(_ workout: Workout) -> LedgerActivity? {
-        guard let activity = workout.activity, activity.countsAs != AppModel.notCounted else { return nil }
-        // A kind the person chose stands in for the watch's type and name.
-        if let chosen = activity.countsAs {
-            let word = AppModel.typeWords[chosen] ?? chosen.replacingOccurrences(of: "_", with: " ")
-            return LedgerActivity(day: workout.startDay, type: word, name: nil,
-                                  minutes: workout.minutes, averageHR: activity.averageHeartRate)
-        }
+        guard let activity = workout.activity else { return nil }
+        // A kind the person chose wins over the watch's type and name; "none" adds nothing.
         return LedgerActivity(day: workout.startDay, type: activity.type, name: workout.title,
-                              minutes: workout.minutes, averageHR: activity.averageHeartRate)
+                              minutes: workout.minutes, averageHR: activity.averageHeartRate,
+                              countsAs: activity.countsAs)
     }
 
     /// `ActivitySummary.countsAs` for a session the person says adds no load.
     public static let notCounted = "none"
-
-    /// A word the activity matcher reads as each pattern.
-    static let typeWords: [String: String] = [
-        "running": "running", "hiking": "hiking", "stair_climbing": "stair", "court_sports": "tennis",
-        "cycling": "cycling", "elliptical": "elliptical", "rowing": "rowing", "swimming": "swimming",
-        "yoga": "yoga", "pilates": "pilates",
-    ]
 
     /// The kinds a session can be counted as, by name.
     public var activityKinds: [(id: String, name: String)] {
@@ -409,7 +398,7 @@ public final class AppModel {
     public func activityLoad(for workout: Workout) -> (pattern: String?, effectiveReps: Double, tissue: Tissue?)? {
         guard let item = ledgerActivity(workout) else { return nil }
         guard let set = ledger.activitySets([item], restingHR: restingHeartRates(), maxHR: trustedMaxHR).first else {
-            return (ActivityMatcher.pattern(type: item.type, name: item.name), 0, nil)
+            return (ledger.activityPattern(item), 0, nil)
         }
         let top = library.pattern(set.pattern)?.links.max { $0.share < $1.share }
         return (set.pattern, (set.reps ?? 0) * (top?.share ?? 1), top.flatMap { library.tissue($0.tissue) })

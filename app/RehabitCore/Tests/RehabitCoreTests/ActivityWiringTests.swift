@@ -41,19 +41,21 @@ final class ActivityWiringTests: XCTestCase {
 
     /// Every kind offered can be chosen and is read back as that kind.
     @MainActor
-    func testEveryKindCanBeChosen() throws {
+    func testEveryKindCanBeChosen() async throws {
         let m = AppModel(store: try Store(path: ":memory:"), zone: zone, now: { Date(timeIntervalSince1970: 1_795_000_000) })
         XCTAssertFalse(m.activityKinds.isEmpty)
+        let ledger = Ledger()
         for kind in m.activityKinds {
-            let word = AppModel.typeWords[kind.id] ?? kind.id.replacingOccurrences(of: "_", with: " ")
-            XCTAssertEqual(ActivityMatcher.pattern(type: word, name: nil), kind.id, kind.id)
+            let chosen = LedgerActivity(day: Day("2026-11-10")!, type: "indoor_cardio", name: "Cardio", minutes: 30,
+                                        averageHR: nil, countsAs: kind.id)
+            XCTAssertEqual(ledger.activityPattern(chosen), kind.id, kind.id)
         }
     }
 
     /// Garmin's "Cardio" says nothing of the machine: the person says it was the
     /// bike, for one session or all of them, and can take it out of load.
     @MainActor
-    func testCardioCountedAsTheBikeForAllSessionsOfThatName() throws {
+    func testCardioCountedAsTheBikeForAllSessionsOfThatName() async throws {
         let now = Date(timeIntervalSince1970: 1_795_000_000)
         let m = AppModel(store: try Store(path: ":memory:"), zone: zone, now: { now })
         let a = now.addingTimeInterval(-3 * 86_400), b = now.addingTimeInterval(-86_400)
@@ -82,7 +84,7 @@ final class ActivityWiringTests: XCTestCase {
         // One session taken out of load; the other stays.
         let one = try XCTUnwrap(m.workouts.first { $0.title == "Cardio" && $0.start == b })
         m.setActivityCountsAs(AppModel.notCounted, for: one, sameName: false)
-        XCTAssertNil(m.activityLoad(for: try XCTUnwrap(m.workouts.first { $0.title == "Cardio" && $0.start == b })))
+        XCTAssertEqual(m.activityLoad(for: try XCTUnwrap(m.workouts.first { $0.title == "Cardio" && $0.start == b }))?.effectiveReps, 0)
         XCTAssertNotNil(m.activityLoad(for: try XCTUnwrap(m.workouts.first { $0.title == "Cardio" && $0.start == a })))
         // Back to the watch's own type.
         m.setActivityCountsAs(nil, for: first, sameName: true)
