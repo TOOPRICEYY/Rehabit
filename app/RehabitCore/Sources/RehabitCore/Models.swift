@@ -95,6 +95,10 @@ public struct ActivitySummary: Codable, Equatable, Sendable {
     public var calories: Double?
     public var elevationGainMeters: Double?
     public var steps: Double?
+    /// What the person says the session counts as for load: an activity
+    /// pattern id (such as "cycling" for a stationary bike Garmin called
+    /// "Cardio"), or "none" for not counted. Nil: worked out from the type.
+    public var countsAs: String?
 
     public init(type: String, distanceMeters: Double? = nil, averageHeartRate: Double? = nil, maxHeartRate: Double? = nil,
                 calories: Double? = nil, elevationGainMeters: Double? = nil, steps: Double? = nil) {

@@ -351,9 +351,51 @@ public final class AppModel {
     }
 
     private func ledgerActivity(_ workout: Workout) -> LedgerActivity? {
-        guard let activity = workout.activity else { return nil }
+        guard let activity = workout.activity, activity.countsAs != AppModel.notCounted else { return nil }
+        // A kind the person chose stands in for the watch's type and name.
+        if let chosen = activity.countsAs {
+            let word = AppModel.typeWords[chosen] ?? chosen.replacingOccurrences(of: "_", with: " ")
+            return LedgerActivity(day: workout.startDay, type: word, name: nil,
+                                  minutes: workout.minutes, averageHR: activity.averageHeartRate)
+        }
         return LedgerActivity(day: workout.startDay, type: activity.type, name: workout.title,
                               minutes: workout.minutes, averageHR: activity.averageHeartRate)
+    }
+
+    /// `ActivitySummary.countsAs` for a session the person says adds no load.
+    public static let notCounted = "none"
+
+    /// A word the activity matcher reads as each pattern.
+    static let typeWords: [String: String] = [
+        "running": "running", "hiking": "hiking", "stair_climbing": "stair", "court_sports": "tennis",
+        "cycling": "cycling", "elliptical": "elliptical", "rowing": "rowing", "swimming": "swimming",
+        "yoga": "yoga", "pilates": "pilates",
+    ]
+
+    /// The kinds a session can be counted as, by name.
+    public var activityKinds: [(id: String, name: String)] {
+        library.activityRates.keys.sorted().map { ($0, library.pattern($0)?.name ?? $0) }
+            .sorted { $0.name < $1.name }
+    }
+
+    /// Sets what a session counts as (a pattern id, `notCounted`, or nil for
+    /// the watch's own type). With `sameName`, every session of the same
+    /// watch type and name gets it too, such as all of Garmin's "Cardio".
+    public func setActivityCountsAs(_ kind: String?, for workout: Workout, sameName: Bool) {
+        guard let activity = workout.activity else { return }
+        let targets = sameName
+            ? workouts.filter { $0.activity?.type == activity.type && $0.title == workout.title }
+            : workouts.filter { $0.id == workout.id }
+        for var target in targets {
+            target.activity?.countsAs = kind
+            update(target)
+        }
+    }
+
+    /// How many sessions share this one's watch type and name.
+    public func sessionsLike(_ workout: Workout) -> Int {
+        guard let type = workout.activity?.type else { return 0 }
+        return workouts.filter { $0.activity?.type == type && $0.title == workout.title }.count
     }
 
     /// Sessions with no sets (a run, a ride) as load, once each.

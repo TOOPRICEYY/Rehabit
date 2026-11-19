@@ -116,6 +116,14 @@ enum DemoData {
                                                                             averageHeartRate: 148, maxHeartRate: 171,
                                                                             calories: 402, elevationGainMeters: 31, steps: 5120))],
                                  source: GarminSource.sourceName, inferSide: false)
+            // Two gym "Cardio" sessions: Garmin does not say which machine.
+            for (id, daysAgo) in [("demo-cardio-1", 5.0), ("demo-cardio-2", 6.0)] {
+                let at = Date().addingTimeInterval(-daysAgo * 86_400)
+                model.importWorkouts([ImportedWorkout(sourceID: id, title: "Cardio", start: at, end: at.addingTimeInterval(25 * 60),
+                                                      activity: ActivitySummary(type: "indoor_cardio", averageHeartRate: 138,
+                                                                                maxHeartRate: 172, calories: 260, steps: 60))],
+                                     source: GarminSource.sourceName, inferSide: false)
+            }
         }
         if args.contains("-demo-overlap") {
             // With -demo-overlap: yesterday's visit recorded twice, on the phone and

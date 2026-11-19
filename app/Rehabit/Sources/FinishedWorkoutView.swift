@@ -227,16 +227,57 @@ struct ActivitySection: View {
             }
             if let steps = activity.steps { LabeledContent("Steps", value: steps.formatted(.number.precision(.fractionLength(0)))) }
             if let kcal = activity.calories { LabeledContent("Calories", value: "\(Int(kcal.rounded())) kcal") }
-            if let load = model.activityLoad(for: workout) {
+            if activity.countsAs == AppModel.notCounted {
+                Text("Not counted as load: you chose to leave it out")
+                    .font(.subheadline)
+                    .accessibilityIdentifier("activity-load")
+            } else if let load = model.activityLoad(for: workout) {
                 Text(loadLine(load))
                     .font(.subheadline)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("activity-load")
             }
+            Menu {
+                Picker("Counts as", selection: Binding(get: { activity.countsAs ?? "" }, set: { choose($0.isEmpty ? nil : $0) })) {
+                    Text("What Garmin recorded (\(activity.name))").tag("")
+                    ForEach(model.activityKinds, id: \.id) { kind in Text(kind.name).tag(kind.id) }
+                    Text("Not counted").tag(AppModel.notCounted)
+                }
+            } label: {
+                LabeledContent("Counts as", value: countsAsName)
+            }
+            .accessibilityIdentifier("activity-counts-as")
         } header: {
             Text("Activity")
         } footer: {
-            Text("From Garmin. Load is worked out from the kind of activity, its length and, when known, heart rate.")
+            Text("From Garmin. Load is worked out from the kind of activity, its length and, when known, heart rate. If Garmin's kind is wrong or vague, such as Cardio for a stationary bike, choose what it was.")
+        }
+        .confirmationDialog("Change all \(model.sessionsLike(workout)) “\(workout.title)” sessions?",
+                            isPresented: Binding(get: { pending != nil }, set: { if !$0 { pending = nil } }),
+                            titleVisibility: .visible) {
+            Button("All \(model.sessionsLike(workout)) sessions") {
+                if let kind = pending { model.setActivityCountsAs(kind, for: workout, sameName: true) }
+                pending = nil
+            }
+            Button("Only this one") {
+                if let kind = pending { model.setActivityCountsAs(kind, for: workout, sameName: false) }
+                pending = nil
+            }
+        }
+    }
+
+    @State private var pending: String??
+
+    private var countsAsName: String {
+        guard let kind = activity.countsAs else { return "As recorded" }
+        if kind == AppModel.notCounted { return "Not counted" }
+        return model.activityKinds.first { $0.id == kind }?.name ?? kind
+    }
+
+    /// One session, or every session with the same name when there are more.
+    private func choose(_ kind: String?) {
+        if model.sessionsLike(workout) > 1 { pending = .some(kind) } else {
+            model.setActivityCountsAs(kind, for: workout, sameName: false)
         }
     }
 

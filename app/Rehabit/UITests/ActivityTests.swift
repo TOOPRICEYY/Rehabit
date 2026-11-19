@@ -41,4 +41,34 @@ final class ActivityTests: XCTestCase {
         XCTAssertFalse(app.buttons["Add exercise"].exists)
         shot("03-edit")
     }
+
+    /// Garmin's "Cardio" counts for nothing until the person says what it was;
+    /// choosing the bike for all of them puts them into load.
+    func testCardioCountedAsTheBike() {
+        XCUIDevice.shared.appearance = .light
+        let app = XCUIApplication()
+        app.launchArguments = ["-demo-workout", "-demo-activity"]
+        app.launch()
+        app.tabBars.buttons["Workouts"].tap()
+        let row = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Cardio'")).firstMatch
+        for _ in 0..<8 where !(row.exists && row.isHittable) { app.swipeUp() }
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        let line = app.descendants(matching: .any)["activity-load"]
+        XCTAssertTrue(line.waitForExistence(timeout: 5))
+        XCTAssertTrue(line.label.hasPrefix("Not counted as load"), line.label)
+        shot("10-cardio-unknown")
+        let menu = app.descendants(matching: .any)["activity-counts-as"]
+        for _ in 0..<3 where !(menu.exists && menu.isHittable) { app.swipeUp() }
+        menu.tap()
+        let cycling = app.buttons["Cycling"].firstMatch
+        XCTAssertTrue(cycling.waitForExistence(timeout: 3))
+        shot("11-counts-as-menu")
+        cycling.tap()
+        let all = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'All 2'")).firstMatch
+        XCTAssertTrue(all.waitForExistence(timeout: 3), "offers every Cardio session")
+        all.tap()
+        XCTAssertTrue(line.label.hasPrefix("Counts as load: about"), line.label)
+        shot("12-cardio-as-bike")
+    }
 }
