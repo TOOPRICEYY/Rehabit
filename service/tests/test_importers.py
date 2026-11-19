@@ -1,4 +1,5 @@
 import json
+import pytest
 
 from rehabit.importers import doestrack, garmin, hevy
 from tests.conftest import garmin_activity
@@ -241,7 +242,6 @@ def test_app_export_skips_logs_the_service_reads_itself(con, profile, tmp_path, 
 
 
 def test_app_export_from_a_newer_app_is_refused(con, profile, tmp_path):
-    import pytest
     from rehabit.importers import app
     with pytest.raises(ValueError):
         app.import_export(con, _app_export(tmp_path, schemaVersion=2), profile)
