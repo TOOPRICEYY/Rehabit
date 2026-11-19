@@ -107,6 +107,16 @@ enum DemoData {
         for _ in 0..<3 { fill(model.addExercise(entry("Single-Leg Calf Raise (Dumbbell)"), mode: .perSide)[0], 20, 15) }
         fill(model.addExercise(bench, mode: .together)[0], 30, 8)
         model.finishWorkout()
+        if args.contains("-demo-activity") {
+            // With -demo-activity: a run from the watch four days ago, with no sets.
+            let run = Date().addingTimeInterval(-4 * 86_400 - 2 * 3600)
+            model.importWorkouts([ImportedWorkout(sourceID: "demo-run", title: "Morning Run", start: run,
+                                                  end: run.addingTimeInterval(31 * 60 + 12),
+                                                  activity: ActivitySummary(type: "running", distanceMeters: 5012,
+                                                                            averageHeartRate: 148, maxHeartRate: 171,
+                                                                            calories: 402, elevationGainMeters: 31, steps: 5120))],
+                                 source: GarminSource.sourceName, inferSide: false)
+        }
         if args.contains("-demo-overlap") {
             // With -demo-overlap: yesterday's visit recorded twice, on the phone and
             // by a watch, so the overlap review has a proposal and repeated sets.

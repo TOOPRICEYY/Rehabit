@@ -69,6 +69,7 @@ struct RootView: View {
             if phase == .active {
                 model.refreshClock()
                 MacSync.shared.checkInbox(model)
+                AutoRefresh.runIfDue(model)
             }
         }
         // Reminders follow the questions still to come: answering one, deleting
@@ -83,6 +84,7 @@ struct RootView: View {
             NotificationRouter.shared.install()
             Reminders.sync(model.reminderRounds)
             MacSync.shared.checkInbox(model)
+            AutoRefresh.runIfDue(model)
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-demo-inbox") {
                 MacSync.shared.offer(DemoData.inbox, model: model)
@@ -93,6 +95,54 @@ struct RootView: View {
 }
 
 enum Format {
+    // MARK: Activities from a watch (runs, rides, walks): sessions with no sets
+
+    /// Miles for someone who lifts in pounds, kilometres otherwise.
+    static func distance(_ meters: Double, unit: WeightUnit) -> String {
+        let value = unit == .lb ? meters / 1609.344 : meters / 1000
+        return String(format: value >= 100 ? "%.0f %@" : "%.2f %@", value, unit == .lb ? "mi" : "km")
+    }
+
+    /// 31 min, 1 h 05 min.
+    static func duration(minutes: Double) -> String {
+        let m = Int(minutes.rounded())
+        return m >= 60 ? String(format: "%d h %02d min", m / 60, m % 60) : "\(m) min"
+    }
+
+    /// "Running · 5.01 km · 31 min".
+    static func activityLine(_ activity: ActivitySummary, minutes: Double?, unit: WeightUnit) -> String {
+        var parts = [activity.name]
+        if let d = activity.distanceMeters { parts.append(distance(d, unit: unit)) }
+        if let minutes, minutes >= 1 { parts.append(duration(minutes: minutes)) }
+        return parts.joined(separator: " · ")
+    }
+
+    /// Time per mile or kilometre, for kinds measured that way.
+    static func pace(_ activity: ActivitySummary, minutes: Double?, unit: WeightUnit) -> String? {
+        let paced = ["run", "walk", "hik"].contains { activity.type.contains($0) }
+        guard paced, let d = activity.distanceMeters, d > 0, let minutes, minutes > 0 else { return nil }
+        let per = minutes / (unit == .lb ? d / 1609.344 : d / 1000)
+        let seconds = Int((per * 60).rounded())
+        return String(format: "%d:%02d per %@", seconds / 60, seconds % 60, unit == .lb ? "mile" : "km")
+    }
+
+    static func activityIcon(_ type: String) -> String {
+        let t = type.lowercased()
+        if t.contains("run") { return "figure.run" }
+        if t.contains("hik") { return "figure.hiking" }
+        if t.contains("walk") { return "figure.walk" }
+        if t.contains("cycl") || t.contains("bik") { return "figure.outdoor.cycle" }
+        if t.contains("swim") { return "figure.pool.swim" }
+        if t.contains("yoga") { return "figure.yoga" }
+        if t.contains("pilates") { return "figure.pilates" }
+        if t.contains("row") { return "figure.rower" }
+        if t.contains("elliptical") { return "figure.elliptical" }
+        if t.contains("stair") { return "figure.stair.stepper" }
+        if t.contains("ski") || t.contains("snowboard") { return "figure.skiing.downhill" }
+        if t.contains("tennis") || t.contains("pickleball") || t.contains("padel") { return "figure.tennis" }
+        return "figure.mixed.cardio"
+    }
+
     /// 12.5 stays 12.5 and 20.0 becomes 20.
     static func number(_ value: Double?) -> String {
         guard let value, value.isFinite else { return "" }

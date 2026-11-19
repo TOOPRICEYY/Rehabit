@@ -44,7 +44,8 @@ struct WorkoutDetailView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(workout.start.formatted(date: .complete, time: .shortened)).font(.subheadline)
                     if let end = workout.end, end > workout.start {
-                        Text("\(Int(end.timeIntervalSince(workout.start) / 60)) min · \(sets.count) \(sets.count == 1 ? "set" : "sets")")
+                        Text(workout.activity != nil ? Format.duration(minutes: end.timeIntervalSince(workout.start) / 60)
+                             : "\(Int(end.timeIntervalSince(workout.start) / 60)) min · \(sets.count) \(sets.count == 1 ? "set" : "sets")")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     if let source = Self.source(workout) {
@@ -78,6 +79,7 @@ struct WorkoutDetailView: View {
                     }
                 }
             }
+            if let activity = workout.activity { ActivitySection(activity: activity, workout: workout) }
             SettlingSection(workout: workout)
             ForEach(ExerciseBlock.blocks(sets)) { block in
                 Section {
@@ -118,7 +120,7 @@ struct WorkoutDetailView: View {
                     .accessibilityHint("Shows the history and records for this exercise")
                 }
             }
-            if editing {
+            if editing && workout.activity == nil {
                 Section {
                     Button { picking = true } label: { Label("Add exercise", systemImage: "plus.circle") }
                 }
@@ -136,7 +138,8 @@ struct WorkoutDetailView: View {
                 }
                 .fontWeight(editing ? .semibold : .regular)
             }
-            if !editing {
+            // An activity from the watch has no sets to repeat or keep as a routine.
+            if !editing && workout.activity == nil {
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
                         if openLive != nil {
@@ -199,6 +202,53 @@ struct WorkoutDetailView: View {
         if workout.id.hasPrefix("hevy:") { return "Hevy" }
         if workout.id.hasPrefix("garmin:") { return "Garmin" }
         return nil
+    }
+}
+
+/// A run, ride, walk or other session from the watch: its totals, and no sets.
+struct ActivitySection: View {
+    @Environment(AppModel.self) private var model
+    let activity: ActivitySummary
+    let workout: Workout
+
+    var body: some View {
+        let unit = model.profile.unit
+        Section {
+            Label(activity.name, systemImage: Format.activityIcon(activity.type))
+                .font(.headline)
+            if let minutes = workout.minutes { LabeledContent("Time", value: Format.duration(minutes: minutes)) }
+            if let d = activity.distanceMeters { LabeledContent("Distance", value: Format.distance(d, unit: unit)) }
+            if let pace = Format.pace(activity, minutes: workout.minutes, unit: unit) { LabeledContent("Pace", value: pace) }
+            if let hr = activity.averageHeartRate {
+                LabeledContent("Heart rate", value: activity.maxHeartRate.map { "\(Int(hr)) average, \(Int($0)) highest" } ?? "\(Int(hr)) average")
+            }
+            if let up = activity.elevationGainMeters {
+                LabeledContent("Climb", value: unit == .lb ? "\(Int((up * 3.28084).rounded())) ft" : "\(Int(up.rounded())) m")
+            }
+            if let steps = activity.steps { LabeledContent("Steps", value: steps.formatted(.number.precision(.fractionLength(0)))) }
+            if let kcal = activity.calories { LabeledContent("Calories", value: "\(Int(kcal.rounded())) kcal") }
+            if let load = model.activityLoad(for: workout) {
+                Text(loadLine(load))
+                    .font(.subheadline)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("activity-load")
+            }
+        } header: {
+            Text("Activity")
+        } footer: {
+            Text("From Garmin. Load is worked out from the kind of activity, its length and, when known, heart rate.")
+        }
+    }
+
+    /// One plain line on what the session counts as. No verdicts.
+    private func loadLine(_ load: (pattern: String?, effectiveReps: Double, tissue: Tissue?)) -> String {
+        if load.effectiveReps >= 0.5, let tissue = load.tissue {
+            return "Counts as load: about \(Int(load.effectiveReps.rounded())) effective reps on the \(tissue.name.lowercased())"
+        }
+        if load.pattern == nil, activity.type.lowercased().contains("walk") {
+            return "Not counted as load: its steps are already counted"
+        }
+        return "Not counted as load: the type is not known"
     }
 }
 

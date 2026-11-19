@@ -132,12 +132,65 @@ final class GarminTests: XCTestCase {
         m.save(Injury(label: "Pec", side: .left, onset: Day("2026-06-01")!, tissues: [pec]))
         let first = await m.importGarminWorkouts(from: c, days: 30)
         XCTAssertEqual(first?.workoutsAdded, 1); XCTAssertEqual(first?.setsAdded, 6)
-        let stored = m.sets(of: try XCTUnwrap(m.workouts.first))
+        XCTAssertEqual(first?.activitiesAdded, 1)        // the run comes too, as an activity
+        let stored = m.sets(of: try XCTUnwrap(m.workouts.first { $0.activity == nil }))
         XCTAssertEqual(stored.first?.side, .both)        // the watch's side is not guessed from the injury
         XCTAssertEqual(stored.first?.convention, .perHand)
         XCTAssertEqual(stored.last?.convention, .bodyweight)
         let again = await m.importGarminWorkouts(from: c, days: 30)
         XCTAssertEqual(again?.workoutsAdded, 0)
+        XCTAssertEqual(again?.activitiesAdded, 0)
+    }
+
+    func testOtherActivitiesImportOnceWithTheirTotals() async throws {
+        let fake = FakeGarmin(expires: clock.timeIntervalSince1970 + 86_400)
+        fake.answers = [("activitylist-service", """
+            [{"activityId":11,"activityName":"Morning Run","activityType":{"typeKey":"running"},
+              "startTimeLocal":"2026-11-10 07:00:00","duration":1830.5,"distance":5012.3,"averageHR":148.0,
+              "maxHR":171.0,"calories":402.0,"elevationGain":31.0,"steps":5120},
+             {"activityId":12,"activityName":"","activityType":{"typeKey":"road_biking"},
+              "startTimeLocal":"2026-11-11 18:00:00","duration":3600,"distance":20500.0,"averageHR":0,"calories":null},
+             {"activityId":13,"activityType":{"typeKey":"walking"},"startTimeLocal":"2026-11-12 12:00:00",
+              "duration":1200,"distance":0}]
+            """)]
+        let c = client(fake)
+        let found = try await c.workouts(from: Day("2026-11-01")!, through: Day("2026-11-16")!, zone: zone, unit: .lb)
+        XCTAssertEqual(found.count, 3)
+        XCTAssertTrue(found.allSatisfy { $0.sets.isEmpty })
+        let run = try XCTUnwrap(found.first { $0.sourceID == "11" })
+        XCTAssertEqual(run.title, "Morning Run")
+        XCTAssertEqual(run.activity?.type, "running")
+        XCTAssertEqual(run.activity?.distanceMeters, 5012.3)
+        XCTAssertEqual(run.activity?.averageHeartRate, 148)
+        XCTAssertEqual(run.activity?.maxHeartRate, 171)
+        XCTAssertEqual(run.activity?.calories, 402)
+        XCTAssertEqual(run.activity?.elevationGainMeters, 31)
+        XCTAssertEqual(run.activity?.steps, 5120)
+        XCTAssertEqual(run.end?.timeIntervalSince(run.start), 1830.5)
+        let ride = try XCTUnwrap(found.first { $0.sourceID == "12" })
+        XCTAssertEqual(ride.title, "Road biking")        // an empty name falls back to the kind
+        XCTAssertNil(ride.activity?.averageHeartRate)    // 0 means not measured
+        XCTAssertNil(ride.activity?.calories)
+        let walk = try XCTUnwrap(found.first { $0.sourceID == "13" })
+        XCTAssertEqual(walk.title, "Walking")
+        XCTAssertNil(walk.activity?.distanceMeters)
+        let strength = try await c.strengthWorkouts(from: Day("2026-11-01")!, through: Day("2026-11-16")!, zone: zone, unit: .lb)
+        XCTAssertTrue(strength.isEmpty)
+
+        let store = try Store(path: ":memory:")
+        let m = AppModel(store: store, zone: zone, now: { [clock] in clock })
+        let first = await m.importGarminWorkouts(from: c, days: 30)
+        XCTAssertEqual(first?.activitiesAdded, 3); XCTAssertEqual(first?.workoutsAdded, 0); XCTAssertEqual(first?.setsAdded, 0)
+        let stored = try XCTUnwrap(m.workouts.first { $0.title == "Morning Run" })
+        XCTAssertEqual(stored.activity?.distanceMeters, 5012.3)
+        XCTAssertTrue(m.sets(of: stored).isEmpty)
+        XCTAssertEqual(stored.minutes ?? 0, 30.5, accuracy: 0.01)
+        let again = await m.importGarminWorkouts(from: c, days: 30)
+        XCTAssertEqual(again?.activitiesAdded, 0); XCTAssertEqual(again?.workoutsSkipped, 3)
+
+        // Kept through a reload from the store, and in the app's export.
+        let reopened = AppModel(store: store, zone: zone, now: { [clock] in clock })
+        XCTAssertEqual(reopened.workouts.first { $0.title == "Morning Run" }?.activity?.type, "running")
     }
 
     func testGarminIsAHealthSource() async throws {

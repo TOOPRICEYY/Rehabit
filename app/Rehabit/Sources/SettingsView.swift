@@ -100,6 +100,8 @@ struct SettingsView: View {
                         Task {
                             healthStatus = "Reading…"
                             let count = await model.importHealth(from: HealthKitSource())
+                            // Connected once by hand: from now on it refreshes by itself.
+                            if count != nil { AutoRefresh.healthConnected = true }
                             if let error = model.lastError {
                                 healthStatus = error
                             } else if let count, count > 0 {
@@ -113,6 +115,11 @@ struct SettingsView: View {
                         }
                     }
                     if !healthStatus.isEmpty { Text(healthStatus).font(.caption) }
+                    if AutoRefresh.healthConnected {
+                        Text(AutoRefresh.statusLine(.health) ?? "Refreshes by itself when the app opens, at most every two hours.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("health-auto")
+                    }
                 } header: {
                     Text("Recovery data")
                 } footer: {
@@ -256,13 +263,16 @@ struct SettingsView: View {
     @ViewBuilder private var garminSection: some View {
         Section {
             if garminConnected {
+                Text(AutoRefresh.statusLine(.garmin) ?? "Refreshes by itself when the app opens, at most every two hours.")
+                    .font(.footnote).foregroundStyle(.secondary)
+                    .accessibilityIdentifier("garmin-auto")
                 Button("Read recovery data from Garmin") {
                     garmin { client in
                         let count = await model.importHealth(from: GarminSource(client: client), days: 90)
                         return count.map { "\($0) daily values read from the last 90 days." }
                     }
                 }
-                Button("Import strength workouts from Garmin") {
+                Button("Import workouts and activities from Garmin") {
                     garmin { client in
                         guard let summary = await model.importGarminWorkouts(from: client, days: 90) else { return nil }
                         return describe(summary)
@@ -286,7 +296,7 @@ struct SettingsView: View {
             Text("Garmin")
         } footer: {
             Text(garminConnected
-                 ? "Reads overnight HRV, resting heart rate, sleep and steps, and strength sessions as per-exercise totals. Garmin does not record which side a set was done on. Nothing is written to Garmin."
+                 ? "Reads overnight HRV, resting heart rate, sleep and steps; strength sessions as per-exercise totals; and runs, rides, walks and other activities with their time, distance and heart rate, which count toward load. Garmin does not record which side a set was done on. Nothing is written to Garmin."
                  : "Paste the personal API key you created in your Garmin Connect account. It is kept in this phone's Keychain and sent only to Garmin.")
         }
         .disabled(garminBusy)
@@ -329,7 +339,7 @@ struct SettingsView: View {
     }
 
     private func describe(_ summary: ImportSummary) -> String {
-        var text = "\(summary.workoutsAdded) workouts and \(summary.setsAdded) sets added."
+        var text = "\(Format.count(summary.workoutsAdded, "strength session")) (\(Format.count(summary.setsAdded, "set"))) and \(summary.activitiesAdded) \(summary.activitiesAdded == 1 ? "other activity" : "other activities") (runs, rides, walks and the like) added."
         if summary.workoutsSkipped > 0 { text += " \(summary.workoutsSkipped) were already here." }
         if summary.sidesInferred > 0 { text += " \(summary.sidesInferred) sets were given a side from a note or an injury." }
         if !summary.unmapped.isEmpty {

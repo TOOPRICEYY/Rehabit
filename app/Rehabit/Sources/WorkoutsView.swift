@@ -94,15 +94,25 @@ struct WorkoutsView: View {
                         NavigationLink {
                             WorkoutDetailView(workout: workout)
                         } label: {
-                            VStack(alignment: .leading) {
-                                Text(workout.title)
-                                Text("\(workout.start.formatted(date: .abbreviated, time: .shortened)) · \(Format.count(model.sets(of: workout).count, "set"))")
-                                    .font(.caption).foregroundStyle(.secondary)
+                            HStack(spacing: 10) {
+                                if let activity = workout.activity {
+                                    Image(systemName: Format.activityIcon(activity.type))
+                                        .foregroundStyle(.secondary).frame(width: 24)
+                                        .accessibilityHidden(true)
+                                }
+                                VStack(alignment: .leading) {
+                                    Text(workout.title)
+                                    Text("\(workout.start.formatted(date: .abbreviated, time: .shortened)) · \(workout.activity.map { Format.activityLine($0, minutes: workout.minutes, unit: model.profile.unit) } ?? Format.count(model.sets(of: workout).count, "set"))")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
                             }
                         }
                         .swipeActions(edge: .leading) {
-                            Button("Repeat", systemImage: "arrow.clockwise") { repeatWorkout(workout) }
-                                .tint(.accentColor)
+                            // An activity from the watch has no sets to repeat.
+                            if workout.activity == nil {
+                                Button("Repeat", systemImage: "arrow.clockwise") { repeatWorkout(workout) }
+                                    .tint(.accentColor)
+                            }
                         }
                         .swipeActions(edge: .trailing) {
                             // Not the destructive role: that removes the row before the person confirms.

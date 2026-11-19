@@ -150,24 +150,46 @@ public actor GarminClient {
     /// pulldown stack, as the service does.
     static let maxAddedPullUpKg = 20.5
 
-    /// Strength sessions in a range of days. Garmin's listing gives totals for
-    /// each exercise (sets, reps, total weight moved), not each set, so the
-    /// reps are spread evenly over the sets and every set carries the average
-    /// weight per rep. Weights arrive in grams.
+    /// Strength sessions only, from `workouts(from:through:zone:unit:)`.
     public func strengthWorkouts(from: Day, through: Day, zone: TimeZone, unit: WeightUnit) async throws -> [ImportedWorkout] {
+        try await workouts(from: from, through: through, zone: zone, unit: unit).filter { $0.activity == nil }
+    }
+
+    /// Every session in a range of days. Strength training comes with sets:
+    /// Garmin's listing gives totals for each exercise (sets, reps, total
+    /// weight moved), not each set, so the reps are spread evenly over the
+    /// sets and every set carries the average weight per rep. Weights arrive
+    /// in grams. Anything else (a run, a ride, a walk, yoga) comes as an
+    /// activity with its totals and no sets: distance in metres, duration in seconds.
+    public func workouts(from: Day, through: Day, zone: TimeZone, unit: WeightUnit) async throws -> [ImportedWorkout] {
         var out: [ImportedWorkout] = [], offset = 0
         let page = 100
         while true {
             let path = "/activitylist-service/activities/search/activities?start=\(offset)&limit=\(page)&startDate=\(from)&endDate=\(through)"
             let list = (try await json(path) as? [Any]) ?? []
             for activity in list {
-                guard (GarminClient.dict(activity, "activityType", "typeKey") as? String) == "strength_training",
-                      let id = GarminClient.number(GarminClient.dict(activity, "activityId")),
+                let type = (GarminClient.dict(activity, "activityType", "typeKey") as? String) ?? "other"
+                guard let id = GarminClient.number(GarminClient.dict(activity, "activityId")),
                       let startText = GarminClient.dict(activity, "startTimeLocal") as? String,
                       let start = GarminClient.localTime(startText, zone: zone) else { continue }
                 let seconds = GarminClient.number(GarminClient.dict(activity, "duration")) ?? 0
+                let named = (GarminClient.dict(activity, "activityName") as? String).flatMap { $0.isEmpty ? nil : $0 }
+                guard type == "strength_training" else {
+                    let summary = ActivitySummary(
+                        type: type,
+                        distanceMeters: GarminClient.number(GarminClient.dict(activity, "distance")),
+                        averageHeartRate: GarminClient.number(GarminClient.dict(activity, "averageHR")),
+                        maxHeartRate: GarminClient.number(GarminClient.dict(activity, "maxHR")),
+                        calories: GarminClient.number(GarminClient.dict(activity, "calories")),
+                        elevationGainMeters: GarminClient.number(GarminClient.dict(activity, "elevationGain")),
+                        steps: GarminClient.number(GarminClient.dict(activity, "steps")))
+                    out.append(ImportedWorkout(sourceID: String(Int64(id)), title: named ?? summary.name,
+                                               start: start, end: start.addingTimeInterval(max(0, seconds)),
+                                               activity: summary))
+                    continue
+                }
                 var workout = ImportedWorkout(
-                    sourceID: String(Int64(id)), title: (GarminClient.dict(activity, "activityName") as? String) ?? "Strength",
+                    sourceID: String(Int64(id)), title: named ?? "Strength",
                     start: start, end: start.addingTimeInterval(max(0, seconds)))
                 for exercise in (GarminClient.dict(activity, "summarizedExerciseSets") as? [Any]) ?? [] {
                     let reps = Int(GarminClient.number(GarminClient.dict(exercise, "reps")) ?? 0)
@@ -218,14 +240,15 @@ public struct GarminSource: HealthSource {
 }
 
 extension AppModel {
-    /// Brings in Garmin strength sessions from the last `days` days.
+    /// Brings in Garmin sessions from the last `days` days: strength training
+    /// with its sets, and every other activity with its totals.
     /// Returns nil if the read failed; the reason is in `lastError`.
     @MainActor
     public func importGarminWorkouts(from client: GarminClient, days: Int = 90) async -> ImportSummary? {
         let today = Day(importNow, in: importZone)
         do {
-            let found = try await client.strengthWorkouts(from: today.adding(-days), through: today,
-                                                          zone: importZone, unit: profile.unit)
+            let found = try await client.workouts(from: today.adding(-days), through: today,
+                                                  zone: importZone, unit: profile.unit)
             // The watch does not record which side a set was done on, and a
             // one-sided injury says nothing about it: the watch may hold either side.
             return importWorkouts(found, source: GarminSource.sourceName, inferSide: false)

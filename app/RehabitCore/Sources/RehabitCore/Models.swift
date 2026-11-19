@@ -84,6 +84,35 @@ public protocol Record: Codable, Identifiable, Sendable where ID == String {
     var day: Day? { get }
 }
 
+/// The totals a watch keeps for a session that has no sets: a run, a ride,
+/// a swim, yoga. Values the watch did not send, or sent as 0, are nil.
+public struct ActivitySummary: Codable, Equatable, Sendable {
+    /// The watch's own name for the kind, such as Garmin's "running" or "lap_swimming".
+    public var type: String
+    public var distanceMeters: Double?
+    public var averageHeartRate: Double?
+    public var maxHeartRate: Double?
+    public var calories: Double?
+    public var elevationGainMeters: Double?
+    public var steps: Double?
+
+    public init(type: String, distanceMeters: Double? = nil, averageHeartRate: Double? = nil, maxHeartRate: Double? = nil,
+                calories: Double? = nil, elevationGainMeters: Double? = nil, steps: Double? = nil) {
+        self.type = type
+        func positive(_ v: Double?) -> Double? { v.flatMap { $0 > 0 && $0.isFinite ? $0 : nil } }
+        self.distanceMeters = positive(distanceMeters); self.averageHeartRate = positive(averageHeartRate)
+        self.maxHeartRate = positive(maxHeartRate); self.calories = positive(calories)
+        self.elevationGainMeters = positive(elevationGainMeters); self.steps = positive(steps)
+    }
+
+    /// "running" → "Running", "lap_swimming" → "Lap swimming", "e_bike_fitness" → "E bike fitness".
+    public var name: String {
+        let words = type.replacingOccurrences(of: "_", with: " ").trimmingCharacters(in: .whitespaces)
+        guard let first = words.first else { return "Activity" }
+        return first.uppercased() + words.dropFirst()
+    }
+}
+
 public struct Workout: Record, Equatable {
     public static let kind = "workout"
     public var id: String
@@ -111,6 +140,9 @@ public struct Workout: Record, Equatable {
     public var planned: Bool?
     /// How hard the whole session felt, 0 to 10 in half points. Nil when not asked or not said.
     public var effort: Double?
+    /// For a session from a watch that was not strength training (a run, a
+    /// ride, a walk): what kind it was and its totals. Such a session has no sets.
+    public var activity: ActivitySummary?
     public var updatedAt: Date
     public var parentID: String? { nil }
     public var day: Day? { startDay }

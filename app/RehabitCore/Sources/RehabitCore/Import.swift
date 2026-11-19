@@ -10,11 +10,13 @@ public struct ImportedWorkout: Equatable, Sendable {
     public var end: Date?
     public var notes: String
     public var sets: [ImportedSet]
+    /// A session that was not strength training, with its totals and no sets.
+    public var activity: ActivitySummary?
 
     public init(sourceID: String, title: String, start: Date, end: Date?, notes: String = "",
-                sets: [ImportedSet] = []) {
+                sets: [ImportedSet] = [], activity: ActivitySummary? = nil) {
         self.sourceID = sourceID; self.title = title; self.start = start; self.end = end
-        self.notes = notes; self.sets = sets
+        self.notes = notes; self.sets = sets; self.activity = activity
     }
 }
 
@@ -42,7 +44,10 @@ public struct ImportedSet: Equatable, Sendable {
 }
 
 public struct ImportSummary: Equatable, Sendable {
+    /// Strength sessions added (sessions with sets).
     public var workoutsAdded = 0
+    /// Sessions with no sets added: runs, rides, walks and the like.
+    public var activitiesAdded = 0
     public var setsAdded = 0
     /// Workouts already here, or deleted here earlier, and so left alone.
     public var workoutsSkipped = 0
@@ -300,6 +305,7 @@ extension AppModel {
                 var workout = Workout(id: id, title: item.title, start: item.start, end: item.end ?? item.start,
                                       zone: importZone, notes: item.notes)
                 if let end = workout.end, end < workout.start { workout.end = workout.start }
+                workout.activity = item.activity
                 var sets: [WorkoutSet] = [], inferred = 0
                 for (position, s) in item.sets.enumerated() {
                     let match = ExerciseMatcher.entry(for: s.exercise, in: library)
@@ -321,7 +327,8 @@ extension AppModel {
                         isWarmup: s.isWarmup, notes: s.notes, updatedAt: workout.start))
                 }
                 if try storeImported(workout, sets: sets) {
-                    summary.workoutsAdded += 1; summary.setsAdded += sets.count; summary.sidesInferred += inferred
+                    if item.activity != nil { summary.activitiesAdded += 1 } else { summary.workoutsAdded += 1 }
+                    summary.setsAdded += sets.count; summary.sidesInferred += inferred
                 } else { summary.workoutsSkipped += 1 }
             }
         }

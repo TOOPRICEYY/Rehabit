@@ -338,6 +338,41 @@ public final class AppModel {
         return built
     }
 
+    /// Each day's resting heart rate, the lowest reading of the day.
+    private func restingHeartRates() -> [Day: Double] {
+        var out: [Day: Double] = [:]
+        for m in dailyMetrics(MetricName.restingHeartRate) where m.value > 0 { out[m.day] = min(out[m.day] ?? .infinity, m.value) }
+        return out
+    }
+
+    /// The trusted maximum heart rate: the highest any session recorded, once enough have.
+    private var trustedMaxHR: Double? {
+        ledger.observedMaxHR(workouts.compactMap { $0.activity?.maxHeartRate })
+    }
+
+    private func ledgerActivity(_ workout: Workout) -> LedgerActivity? {
+        guard let activity = workout.activity else { return nil }
+        return LedgerActivity(day: workout.startDay, type: activity.type, name: workout.title,
+                              minutes: workout.minutes, averageHR: activity.averageHeartRate)
+    }
+
+    /// Sessions with no sets (a run, a ride) as load, once each.
+    private func activityHistory() -> [LedgerSet] {
+        ledger.activitySets(workouts.compactMap(ledgerActivity), restingHR: restingHeartRates(), maxHR: trustedMaxHR)
+    }
+
+    /// What a run, ride or other session with no sets adds to load: the
+    /// pattern it counts as, its effective reps, and the tissue with the
+    /// largest share. Nil for a session with sets.
+    public func activityLoad(for workout: Workout) -> (pattern: String?, effectiveReps: Double, tissue: Tissue?)? {
+        guard let item = ledgerActivity(workout) else { return nil }
+        guard let set = ledger.activitySets([item], restingHR: restingHeartRates(), maxHR: trustedMaxHR).first else {
+            return (ActivityMatcher.pattern(type: item.type, name: item.name), 0, nil)
+        }
+        let top = library.pattern(set.pattern)?.links.max { $0.share < $1.share }
+        return (set.pattern, (set.reps ?? 0) * (top?.share ?? 1), top.flatMap { library.tissue($0.tissue) })
+    }
+
     /// Daily steps from every source, the largest reading of each day (phone and
     /// watch count the same walking), as walking load.
     private func walkingHistory() -> [LedgerSet] {
@@ -543,7 +578,7 @@ public final class AppModel {
         let end = loadToday.adding(-7 * max(0, weeksAgo))
         // 35 days are shown; the 28 before them are only needed as reference loads.
         let from = end.adding(-35 - ledger.settings.referenceWindowDays)
-        let sets = (ledgerHistory().map(\.set) + walkingHistory()).filter { $0.day >= from && $0.day <= end }
+        let sets = (ledgerHistory().map(\.set) + walkingHistory() + activityHistory()).filter { $0.day >= from && $0.day <= end }
         let days = ledger.tissueDays(sets, through: end).filter { end.days(since: $0.day) < 35 && $0.day <= end }
         return (end, sets, days)
     }
@@ -553,7 +588,7 @@ public final class AppModel {
         _ = tick
         let end = loadToday
         let from = end.adding(-days - ledger.settings.referenceWindowDays)
-        let sets = (ledgerHistory().map(\.set) + walkingHistory()).filter { $0.day >= from && $0.day <= end }
+        let sets = (ledgerHistory().map(\.set) + walkingHistory() + activityHistory()).filter { $0.day >= from && $0.day <= end }
         return (end, ledger.tissueDays(sets, through: end).filter { end.days(since: $0.day) < days && $0.day <= end })
     }
 
