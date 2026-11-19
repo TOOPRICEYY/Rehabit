@@ -23,8 +23,9 @@ Nothing here is clinical advice. The numbers are starting values, labelled as se
   check. An unanswered question stays missing; it is never stored as zero. An injury can
   carry a plan: pain limits, milestones, the next visit. Sessions are counted against the
   limits as within, over or unknown.
-- **Load.** The tissue ledger turns sets and daily steps into effective reps for each tissue
-  and side, against that side's own usual weight. It is a port of `service/rehabit/
+- **Load.** The tissue ledger turns sets, daily steps and recorded activities (minutes x a
+  rate for the type x a heart-rate intensity) into effective reps for each tissue and side,
+  against that side's own usual weight. It is a port of `service/rehabit/
   ledger.py`, and a fixture written by the service holds the two to the same numbers.
 - **Reading it back.** Exercise history, records, left against right, a week's summary,
   session effort, a calendar, an injury timeline and a report in Markdown for a therapist,
@@ -48,8 +49,7 @@ then run `app/Rehabit/scripts/testflight.sh`.
 After changing the exercise library or the ledger in the service, run
 `python3 -m rehabit.cli export-shared` from `service/` to rewrite the app's copy.
 
-Not built yet: running and cycling as tissue load beyond their steps, a rest timer on the
-lock screen, load flags on the phone (the service computes them), and Health Connect for
+Not built yet: a rest timer on the lock screen, load flags on the phone (the service computes them), and Health Connect for
 Android.
 
 ## What the service does
@@ -89,6 +89,16 @@ Android.
    Achilles with small shares for the thigh and hip. The weekly spike sees training and
    walking together; the flags about sessions (density, re-entry, compensation) see
    training only, since walking happens every day.
+   Recorded activities (a ride, a row, a run, yoga) count as dose too:
+
+       effective reps = minutes x rate(type) x intensity
+
+   The rate (`library.ACTIVITIES`, with how each was worked out) is effective reps a
+   minute at a moderate effort, measured in the same unit as walking. For running,
+   hiking, stairs and sports it is only what they add beyond their steps, which the
+   step count already holds. Intensity is the heart-rate reserve used against that of a
+   moderate effort (half), kept between 0.5 and 2, and 1 when a heart rate is unknown.
+   A type with no rate adds nothing: an "indoor cardio" recording is often a sauna.
 6. **Replay** (`replay.py`). For each injury with a known onset, lists the flags that
    fired in the two weeks before it, next to the base rate: the share of all comparable
    two-week windows in which the same flag fired. A flag that fires before an injury but
@@ -133,5 +143,8 @@ fixtures.
 - Step counts include steps taken during runs, so steps and run minutes overlap, and a
   running step is counted like a walking step though it loads the calf far harder.
 - 100 steps per effective rep is a starting value, not a measurement.
+- Activity rates are worked out from cadence and rough force ratios, not measured. Heart
+  rate measures the whole body's work: heat, a poor night or a medicine raise it with no
+  extra load on any tissue, and the maximum is the highest one recorded, not tested.
 - The replay checks rules against a handful of injuries. That is enough to reject a rule
   that fires all the time, and not enough to tune thresholds without fitting noise.

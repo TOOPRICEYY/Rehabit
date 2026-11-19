@@ -142,6 +142,81 @@
   "2025-01-19": 0,
   "2025-02-19": 8000
  },
+ "activities": [
+  {
+   "day": "2025-01-07",
+   "type": "cycling",
+   "name": "Morning Ride",
+   "minutes": 45.0,
+   "averageHR": 118.0,
+   "maxHR": 150.0
+  },
+  {
+   "day": "2025-01-10",
+   "type": "indoor_rowing",
+   "name": "Indoor Rowing",
+   "minutes": 12.0,
+   "averageHR": 140.0,
+   "maxHR": 172.0
+  },
+  {
+   "day": "2025-01-12",
+   "type": "running",
+   "name": "Easy Run",
+   "minutes": 25.5,
+   "averageHR": 150.0,
+   "maxHR": 181.0
+  },
+  {
+   "day": "2025-01-14",
+   "type": "indoor_cardio",
+   "name": "Sauna",
+   "minutes": 20.0,
+   "averageHR": 120.0,
+   "maxHR": 150.0
+  },
+  {
+   "day": "2025-01-16",
+   "type": "yoga",
+   "name": "Yoga",
+   "minutes": 30.0,
+   "averageHR": 80.0,
+   "maxHR": 105.0
+  },
+  {
+   "day": "2025-01-17",
+   "type": "walking",
+   "name": "Walk",
+   "minutes": 50.0,
+   "averageHR": 95.0,
+   "maxHR": 120.0
+  },
+  {
+   "day": "2025-01-18",
+   "type": "indoor_cardio",
+   "name": "Stairmaster",
+   "minutes": 15.0,
+   "averageHR": null,
+   "maxHR": null
+  },
+  {
+   "day": "2025-02-16",
+   "type": "lap_swimming",
+   "name": "Pool",
+   "minutes": 30.0,
+   "averageHR": 125.0,
+   "maxHR": 160.0
+  }
+ ],
+ "restingHR": {
+  "2025-01-06": 52.0,
+  "2025-01-07": 50.0,
+  "2025-01-09": 55.0,
+  "2025-01-11": 49.0,
+  "2025-01-12": 51.0,
+  "2025-01-15": 53.0,
+  "2025-02-05": 48.0
+ },
  "tissueDays": [
   {
    "day": "2024-12-14",
@@ -3617,41 +3692,41 @@
    "day": "2025-01-07",
    "tissue": "calf",
    "side": "left",
-   "dose": 32.5,
+   "dose": 35.979,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.5862,
-   "chronic": 19.1918
+   "acute": 32.0494,
+   "chronic": 19.3138
   },
   {
    "day": "2025-01-07",
    "tissue": "calf",
    "side": "right",
-   "dose": 32.5,
+   "dose": 35.979,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.5862,
-   "chronic": 19.1918
+   "acute": 32.0494,
+   "chronic": 19.3138
   },
   {
    "day": "2025-01-07",
    "tissue": "glute_max",
    "side": "left",
-   "dose": 6.5,
+   "dose": 12.298,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3172,
-   "chronic": 3.8384
+   "acute": 7.0891,
+   "chronic": 4.0418
   },
   {
    "day": "2025-01-07",
    "tissue": "glute_max",
    "side": "right",
-   "dose": 6.5,
+   "dose": 12.298,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3172,
-   "chronic": 3.8384
+   "acute": 7.0891,
+   "chronic": 4.0418
   },
   {
    "day": "2025-01-07",
@@ -3677,61 +3752,81 @@
    "day": "2025-01-07",
    "tissue": "hamstrings",
    "side": "left",
-   "dose": 6.5,
+   "dose": 11.138,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3172,
-   "chronic": 3.8384
+   "acute": 6.9347,
+   "chronic": 4.0011
   },
   {
    "day": "2025-01-07",
    "tissue": "hamstrings",
    "side": "right",
-   "dose": 6.5,
+   "dose": 11.138,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3172,
-   "chronic": 3.8384
+   "acute": 6.9347,
+   "chronic": 4.0011
   },
   {
    "day": "2025-01-07",
    "tissue": "hip_flexors",
    "side": "left",
-   "dose": 9.75,
+   "dose": 12.069,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.4759,
-   "chronic": 5.7575
+   "acute": 9.7846,
+   "chronic": 5.8389
   },
   {
    "day": "2025-01-07",
    "tissue": "hip_flexors",
    "side": "right",
-   "dose": 9.75,
+   "dose": 12.069,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.4759,
-   "chronic": 5.7575
+   "acute": 9.7846,
+   "chronic": 5.8389
+  },
+  {
+   "day": "2025-01-07",
+   "tissue": "patellar_tendon",
+   "side": "left",
+   "dose": 5.798,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.7719,
+   "chronic": 0.2034
+  },
+  {
+   "day": "2025-01-07",
+   "tissue": "patellar_tendon",
+   "side": "right",
+   "dose": 5.798,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.6027,
+   "chronic": 0.4472
   },
   {
    "day": "2025-01-07",
    "tissue": "quads",
    "side": "left",
-   "dose": 9.75,
+   "dose": 21.346,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.4759,
-   "chronic": 5.7575
+   "acute": 11.0196,
+   "chronic": 6.1644
   },
   {
    "day": "2025-01-07",
    "tissue": "quads",
    "side": "right",
-   "dose": 9.75,
+   "dose": 21.346,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.5145,
-   "chronic": 6.0622
+   "acute": 12.0582,
+   "chronic": 6.469
   },
   {
    "day": "2025-01-08",
@@ -3800,8 +3895,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.7079,
-   "chronic": 19.6587
+   "acute": 32.1093,
+   "chronic": 19.7764
   },
   {
    "day": "2025-01-08",
@@ -3810,8 +3905,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.7079,
-   "chronic": 19.6587
+   "acute": 32.1093,
+   "chronic": 19.7764
   },
   {
    "day": "2025-01-08",
@@ -3860,8 +3955,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3416,
-   "chronic": 3.9317
+   "acute": 7.0107,
+   "chronic": 4.128
   },
   {
    "day": "2025-01-08",
@@ -3870,8 +3965,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3416,
-   "chronic": 3.9317
+   "acute": 7.0107,
+   "chronic": 4.128
   },
   {
    "day": "2025-01-08",
@@ -3900,8 +3995,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3416,
-   "chronic": 3.9317
+   "acute": 6.8769,
+   "chronic": 4.0888
   },
   {
    "day": "2025-01-08",
@@ -3910,8 +4005,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3416,
-   "chronic": 3.9317
+   "acute": 6.8769,
+   "chronic": 4.0888
   },
   {
    "day": "2025-01-08",
@@ -3920,8 +4015,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5124,
-   "chronic": 5.8976
+   "acute": 9.78,
+   "chronic": 5.9761
   },
   {
    "day": "2025-01-08",
@@ -3930,8 +4025,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5124,
-   "chronic": 5.8976
+   "acute": 9.78,
+   "chronic": 5.9761
   },
   {
    "day": "2025-01-08",
@@ -4000,8 +4095,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5124,
-   "chronic": 5.8976
+   "acute": 10.8506,
+   "chronic": 6.2902
   },
   {
    "day": "2025-01-08",
@@ -4010,8 +4105,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.4127,
-   "chronic": 6.1916
+   "acute": 11.7509,
+   "chronic": 6.5842
   },
   {
    "day": "2025-01-08",
@@ -4120,8 +4215,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8133,
-   "chronic": 20.1092
+   "acute": 32.1613,
+   "chronic": 20.2228
   },
   {
    "day": "2025-01-09",
@@ -4130,8 +4225,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8133,
-   "chronic": 20.1092
+   "acute": 32.1613,
+   "chronic": 20.2228
   },
   {
    "day": "2025-01-09",
@@ -4180,8 +4275,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3627,
-   "chronic": 4.0218
+   "acute": 6.9427,
+   "chronic": 4.2112
   },
   {
    "day": "2025-01-09",
@@ -4190,8 +4285,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3627,
-   "chronic": 4.0218
+   "acute": 6.9427,
+   "chronic": 4.2112
   },
   {
    "day": "2025-01-09",
@@ -4220,8 +4315,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3627,
-   "chronic": 4.0218
+   "acute": 6.8267,
+   "chronic": 4.1734
   },
   {
    "day": "2025-01-09",
@@ -4230,8 +4325,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3627,
-   "chronic": 4.0218
+   "acute": 6.8267,
+   "chronic": 4.1734
   },
   {
    "day": "2025-01-09",
@@ -4240,8 +4335,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.544,
-   "chronic": 6.0328
+   "acute": 9.776,
+   "chronic": 6.1085
   },
   {
    "day": "2025-01-09",
@@ -4250,8 +4345,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.544,
-   "chronic": 6.0328
+   "acute": 9.776,
+   "chronic": 6.1085
   },
   {
    "day": "2025-01-09",
@@ -4320,8 +4415,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.544,
-   "chronic": 6.0328
+   "acute": 10.7041,
+   "chronic": 6.4116
   },
   {
    "day": "2025-01-09",
@@ -4330,8 +4425,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.3245,
-   "chronic": 6.3164
+   "acute": 11.4845,
+   "chronic": 6.6952
   },
   {
    "day": "2025-01-09",
@@ -4375,13 +4470,33 @@
   },
   {
    "day": "2025-01-10",
+   "tissue": "biceps",
+   "side": "left",
+   "dose": 3.193,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.5376,
+   "chronic": 0.4523
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "biceps",
+   "side": "right",
+   "dose": 3.193,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.5376,
+   "chronic": 0.4523
+  },
+  {
+   "day": "2025-01-10",
    "tissue": "calf",
    "side": "left",
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.9047,
-   "chronic": 20.5439
+   "acute": 32.2064,
+   "chronic": 20.6536
   },
   {
    "day": "2025-01-10",
@@ -4390,28 +4505,68 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.9047,
-   "chronic": 20.5439
+   "acute": 32.2064,
+   "chronic": 20.6536
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "erectors",
+   "side": "left",
+   "dose": 6.385,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.1962,
+   "chronic": 0.3256
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "erectors",
+   "side": "right",
+   "dose": 6.385,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.1962,
+   "chronic": 0.3256
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "forearm",
+   "side": "left",
+   "dose": 3.193,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.279,
+   "chronic": 0.3725
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "forearm",
+   "side": "right",
+   "dose": 3.193,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.279,
+   "chronic": 0.3725
   },
   {
    "day": "2025-01-10",
    "tissue": "glute_max",
    "side": "left",
-   "dose": 6.5,
+   "dose": 15.013,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3809,
-   "chronic": 4.1088
+   "acute": 8.0171,
+   "chronic": 4.5902
   },
   {
    "day": "2025-01-10",
    "tissue": "glute_max",
    "side": "right",
-   "dose": 6.5,
+   "dose": 15.013,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3809,
-   "chronic": 4.1088
+   "acute": 8.0171,
+   "chronic": 4.5902
   },
   {
    "day": "2025-01-10",
@@ -4437,21 +4592,21 @@
    "day": "2025-01-10",
    "tissue": "hamstrings",
    "side": "left",
-   "dose": 6.5,
+   "dose": 11.821,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3809,
-   "chronic": 4.1088
+   "acute": 7.4915,
+   "chronic": 4.4417
   },
   {
    "day": "2025-01-10",
    "tissue": "hamstrings",
    "side": "right",
-   "dose": 6.5,
+   "dose": 11.821,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3809,
-   "chronic": 4.1088
+   "acute": 7.4915,
+   "chronic": 4.4417
   },
   {
    "day": "2025-01-10",
@@ -4460,8 +4615,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5714,
-   "chronic": 6.1632
+   "acute": 9.7725,
+   "chronic": 6.2363
   },
   {
    "day": "2025-01-10",
@@ -4470,28 +4625,108 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5714,
-   "chronic": 6.1632
+   "acute": 9.7725,
+   "chronic": 6.2363
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "lats",
+   "side": "left",
+   "dose": 6.385,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 2.5581,
+   "chronic": 0.745
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "lats",
+   "side": "right",
+   "dose": 6.385,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 2.5581,
+   "chronic": 0.745
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "mid_back",
+   "side": "left",
+   "dose": 6.385,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 2.5349,
+   "chronic": 0.7283
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "mid_back",
+   "side": "right",
+   "dose": 6.385,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 2.5349,
+   "chronic": 0.7283
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "patellar_tendon",
+   "side": "left",
+   "dose": 4.257,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.0695,
+   "chronic": 0.3321
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "patellar_tendon",
+   "side": "right",
+   "dose": 4.257,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.6108,
+   "chronic": 0.5511
   },
   {
    "day": "2025-01-10",
    "tissue": "quads",
    "side": "left",
-   "dose": 9.75,
+   "dose": 20.392,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5714,
-   "chronic": 6.1632
+   "acute": 11.9937,
+   "chronic": 6.902
   },
   {
    "day": "2025-01-10",
    "tissue": "quads",
    "side": "right",
-   "dose": 9.75,
+   "dose": 20.392,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.248,
-   "chronic": 6.4369
+   "acute": 12.6703,
+   "chronic": 7.1758
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "rear_delt",
+   "side": "left",
+   "dose": 3.193,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.2975,
+   "chronic": 0.3739
+  },
+  {
+   "day": "2025-01-10",
+   "tissue": "rear_delt",
+   "side": "right",
+   "dose": 3.193,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.2975,
+   "chronic": 0.3739
   },
   {
    "day": "2025-01-11",
@@ -4520,8 +4755,8 @@
    "dose": 30.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6512,
-   "chronic": 20.8757
+   "acute": 31.9127,
+   "chronic": 20.9815
   },
   {
    "day": "2025-01-11",
@@ -4530,8 +4765,8 @@
    "dose": 30.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6512,
-   "chronic": 20.8757
+   "acute": 31.9127,
+   "chronic": 20.9815
   },
   {
    "day": "2025-01-11",
@@ -4540,8 +4775,8 @@
    "dose": 6.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3302,
-   "chronic": 4.1751
+   "acute": 7.7486,
+   "chronic": 4.6397
   },
   {
    "day": "2025-01-11",
@@ -4550,8 +4785,8 @@
    "dose": 6.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3302,
-   "chronic": 4.1751
+   "acute": 7.7486,
+   "chronic": 4.6397
   },
   {
    "day": "2025-01-11",
@@ -4580,8 +4815,8 @@
    "dose": 6.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3302,
-   "chronic": 4.1751
+   "acute": 7.293,
+   "chronic": 4.4963
   },
   {
    "day": "2025-01-11",
@@ -4590,8 +4825,8 @@
    "dose": 6.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3302,
-   "chronic": 4.1751
+   "acute": 7.293,
+   "chronic": 4.4963
   },
   {
    "day": "2025-01-11",
@@ -4600,8 +4835,8 @@
    "dose": 9.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.4954,
-   "chronic": 6.2627
+   "acute": 9.6697,
+   "chronic": 6.3332
   },
   {
    "day": "2025-01-11",
@@ -4610,8 +4845,8 @@
    "dose": 9.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.4954,
-   "chronic": 6.2627
+   "acute": 9.6697,
+   "chronic": 6.3332
   },
   {
    "day": "2025-01-11",
@@ -4620,8 +4855,8 @@
    "dose": 9.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.4954,
-   "chronic": 6.2627
+   "acute": 11.5952,
+   "chronic": 6.9756
   },
   {
    "day": "2025-01-11",
@@ -4630,148 +4865,168 @@
    "dose": 9.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0819,
-   "chronic": 6.5268
+   "acute": 12.1817,
+   "chronic": 7.2398
   },
   {
    "day": "2025-01-12",
    "tissue": "achilles",
    "side": "left",
-   "dose": 32.0,
+   "dose": 125.212,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6976,
-   "chronic": 21.266
+   "acute": 44.1062,
+   "chronic": 24.5362
   },
   {
    "day": "2025-01-12",
    "tissue": "achilles",
    "side": "right",
-   "dose": 32.0,
+   "dose": 125.212,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6976,
-   "chronic": 21.266
+   "acute": 44.1062,
+   "chronic": 24.5362
   },
   {
    "day": "2025-01-12",
    "tissue": "calf",
    "side": "left",
-   "dose": 32.0,
+   "dose": 125.212,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6976,
-   "chronic": 21.266
+   "acute": 44.3329,
+   "chronic": 24.6383
   },
   {
    "day": "2025-01-12",
    "tissue": "calf",
    "side": "right",
-   "dose": 32.0,
+   "dose": 125.212,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6976,
-   "chronic": 21.266
+   "acute": 44.3329,
+   "chronic": 24.6383
   },
   {
    "day": "2025-01-12",
    "tissue": "glute_max",
    "side": "left",
-   "dose": 6.4,
+   "dose": 25.042,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3395,
-   "chronic": 4.2532
+   "acute": 10.0508,
+   "chronic": 5.3555
   },
   {
    "day": "2025-01-12",
    "tissue": "glute_max",
    "side": "right",
-   "dose": 6.4,
+   "dose": 25.042,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3395,
-   "chronic": 4.2532
+   "acute": 10.0508,
+   "chronic": 5.3555
   },
   {
    "day": "2025-01-12",
    "tissue": "glute_med",
    "side": "left",
-   "dose": 12.8,
+   "dose": 26.782,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.679,
-   "chronic": 8.5064
+   "acute": 14.5403,
+   "chronic": 8.9969
   },
   {
    "day": "2025-01-12",
    "tissue": "glute_med",
    "side": "right",
-   "dose": 12.8,
+   "dose": 26.782,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.679,
-   "chronic": 8.5064
+   "acute": 14.5403,
+   "chronic": 8.9969
   },
   {
    "day": "2025-01-12",
    "tissue": "hamstrings",
    "side": "left",
-   "dose": 6.4,
+   "dose": 39.024,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3395,
-   "chronic": 4.2532
+   "acute": 11.5171,
+   "chronic": 5.7077
   },
   {
    "day": "2025-01-12",
    "tissue": "hamstrings",
    "side": "right",
-   "dose": 6.4,
+   "dose": 39.024,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3395,
-   "chronic": 4.2532
+   "acute": 11.5171,
+   "chronic": 5.7077
   },
   {
    "day": "2025-01-12",
    "tissue": "hip_flexors",
    "side": "left",
-   "dose": 9.6,
+   "dose": 37.564,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5093,
-   "chronic": 6.3798
+   "acute": 13.383,
+   "chronic": 7.4289
   },
   {
    "day": "2025-01-12",
    "tissue": "hip_flexors",
    "side": "right",
-   "dose": 9.6,
+   "dose": 37.564,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5093,
-   "chronic": 6.3798
+   "acute": 13.383,
+   "chronic": 7.4289
+  },
+  {
+   "day": "2025-01-12",
+   "tissue": "patellar_tendon",
+   "side": "left",
+   "dose": 74.57,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 10.7306,
+   "chronic": 2.9254
+  },
+  {
+   "day": "2025-01-12",
+   "tissue": "patellar_tendon",
+   "side": "right",
+   "dose": 74.57,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 11.1373,
+   "chronic": 3.1293
   },
   {
    "day": "2025-01-12",
    "tissue": "quads",
    "side": "left",
-   "dose": 9.6,
+   "dose": 84.17,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5093,
-   "chronic": 6.3798
+   "acute": 21.2565,
+   "chronic": 9.6839
   },
   {
    "day": "2025-01-12",
    "tissue": "quads",
    "side": "right",
-   "dose": 9.6,
+   "dose": 84.17,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0177,
-   "chronic": 6.6346
+   "acute": 21.7649,
+   "chronic": 9.9388
   },
   {
    "day": "2025-01-13",
@@ -4780,8 +5035,8 @@
    "dose": 29.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.3385,
-   "chronic": 21.5373
+   "acute": 42.0953,
+   "chronic": 24.6928
   },
   {
    "day": "2025-01-13",
@@ -4790,8 +5045,8 @@
    "dose": 29.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.3385,
-   "chronic": 21.5373
+   "acute": 42.0953,
+   "chronic": 24.6928
   },
   {
    "day": "2025-01-13",
@@ -4800,8 +5055,8 @@
    "dose": 29.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.3385,
-   "chronic": 21.5373
+   "acute": 42.2918,
+   "chronic": 24.7913
   },
   {
    "day": "2025-01-13",
@@ -4810,8 +5065,8 @@
    "dose": 29.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.3385,
-   "chronic": 21.5373
+   "acute": 42.2918,
+   "chronic": 24.7913
   },
   {
    "day": "2025-01-13",
@@ -4820,8 +5075,8 @@
    "dose": 5.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.2677,
-   "chronic": 4.3075
+   "acute": 9.4849,
+   "chronic": 5.3711
   },
   {
    "day": "2025-01-13",
@@ -4830,8 +5085,8 @@
    "dose": 5.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.2677,
-   "chronic": 4.3075
+   "acute": 9.4849,
+   "chronic": 5.3711
   },
   {
    "day": "2025-01-13",
@@ -4840,8 +5095,8 @@
    "dose": 11.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.5354,
-   "chronic": 8.6149
+   "acute": 14.1489,
+   "chronic": 9.0883
   },
   {
    "day": "2025-01-13",
@@ -4850,8 +5105,8 @@
    "dose": 11.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.5354,
-   "chronic": 8.6149
+   "acute": 14.1489,
+   "chronic": 9.0883
   },
   {
    "day": "2025-01-13",
@@ -4860,8 +5115,8 @@
    "dose": 5.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.2677,
-   "chronic": 4.3075
+   "acute": 10.756,
+   "chronic": 5.711
   },
   {
    "day": "2025-01-13",
@@ -4870,8 +5125,8 @@
    "dose": 5.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.2677,
-   "chronic": 4.3075
+   "acute": 10.756,
+   "chronic": 5.711
   },
   {
    "day": "2025-01-13",
@@ -4880,8 +5135,8 @@
    "dose": 8.7,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.4016,
-   "chronic": 6.4612
+   "acute": 12.7596,
+   "chronic": 7.4735
   },
   {
    "day": "2025-01-13",
@@ -4890,8 +5145,8 @@
    "dose": 8.7,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.4016,
-   "chronic": 6.4612
+   "acute": 12.7596,
+   "chronic": 7.4735
   },
   {
    "day": "2025-01-13",
@@ -4900,8 +5155,8 @@
    "dose": 8.7,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.4016,
-   "chronic": 6.4612
+   "acute": 19.5849,
+   "chronic": 9.6494
   },
   {
    "day": "2025-01-13",
@@ -4910,8 +5165,8 @@
    "dose": 8.7,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8423,
-   "chronic": 6.7071
+   "acute": 20.0257,
+   "chronic": 9.8953
   },
   {
    "day": "2025-01-14",
@@ -4920,8 +5175,8 @@
    "dose": 30.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.1603,
-   "chronic": 21.8342
+   "acute": 40.4851,
+   "chronic": 24.879
   },
   {
    "day": "2025-01-14",
@@ -4930,8 +5185,8 @@
    "dose": 30.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.1603,
-   "chronic": 21.8342
+   "acute": 40.4851,
+   "chronic": 24.879
   },
   {
    "day": "2025-01-14",
@@ -4940,8 +5195,8 @@
    "dose": 30.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.1603,
-   "chronic": 21.8342
+   "acute": 40.6555,
+   "chronic": 24.9741
   },
   {
    "day": "2025-01-14",
@@ -4950,8 +5205,8 @@
    "dose": 30.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.1603,
-   "chronic": 21.8342
+   "acute": 40.6555,
+   "chronic": 24.9741
   },
   {
    "day": "2025-01-14",
@@ -4960,8 +5215,8 @@
    "dose": 6.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.2321,
-   "chronic": 4.3668
+   "acute": 9.021,
+   "chronic": 5.3932
   },
   {
    "day": "2025-01-14",
@@ -4970,8 +5225,8 @@
    "dose": 6.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.2321,
-   "chronic": 4.3668
+   "acute": 9.021,
+   "chronic": 5.3932
   },
   {
    "day": "2025-01-14",
@@ -4980,8 +5235,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.4641,
-   "chronic": 8.7337
+   "acute": 13.8628,
+   "chronic": 9.1904
   },
   {
    "day": "2025-01-14",
@@ -4990,8 +5245,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.4641,
-   "chronic": 8.7337
+   "acute": 13.8628,
+   "chronic": 9.1904
   },
   {
    "day": "2025-01-14",
@@ -5000,8 +5255,8 @@
    "dose": 6.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.2321,
-   "chronic": 4.3668
+   "acute": 10.1229,
+   "chronic": 5.7211
   },
   {
    "day": "2025-01-14",
@@ -5010,8 +5265,8 @@
    "dose": 6.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.2321,
-   "chronic": 4.3668
+   "acute": 10.1229,
+   "chronic": 5.7211
   },
   {
    "day": "2025-01-14",
@@ -5020,8 +5275,8 @@
    "dose": 9.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.3481,
-   "chronic": 6.5503
+   "acute": 12.2591,
+   "chronic": 7.5271
   },
   {
    "day": "2025-01-14",
@@ -5030,8 +5285,8 @@
    "dose": 9.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.3481,
-   "chronic": 6.5503
+   "acute": 12.2591,
+   "chronic": 7.5271
   },
   {
    "day": "2025-01-14",
@@ -5040,8 +5295,8 @@
    "dose": 9.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.3481,
-   "chronic": 6.5503
+   "acute": 18.1758,
+   "chronic": 9.6266
   },
   {
    "day": "2025-01-14",
@@ -5050,8 +5305,8 @@
    "dose": 9.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.7302,
-   "chronic": 6.7875
+   "acute": 18.5579,
+   "chronic": 9.8639
   },
   {
    "day": "2025-01-15",
@@ -5060,8 +5315,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6715,
-   "chronic": 22.2961
+   "acute": 39.7549,
+   "chronic": 25.2341
   },
   {
    "day": "2025-01-15",
@@ -5070,8 +5325,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6715,
-   "chronic": 22.2961
+   "acute": 39.7549,
+   "chronic": 25.2341
   },
   {
    "day": "2025-01-15",
@@ -5080,8 +5335,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6715,
-   "chronic": 22.2961
+   "acute": 39.9026,
+   "chronic": 25.3258
   },
   {
    "day": "2025-01-15",
@@ -5090,8 +5345,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.6715,
-   "chronic": 22.2961
+   "acute": 39.9026,
+   "chronic": 25.3258
   },
   {
    "day": "2025-01-15",
@@ -5100,8 +5355,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3343,
-   "chronic": 4.4592
+   "acute": 8.7519,
+   "chronic": 5.4495
   },
   {
    "day": "2025-01-15",
@@ -5110,8 +5365,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3343,
-   "chronic": 4.4592
+   "acute": 8.7519,
+   "chronic": 5.4495
   },
   {
    "day": "2025-01-15",
@@ -5120,8 +5375,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.6686,
-   "chronic": 8.9184
+   "acute": 13.8811,
+   "chronic": 9.3591
   },
   {
    "day": "2025-01-15",
@@ -5130,8 +5385,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.6686,
-   "chronic": 8.9184
+   "acute": 13.8811,
+   "chronic": 9.3591
   },
   {
    "day": "2025-01-15",
@@ -5140,8 +5395,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3343,
-   "chronic": 4.4592
+   "acute": 9.7072,
+   "chronic": 5.766
   },
   {
    "day": "2025-01-15",
@@ -5150,8 +5405,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3343,
-   "chronic": 4.4592
+   "acute": 9.7072,
+   "chronic": 5.766
   },
   {
    "day": "2025-01-15",
@@ -5160,8 +5415,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5014,
-   "chronic": 6.6888
+   "acute": 12.0249,
+   "chronic": 7.6314
   },
   {
    "day": "2025-01-15",
@@ -5170,8 +5425,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5014,
-   "chronic": 6.6888
+   "acute": 12.0249,
+   "chronic": 7.6314
   },
   {
    "day": "2025-01-15",
@@ -5180,8 +5435,8 @@
    "dose": 17.067,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 2.5369,
-   "chronic": 0.7819
+   "acute": 9.5272,
+   "chronic": 3.4101
   },
   {
    "day": "2025-01-15",
@@ -5190,8 +5445,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5014,
-   "chronic": 6.6888
+   "acute": 17.154,
+   "chronic": 9.6573
   },
   {
    "day": "2025-01-15",
@@ -5200,8 +5455,28 @@
    "dose": 31.833,
    "sets": 1.0,
    "reps": 12.0,
-   "acute": 12.6726,
-   "chronic": 7.6663
+   "acute": 20.3252,
+   "chronic": 10.6347
+  },
+  {
+   "day": "2025-01-16",
+   "tissue": "abs",
+   "side": "left",
+   "dose": 0.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.1508,
+   "chronic": 0.058
+  },
+  {
+   "day": "2025-01-16",
+   "tissue": "abs",
+   "side": "right",
+   "dose": 0.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.1508,
+   "chronic": 0.058
   },
   {
    "day": "2025-01-16",
@@ -5210,8 +5485,8 @@
    "dose": 33.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8483,
-   "chronic": 22.6717
+   "acute": 38.8557,
+   "chronic": 25.5066
   },
   {
    "day": "2025-01-16",
@@ -5220,8 +5495,8 @@
    "dose": 33.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8483,
-   "chronic": 22.6717
+   "acute": 38.8557,
+   "chronic": 25.5066
   },
   {
    "day": "2025-01-16",
@@ -5230,8 +5505,8 @@
    "dose": 33.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8483,
-   "chronic": 22.6717
+   "acute": 38.9837,
+   "chronic": 25.5951
   },
   {
    "day": "2025-01-16",
@@ -5240,8 +5515,28 @@
    "dose": 33.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8483,
-   "chronic": 22.6717
+   "acute": 38.9837,
+   "chronic": 25.5951
+  },
+  {
+   "day": "2025-01-16",
+   "tissue": "front_delt",
+   "side": "left",
+   "dose": 0.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.8167,
+   "chronic": 0.5141
+  },
+  {
+   "day": "2025-01-16",
+   "tissue": "front_delt",
+   "side": "right",
+   "dose": 0.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.8167,
+   "chronic": 0.5141
   },
   {
    "day": "2025-01-16",
@@ -5250,8 +5545,8 @@
    "dose": 6.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3697,
-   "chronic": 4.5343
+   "acute": 8.4655,
+   "chronic": 5.4899
   },
   {
    "day": "2025-01-16",
@@ -5260,48 +5555,48 @@
    "dose": 6.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3697,
-   "chronic": 4.5343
+   "acute": 8.4655,
+   "chronic": 5.4899
   },
   {
    "day": "2025-01-16",
    "tissue": "glute_med",
    "side": "left",
-   "dose": 13.2,
+   "dose": 13.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.7393,
-   "chronic": 9.0687
+   "acute": 13.8703,
+   "chronic": 9.515
   },
   {
    "day": "2025-01-16",
    "tissue": "glute_med",
    "side": "right",
-   "dose": 13.2,
+   "dose": 13.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.7393,
-   "chronic": 9.0687
+   "acute": 13.8703,
+   "chronic": 9.515
   },
   {
    "day": "2025-01-16",
    "tissue": "hamstrings",
    "side": "left",
-   "dose": 6.6,
+   "dose": 7.05,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3697,
-   "chronic": 4.5343
+   "acute": 9.3535,
+   "chronic": 5.811
   },
   {
    "day": "2025-01-16",
    "tissue": "hamstrings",
    "side": "right",
-   "dose": 6.6,
+   "dose": 7.05,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3697,
-   "chronic": 4.5343
+   "acute": 9.3535,
+   "chronic": 5.811
   },
   {
    "day": "2025-01-16",
@@ -5310,8 +5605,8 @@
    "dose": 9.9,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5545,
-   "chronic": 6.8015
+   "acute": 11.7421,
+   "chronic": 7.711
   },
   {
    "day": "2025-01-16",
@@ -5320,28 +5615,48 @@
    "dose": 9.9,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5545,
-   "chronic": 6.8015
+   "acute": 11.7421,
+   "chronic": 7.711
   },
   {
    "day": "2025-01-16",
    "tissue": "quads",
    "side": "left",
-   "dose": 9.9,
+   "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5545,
-   "chronic": 6.8015
+   "acute": 16.2682,
+   "chronic": 9.6868
   },
   {
    "day": "2025-01-16",
    "tissue": "quads",
    "side": "right",
-   "dose": 9.9,
+   "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.3035,
-   "chronic": 7.7446
+   "acute": 19.0172,
+   "chronic": 10.63
+  },
+  {
+   "day": "2025-01-16",
+   "tissue": "triceps",
+   "side": "left",
+   "dose": 0.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.7968,
+   "chronic": 0.5089
+  },
+  {
+   "day": "2025-01-16",
+   "tissue": "triceps",
+   "side": "right",
+   "dose": 0.6,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.7968,
+   "chronic": 0.5089
   },
   {
    "day": "2025-01-17",
@@ -5350,8 +5665,8 @@
    "dose": 32.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8685,
-   "chronic": 22.9989
+   "acute": 37.943,
+   "chronic": 25.7344
   },
   {
    "day": "2025-01-17",
@@ -5360,8 +5675,8 @@
    "dose": 32.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8685,
-   "chronic": 22.9989
+   "acute": 37.943,
+   "chronic": 25.7344
   },
   {
    "day": "2025-01-17",
@@ -5370,8 +5685,8 @@
    "dose": 32.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8685,
-   "chronic": 22.9989
+   "acute": 38.054,
+   "chronic": 25.8198
   },
   {
    "day": "2025-01-17",
@@ -5380,8 +5695,8 @@
    "dose": 32.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 31.8685,
-   "chronic": 22.9989
+   "acute": 38.054,
+   "chronic": 25.8198
   },
   {
    "day": "2025-01-17",
@@ -5390,8 +5705,8 @@
    "dose": 6.4,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3737,
-   "chronic": 4.5998
+   "acute": 8.1905,
+   "chronic": 5.5218
   },
   {
    "day": "2025-01-17",
@@ -5400,8 +5715,8 @@
    "dose": 6.4,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3737,
-   "chronic": 4.5998
+   "acute": 8.1905,
+   "chronic": 5.5218
   },
   {
    "day": "2025-01-17",
@@ -5410,8 +5725,8 @@
    "dose": 12.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.7474,
-   "chronic": 9.1996
+   "acute": 13.7278,
+   "chronic": 9.6302
   },
   {
    "day": "2025-01-17",
@@ -5420,8 +5735,8 @@
    "dose": 12.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.7474,
-   "chronic": 9.1996
+   "acute": 13.7278,
+   "chronic": 9.6302
   },
   {
    "day": "2025-01-17",
@@ -5430,8 +5745,8 @@
    "dose": 6.4,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3737,
-   "chronic": 4.5998
+   "acute": 8.9603,
+   "chronic": 5.8317
   },
   {
    "day": "2025-01-17",
@@ -5440,8 +5755,8 @@
    "dose": 6.4,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.3737,
-   "chronic": 4.5998
+   "acute": 8.9603,
+   "chronic": 5.8317
   },
   {
    "day": "2025-01-17",
@@ -5450,8 +5765,8 @@
    "dose": 9.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5606,
-   "chronic": 6.8997
+   "acute": 11.4569,
+   "chronic": 7.7772
   },
   {
    "day": "2025-01-17",
@@ -5460,8 +5775,8 @@
    "dose": 9.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5606,
-   "chronic": 6.8997
+   "acute": 11.4569,
+   "chronic": 7.7772
   },
   {
    "day": "2025-01-17",
@@ -5470,8 +5785,8 @@
    "dose": 9.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.5606,
-   "chronic": 6.8997
+   "acute": 15.3805,
+   "chronic": 9.6838
   },
   {
    "day": "2025-01-17",
@@ -5480,68 +5795,68 @@
    "dose": 9.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.9436,
-   "chronic": 7.8097
+   "acute": 17.7636,
+   "chronic": 10.5938
   },
   {
    "day": "2025-01-18",
    "tissue": "achilles",
    "side": "left",
-   "dose": 70.0,
+   "dose": 73.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.9447,
-   "chronic": 24.6479
+   "acute": 42.6099,
+   "chronic": 27.3927
   },
   {
    "day": "2025-01-18",
    "tissue": "achilles",
    "side": "right",
-   "dose": 70.0,
+   "dose": 73.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.9447,
-   "chronic": 24.6479
+   "acute": 42.6099,
+   "chronic": 27.3927
   },
   {
    "day": "2025-01-18",
    "tissue": "calf",
    "side": "left",
-   "dose": 70.0,
+   "dose": 73.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.9447,
-   "chronic": 24.6479
+   "acute": 42.7061,
+   "chronic": 27.4751
   },
   {
    "day": "2025-01-18",
    "tissue": "calf",
    "side": "right",
-   "dose": 70.0,
+   "dose": 73.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.9447,
-   "chronic": 24.6479
+   "acute": 42.7061,
+   "chronic": 27.4751
   },
   {
    "day": "2025-01-18",
    "tissue": "glute_max",
    "side": "left",
-   "dose": 14.0,
+   "dose": 20.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.3889,
-   "chronic": 4.9296
+   "acute": 9.7626,
+   "chronic": 6.0298
   },
   {
    "day": "2025-01-18",
    "tissue": "glute_max",
    "side": "right",
-   "dose": 14.0,
+   "dose": 20.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.3889,
-   "chronic": 4.9296
+   "acute": 9.7626,
+   "chronic": 6.0298
   },
   {
    "day": "2025-01-18",
@@ -5550,8 +5865,8 @@
    "dose": 28.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.7779,
-   "chronic": 9.8592
+   "acute": 15.6278,
+   "chronic": 10.2747
   },
   {
    "day": "2025-01-18",
@@ -5560,8 +5875,8 @@
    "dose": 28.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.7779,
-   "chronic": 9.8592
+   "acute": 15.6278,
+   "chronic": 10.2747
   },
   {
    "day": "2025-01-18",
@@ -5570,8 +5885,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.3889,
-   "chronic": 4.9296
+   "acute": 9.6312,
+   "chronic": 6.1183
   },
   {
    "day": "2025-01-18",
@@ -5580,8 +5895,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.3889,
-   "chronic": 4.9296
+   "acute": 9.6312,
+   "chronic": 6.1183
   },
   {
    "day": "2025-01-18",
@@ -5590,8 +5905,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.0834,
-   "chronic": 7.3944
+   "acute": 12.7273,
+   "chronic": 8.2412
   },
   {
    "day": "2025-01-18",
@@ -5600,28 +5915,48 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.0834,
-   "chronic": 7.3944
+   "acute": 12.7273,
+   "chronic": 8.2412
+  },
+  {
+   "day": "2025-01-18",
+   "tissue": "patellar_tendon",
+   "side": "left",
+   "dose": 3.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 5.053,
+   "chronic": 2.4927
+  },
+  {
+   "day": "2025-01-18",
+   "tissue": "patellar_tendon",
+   "side": "right",
+   "dose": 3.75,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 6.7056,
+   "chronic": 3.1952
   },
   {
    "day": "2025-01-18",
    "tissue": "quads",
    "side": "left",
-   "dose": 21.0,
+   "dose": 28.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.0834,
-   "chronic": 7.3944
+   "acute": 17.127,
+   "chronic": 10.3439
   },
   {
    "day": "2025-01-18",
    "tissue": "quads",
    "side": "right",
-   "dose": 21.0,
+   "dose": 28.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1492,
-   "chronic": 8.2725
+   "acute": 19.1928,
+   "chronic": 11.222
   },
   {
    "day": "2025-01-19",
@@ -5630,8 +5965,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.353,
-   "chronic": 24.9234
+   "acute": 41.2641,
+   "chronic": 27.5718
   },
   {
    "day": "2025-01-19",
@@ -5640,8 +5975,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.353,
-   "chronic": 24.9234
+   "acute": 41.2641,
+   "chronic": 27.5718
   },
   {
    "day": "2025-01-19",
@@ -5650,8 +5985,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.353,
-   "chronic": 24.9234
+   "acute": 41.3475,
+   "chronic": 27.6514
   },
   {
    "day": "2025-01-19",
@@ -5660,8 +5995,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 36.353,
-   "chronic": 24.9234
+   "acute": 41.3475,
+   "chronic": 27.6514
   },
   {
    "day": "2025-01-19",
@@ -5670,8 +6005,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.2706,
-   "chronic": 4.9847
+   "acute": 9.3283,
+   "chronic": 6.0463
   },
   {
    "day": "2025-01-19",
@@ -5680,8 +6015,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.2706,
-   "chronic": 4.9847
+   "acute": 9.3283,
+   "chronic": 6.0463
   },
   {
    "day": "2025-01-19",
@@ -5690,8 +6025,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.5412,
-   "chronic": 9.9694
+   "acute": 15.278,
+   "chronic": 10.3703
   },
   {
    "day": "2025-01-19",
@@ -5700,8 +6035,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.5412,
-   "chronic": 9.9694
+   "acute": 15.278,
+   "chronic": 10.3703
   },
   {
    "day": "2025-01-19",
@@ -5710,8 +6045,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.2706,
-   "chronic": 4.9847
+   "acute": 9.2144,
+   "chronic": 6.1317
   },
   {
    "day": "2025-01-19",
@@ -5720,8 +6055,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.2706,
-   "chronic": 4.9847
+   "acute": 9.2144,
+   "chronic": 6.1317
   },
   {
    "day": "2025-01-19",
@@ -5730,8 +6065,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.9059,
-   "chronic": 7.477
+   "acute": 12.331,
+   "chronic": 8.2941
   },
   {
    "day": "2025-01-19",
@@ -5740,8 +6075,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.9059,
-   "chronic": 7.477
+   "acute": 12.331,
+   "chronic": 8.2941
   },
   {
    "day": "2025-01-19",
@@ -5750,8 +6085,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.9059,
-   "chronic": 7.477
+   "acute": 16.145,
+   "chronic": 10.3231
   },
   {
    "day": "2025-01-19",
@@ -5760,8 +6095,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.6967,
-   "chronic": 8.3243
+   "acute": 17.9358,
+   "chronic": 11.1704
   },
   {
    "day": "2025-01-20",
@@ -5770,8 +6105,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.8401,
-   "chronic": 25.1892
+   "acute": 40.0974,
+   "chronic": 27.7447
   },
   {
    "day": "2025-01-20",
@@ -5780,8 +6115,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.8401,
-   "chronic": 25.1892
+   "acute": 40.0974,
+   "chronic": 27.7447
   },
   {
    "day": "2025-01-20",
@@ -5790,8 +6125,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.8401,
-   "chronic": 25.1892
+   "acute": 40.1697,
+   "chronic": 27.8215
   },
   {
    "day": "2025-01-20",
@@ -5800,8 +6135,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.8401,
-   "chronic": 25.1892
+   "acute": 40.1697,
+   "chronic": 27.8215
   },
   {
    "day": "2025-01-20",
@@ -5810,8 +6145,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.168,
-   "chronic": 5.0378
+   "acute": 8.9518,
+   "chronic": 6.0622
   },
   {
    "day": "2025-01-20",
@@ -5820,8 +6155,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.168,
-   "chronic": 5.0378
+   "acute": 8.9518,
+   "chronic": 6.0622
   },
   {
    "day": "2025-01-20",
@@ -5830,8 +6165,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.336,
-   "chronic": 10.0757
+   "acute": 14.9747,
+   "chronic": 10.4626
   },
   {
    "day": "2025-01-20",
@@ -5840,8 +6175,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.336,
-   "chronic": 10.0757
+   "acute": 14.9747,
+   "chronic": 10.4626
   },
   {
    "day": "2025-01-20",
@@ -5850,8 +6185,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.168,
-   "chronic": 5.0378
+   "acute": 8.853,
+   "chronic": 6.1446
   },
   {
    "day": "2025-01-20",
@@ -5860,8 +6195,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.168,
-   "chronic": 5.0378
+   "acute": 8.853,
+   "chronic": 6.1446
   },
   {
    "day": "2025-01-20",
@@ -5870,8 +6205,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.752,
-   "chronic": 7.5568
+   "acute": 11.9874,
+   "chronic": 8.3452
   },
   {
    "day": "2025-01-20",
@@ -5880,8 +6215,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.752,
-   "chronic": 7.5568
+   "acute": 11.9874,
+   "chronic": 8.3452
   },
   {
    "day": "2025-01-20",
@@ -5890,8 +6225,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.752,
-   "chronic": 7.5568
+   "acute": 15.2937,
+   "chronic": 10.303
   },
   {
    "day": "2025-01-20",
@@ -5900,8 +6235,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.3044,
-   "chronic": 8.3743
+   "acute": 16.8461,
+   "chronic": 11.1206
   },
   {
    "day": "2025-01-21",
@@ -5910,8 +6245,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.3954,
-   "chronic": 25.4457
+   "acute": 39.086,
+   "chronic": 27.9116
   },
   {
    "day": "2025-01-21",
@@ -5920,8 +6255,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.3954,
-   "chronic": 25.4457
+   "acute": 39.086,
+   "chronic": 27.9116
   },
   {
    "day": "2025-01-21",
@@ -5930,8 +6265,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.3954,
-   "chronic": 25.4457
+   "acute": 39.1487,
+   "chronic": 27.9856
   },
   {
    "day": "2025-01-21",
@@ -5940,8 +6275,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.3954,
-   "chronic": 25.4457
+   "acute": 39.1487,
+   "chronic": 27.9856
   },
   {
    "day": "2025-01-21",
@@ -5950,8 +6285,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.0791,
-   "chronic": 5.0891
+   "acute": 8.6254,
+   "chronic": 6.0776
   },
   {
    "day": "2025-01-21",
@@ -5960,8 +6295,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.0791,
-   "chronic": 5.0891
+   "acute": 8.6254,
+   "chronic": 6.0776
   },
   {
    "day": "2025-01-21",
@@ -5970,8 +6305,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.1582,
-   "chronic": 10.1783
+   "acute": 14.7118,
+   "chronic": 10.5516
   },
   {
    "day": "2025-01-21",
@@ -5980,8 +6315,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.1582,
-   "chronic": 10.1783
+   "acute": 14.7118,
+   "chronic": 10.5516
   },
   {
    "day": "2025-01-21",
@@ -5990,8 +6325,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.0791,
-   "chronic": 5.0891
+   "acute": 8.5398,
+   "chronic": 6.157
   },
   {
    "day": "2025-01-21",
@@ -6000,8 +6335,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.0791,
-   "chronic": 5.0891
+   "acute": 8.5398,
+   "chronic": 6.157
   },
   {
    "day": "2025-01-21",
@@ -6010,8 +6345,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.6186,
-   "chronic": 7.6337
+   "acute": 11.6895,
+   "chronic": 8.3945
   },
   {
    "day": "2025-01-21",
@@ -6020,8 +6355,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.6186,
-   "chronic": 7.6337
+   "acute": 11.6895,
+   "chronic": 8.3945
   },
   {
    "day": "2025-01-21",
@@ -6030,8 +6365,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.6186,
-   "chronic": 7.6337
+   "acute": 14.5557,
+   "chronic": 10.2836
   },
   {
    "day": "2025-01-21",
@@ -6040,8 +6375,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.9644,
-   "chronic": 8.4226
+   "acute": 15.9014,
+   "chronic": 11.0725
   },
   {
    "day": "2025-01-22",
@@ -6050,8 +6385,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.01,
-   "chronic": 25.6932
+   "acute": 38.2092,
+   "chronic": 28.0726
   },
   {
    "day": "2025-01-22",
@@ -6060,8 +6395,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.01,
-   "chronic": 25.6932
+   "acute": 38.2092,
+   "chronic": 28.0726
   },
   {
    "day": "2025-01-22",
@@ -6070,8 +6405,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.01,
-   "chronic": 25.6932
+   "acute": 38.2636,
+   "chronic": 28.144
   },
   {
    "day": "2025-01-22",
@@ -6080,8 +6415,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.01,
-   "chronic": 25.6932
+   "acute": 38.2636,
+   "chronic": 28.144
   },
   {
    "day": "2025-01-22",
@@ -6090,8 +6425,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.002,
-   "chronic": 5.1386
+   "acute": 8.3425,
+   "chronic": 6.0924
   },
   {
    "day": "2025-01-22",
@@ -6100,8 +6435,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.002,
-   "chronic": 5.1386
+   "acute": 8.3425,
+   "chronic": 6.0924
   },
   {
    "day": "2025-01-22",
@@ -6110,8 +6445,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.004,
-   "chronic": 10.2773
+   "acute": 14.4839,
+   "chronic": 10.6375
   },
   {
    "day": "2025-01-22",
@@ -6120,8 +6455,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.004,
-   "chronic": 10.2773
+   "acute": 14.4839,
+   "chronic": 10.6375
   },
   {
    "day": "2025-01-22",
@@ -6130,8 +6465,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.002,
-   "chronic": 5.1386
+   "acute": 8.2682,
+   "chronic": 6.1691
   },
   {
    "day": "2025-01-22",
@@ -6140,8 +6475,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.002,
-   "chronic": 5.1386
+   "acute": 8.2682,
+   "chronic": 6.1691
   },
   {
    "day": "2025-01-22",
@@ -6150,8 +6485,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.503,
-   "chronic": 7.708
+   "acute": 11.4313,
+   "chronic": 8.442
   },
   {
    "day": "2025-01-22",
@@ -6160,8 +6495,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.503,
-   "chronic": 7.708
+   "acute": 11.4313,
+   "chronic": 8.442
   },
   {
    "day": "2025-01-22",
@@ -6170,8 +6505,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.503,
-   "chronic": 7.708
+   "acute": 13.9159,
+   "chronic": 10.2649
   },
   {
    "day": "2025-01-22",
@@ -6180,8 +6515,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.6696,
-   "chronic": 8.4692
+   "acute": 15.0825,
+   "chronic": 11.0261
   },
   {
    "day": "2025-01-23",
@@ -6190,8 +6525,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.6758,
-   "chronic": 25.932
+   "acute": 37.4492,
+   "chronic": 28.2279
   },
   {
    "day": "2025-01-23",
@@ -6200,8 +6535,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.6758,
-   "chronic": 25.932
+   "acute": 37.4492,
+   "chronic": 28.2279
   },
   {
    "day": "2025-01-23",
@@ -6210,8 +6545,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.6758,
-   "chronic": 25.932
+   "acute": 37.4963,
+   "chronic": 28.2968
   },
   {
    "day": "2025-01-23",
@@ -6220,8 +6555,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.6758,
-   "chronic": 25.932
+   "acute": 37.4963,
+   "chronic": 28.2968
   },
   {
    "day": "2025-01-23",
@@ -6230,8 +6565,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.9352,
-   "chronic": 5.1864
+   "acute": 8.0972,
+   "chronic": 6.1067
   },
   {
    "day": "2025-01-23",
@@ -6240,8 +6575,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.9352,
-   "chronic": 5.1864
+   "acute": 8.0972,
+   "chronic": 6.1067
   },
   {
    "day": "2025-01-23",
@@ -6250,8 +6585,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.8703,
-   "chronic": 10.3728
+   "acute": 14.2864,
+   "chronic": 10.7204
   },
   {
    "day": "2025-01-23",
@@ -6260,8 +6595,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.8703,
-   "chronic": 10.3728
+   "acute": 14.2864,
+   "chronic": 10.7204
   },
   {
    "day": "2025-01-23",
@@ -6270,8 +6605,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.9352,
-   "chronic": 5.1864
+   "acute": 8.0328,
+   "chronic": 6.1807
   },
   {
    "day": "2025-01-23",
@@ -6280,8 +6615,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.9352,
-   "chronic": 5.1864
+   "acute": 8.0328,
+   "chronic": 6.1807
   },
   {
    "day": "2025-01-23",
@@ -6290,8 +6625,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.4028,
-   "chronic": 7.7796
+   "acute": 11.2075,
+   "chronic": 8.4879
   },
   {
    "day": "2025-01-23",
@@ -6300,8 +6635,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.4028,
-   "chronic": 7.7796
+   "acute": 11.2075,
+   "chronic": 8.4879
   },
   {
    "day": "2025-01-23",
@@ -6310,8 +6645,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.4028,
-   "chronic": 7.7796
+   "acute": 13.3614,
+   "chronic": 10.2468
   },
   {
    "day": "2025-01-23",
@@ -6320,8 +6655,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.4141,
-   "chronic": 8.5141
+   "acute": 14.3727,
+   "chronic": 10.9813
   },
   {
    "day": "2025-01-24",
@@ -6330,8 +6665,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.3862,
-   "chronic": 26.1624
+   "acute": 36.7904,
+   "chronic": 28.3778
   },
   {
    "day": "2025-01-24",
@@ -6340,8 +6675,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.3862,
-   "chronic": 26.1624
+   "acute": 36.7904,
+   "chronic": 28.3778
   },
   {
    "day": "2025-01-24",
@@ -6350,8 +6685,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.3862,
-   "chronic": 26.1624
+   "acute": 36.8312,
+   "chronic": 28.4443
   },
   {
    "day": "2025-01-24",
@@ -6360,8 +6695,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.3862,
-   "chronic": 26.1624
+   "acute": 36.8312,
+   "chronic": 28.4443
   },
   {
    "day": "2025-01-24",
@@ -6370,8 +6705,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.8772,
-   "chronic": 5.2325
+   "acute": 7.8846,
+   "chronic": 6.1205
   },
   {
    "day": "2025-01-24",
@@ -6380,8 +6715,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.8772,
-   "chronic": 5.2325
+   "acute": 7.8846,
+   "chronic": 6.1205
   },
   {
    "day": "2025-01-24",
@@ -6390,8 +6725,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.7545,
-   "chronic": 10.465
+   "acute": 14.1152,
+   "chronic": 10.8004
   },
   {
    "day": "2025-01-24",
@@ -6400,8 +6735,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.7545,
-   "chronic": 10.465
+   "acute": 14.1152,
+   "chronic": 10.8004
   },
   {
    "day": "2025-01-24",
@@ -6410,8 +6745,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.8772,
-   "chronic": 5.2325
+   "acute": 7.8288,
+   "chronic": 6.1919
   },
   {
    "day": "2025-01-24",
@@ -6420,8 +6755,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.8772,
-   "chronic": 5.2325
+   "acute": 7.8288,
+   "chronic": 6.1919
   },
   {
    "day": "2025-01-24",
@@ -6430,8 +6765,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.3159,
-   "chronic": 7.8487
+   "acute": 11.0135,
+   "chronic": 8.5322
   },
   {
    "day": "2025-01-24",
@@ -6440,8 +6775,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.3159,
-   "chronic": 7.8487
+   "acute": 11.0135,
+   "chronic": 8.5322
   },
   {
    "day": "2025-01-24",
@@ -6450,8 +6785,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.3159,
-   "chronic": 7.8487
+   "acute": 12.8806,
+   "chronic": 10.2294
   },
   {
    "day": "2025-01-24",
@@ -6460,8 +6795,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.1925,
-   "chronic": 8.5575
+   "acute": 13.7573,
+   "chronic": 10.9381
   },
   {
    "day": "2025-01-25",
@@ -6470,8 +6805,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.1351,
-   "chronic": 26.3848
+   "acute": 36.2192,
+   "chronic": 28.5224
   },
   {
    "day": "2025-01-25",
@@ -6480,8 +6815,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.1351,
-   "chronic": 26.3848
+   "acute": 36.2192,
+   "chronic": 28.5224
   },
   {
    "day": "2025-01-25",
@@ -6490,8 +6825,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.1351,
-   "chronic": 26.3848
+   "acute": 36.2546,
+   "chronic": 28.5866
   },
   {
    "day": "2025-01-25",
@@ -6500,8 +6835,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 34.1351,
-   "chronic": 26.3848
+   "acute": 36.2546,
+   "chronic": 28.5866
   },
   {
    "day": "2025-01-25",
@@ -6510,8 +6845,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.827,
-   "chronic": 5.277
+   "acute": 7.7003,
+   "chronic": 6.1338
   },
   {
    "day": "2025-01-25",
@@ -6520,8 +6855,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.827,
-   "chronic": 5.277
+   "acute": 7.7003,
+   "chronic": 6.1338
   },
   {
    "day": "2025-01-25",
@@ -6530,8 +6865,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.654,
-   "chronic": 10.5539
+   "acute": 13.9667,
+   "chronic": 10.8775
   },
   {
    "day": "2025-01-25",
@@ -6540,8 +6875,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.654,
-   "chronic": 10.5539
+   "acute": 13.9667,
+   "chronic": 10.8775
   },
   {
    "day": "2025-01-25",
@@ -6550,8 +6885,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.827,
-   "chronic": 5.277
+   "acute": 7.6519,
+   "chronic": 6.2027
   },
   {
    "day": "2025-01-25",
@@ -6560,8 +6895,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.827,
-   "chronic": 5.277
+   "acute": 7.6519,
+   "chronic": 6.2027
   },
   {
    "day": "2025-01-25",
@@ -6570,8 +6905,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.2405,
-   "chronic": 7.9154
+   "acute": 10.8453,
+   "chronic": 8.5749
   },
   {
    "day": "2025-01-25",
@@ -6580,8 +6915,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.2405,
-   "chronic": 7.9154
+   "acute": 10.8453,
+   "chronic": 8.5749
   },
   {
    "day": "2025-01-25",
@@ -6590,8 +6925,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.2405,
-   "chronic": 7.9154
+   "acute": 12.4639,
+   "chronic": 10.2126
   },
   {
    "day": "2025-01-25",
@@ -6600,8 +6935,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 11.0005,
-   "chronic": 8.5993
+   "acute": 13.2238,
+   "chronic": 10.8964
   },
   {
    "day": "2025-01-26",
@@ -6610,8 +6945,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.9174,
-   "chronic": 26.5993
+   "acute": 35.7241,
+   "chronic": 28.662
   },
   {
    "day": "2025-01-26",
@@ -6620,8 +6955,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.9174,
-   "chronic": 26.5993
+   "acute": 35.7241,
+   "chronic": 28.662
   },
   {
    "day": "2025-01-26",
@@ -6630,8 +6965,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.9174,
-   "chronic": 26.5993
+   "acute": 35.7548,
+   "chronic": 28.7239
   },
   {
    "day": "2025-01-26",
@@ -6640,8 +6975,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.9174,
-   "chronic": 26.5993
+   "acute": 35.7548,
+   "chronic": 28.7239
   },
   {
    "day": "2025-01-26",
@@ -6650,8 +6985,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.7835,
-   "chronic": 5.3199
+   "acute": 7.5405,
+   "chronic": 6.1466
   },
   {
    "day": "2025-01-26",
@@ -6660,8 +6995,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.7835,
-   "chronic": 5.3199
+   "acute": 7.5405,
+   "chronic": 6.1466
   },
   {
    "day": "2025-01-26",
@@ -6670,8 +7005,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.567,
-   "chronic": 10.6397
+   "acute": 13.838,
+   "chronic": 10.952
   },
   {
    "day": "2025-01-26",
@@ -6680,8 +7015,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.567,
-   "chronic": 10.6397
+   "acute": 13.838,
+   "chronic": 10.952
   },
   {
    "day": "2025-01-26",
@@ -6690,8 +7025,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.7835,
-   "chronic": 5.3199
+   "acute": 7.4986,
+   "chronic": 6.2131
   },
   {
    "day": "2025-01-26",
@@ -6700,8 +7035,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.7835,
-   "chronic": 5.3199
+   "acute": 7.4986,
+   "chronic": 6.2131
   },
   {
    "day": "2025-01-26",
@@ -6710,8 +7045,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.1752,
-   "chronic": 7.9798
+   "acute": 10.6995,
+   "chronic": 8.6161
   },
   {
    "day": "2025-01-26",
@@ -6720,8 +7055,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.1752,
-   "chronic": 7.9798
+   "acute": 10.6995,
+   "chronic": 8.6161
   },
   {
    "day": "2025-01-26",
@@ -6730,8 +7065,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.1752,
-   "chronic": 7.9798
+   "acute": 12.1026,
+   "chronic": 10.1963
   },
   {
    "day": "2025-01-26",
@@ -6740,8 +7075,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.834,
-   "chronic": 8.6397
+   "acute": 12.7614,
+   "chronic": 10.8562
   },
   {
    "day": "2025-01-27",
@@ -6750,8 +7085,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.7287,
-   "chronic": 26.8064
+   "acute": 35.2949,
+   "chronic": 28.7966
   },
   {
    "day": "2025-01-27",
@@ -6760,8 +7095,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.7287,
-   "chronic": 26.8064
+   "acute": 35.2949,
+   "chronic": 28.7966
   },
   {
    "day": "2025-01-27",
@@ -6770,8 +7105,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.7287,
-   "chronic": 26.8064
+   "acute": 35.3215,
+   "chronic": 28.8564
   },
   {
    "day": "2025-01-27",
@@ -6780,8 +7115,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.7287,
-   "chronic": 26.8064
+   "acute": 35.3215,
+   "chronic": 28.8564
   },
   {
    "day": "2025-01-27",
@@ -6790,8 +7125,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.7457,
-   "chronic": 5.3613
+   "acute": 7.402,
+   "chronic": 6.159
   },
   {
    "day": "2025-01-27",
@@ -6800,8 +7135,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.7457,
-   "chronic": 5.3613
+   "acute": 7.402,
+   "chronic": 6.159
   },
   {
    "day": "2025-01-27",
@@ -6810,8 +7145,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.4915,
-   "chronic": 10.7225
+   "acute": 13.7265,
+   "chronic": 11.0238
   },
   {
    "day": "2025-01-27",
@@ -6820,8 +7155,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.4915,
-   "chronic": 10.7225
+   "acute": 13.7265,
+   "chronic": 11.0238
   },
   {
    "day": "2025-01-27",
@@ -6830,8 +7165,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.7457,
-   "chronic": 5.3613
+   "acute": 7.3656,
+   "chronic": 6.2232
   },
   {
    "day": "2025-01-27",
@@ -6840,8 +7175,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.7457,
-   "chronic": 5.3613
+   "acute": 7.3656,
+   "chronic": 6.2232
   },
   {
    "day": "2025-01-27",
@@ -6850,8 +7185,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.1186,
-   "chronic": 8.0419
+   "acute": 10.5731,
+   "chronic": 8.6559
   },
   {
    "day": "2025-01-27",
@@ -6860,8 +7195,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.1186,
-   "chronic": 8.0419
+   "acute": 10.5731,
+   "chronic": 8.6559
   },
   {
    "day": "2025-01-27",
@@ -6870,8 +7205,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.1186,
-   "chronic": 8.0419
+   "acute": 11.7894,
+   "chronic": 10.1807
   },
   {
    "day": "2025-01-27",
@@ -6880,8 +7215,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.6897,
-   "chronic": 8.6786
+   "acute": 12.3605,
+   "chronic": 10.8174
   },
   {
    "day": "2025-01-28",
@@ -6890,8 +7225,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.5652,
-   "chronic": 27.0061
+   "acute": 34.9228,
+   "chronic": 28.9265
   },
   {
    "day": "2025-01-28",
@@ -6900,8 +7235,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.5652,
-   "chronic": 27.0061
+   "acute": 34.9228,
+   "chronic": 28.9265
   },
   {
    "day": "2025-01-28",
@@ -6910,8 +7245,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.5652,
-   "chronic": 27.0061
+   "acute": 34.9459,
+   "chronic": 28.9842
   },
   {
    "day": "2025-01-28",
@@ -6920,8 +7255,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.5652,
-   "chronic": 27.0061
+   "acute": 34.9459,
+   "chronic": 28.9842
   },
   {
    "day": "2025-01-28",
@@ -6930,8 +7265,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.713,
-   "chronic": 5.4012
+   "acute": 7.2819,
+   "chronic": 6.171
   },
   {
    "day": "2025-01-28",
@@ -6940,8 +7275,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.713,
-   "chronic": 5.4012
+   "acute": 7.2819,
+   "chronic": 6.171
   },
   {
    "day": "2025-01-28",
@@ -6950,8 +7285,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.4261,
-   "chronic": 10.8024
+   "acute": 13.6297,
+   "chronic": 11.0932
   },
   {
    "day": "2025-01-28",
@@ -6960,8 +7295,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.4261,
-   "chronic": 10.8024
+   "acute": 13.6297,
+   "chronic": 11.0932
   },
   {
    "day": "2025-01-28",
@@ -6970,8 +7305,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.713,
-   "chronic": 5.4012
+   "acute": 7.2504,
+   "chronic": 6.2329
   },
   {
    "day": "2025-01-28",
@@ -6980,8 +7315,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.713,
-   "chronic": 5.4012
+   "acute": 7.2504,
+   "chronic": 6.2329
   },
   {
    "day": "2025-01-28",
@@ -6990,8 +7325,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0696,
-   "chronic": 8.1018
+   "acute": 10.4635,
+   "chronic": 8.6943
   },
   {
    "day": "2025-01-28",
@@ -7000,8 +7335,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0696,
-   "chronic": 8.1018
+   "acute": 10.4635,
+   "chronic": 8.6943
   },
   {
    "day": "2025-01-28",
@@ -7010,8 +7345,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0696,
-   "chronic": 8.1018
+   "acute": 11.5179,
+   "chronic": 10.1656
   },
   {
    "day": "2025-01-28",
@@ -7020,8 +7355,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.5646,
-   "chronic": 8.7162
+   "acute": 12.013,
+   "chronic": 10.78
   },
   {
    "day": "2025-01-29",
@@ -7030,8 +7365,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.4234,
-   "chronic": 27.1989
+   "acute": 34.6003,
+   "chronic": 29.0519
   },
   {
    "day": "2025-01-29",
@@ -7040,8 +7375,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.4234,
-   "chronic": 27.1989
+   "acute": 34.6003,
+   "chronic": 29.0519
   },
   {
    "day": "2025-01-29",
@@ -7050,8 +7385,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.4234,
-   "chronic": 27.1989
+   "acute": 34.6203,
+   "chronic": 29.1075
   },
   {
    "day": "2025-01-29",
@@ -7060,8 +7395,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.4234,
-   "chronic": 27.1989
+   "acute": 34.6203,
+   "chronic": 29.1075
   },
   {
    "day": "2025-01-29",
@@ -7070,8 +7405,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6847,
-   "chronic": 5.4398
+   "acute": 7.1778,
+   "chronic": 6.1825
   },
   {
    "day": "2025-01-29",
@@ -7080,8 +7415,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6847,
-   "chronic": 5.4398
+   "acute": 7.1778,
+   "chronic": 6.1825
   },
   {
    "day": "2025-01-29",
@@ -7090,8 +7425,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3693,
-   "chronic": 10.8795
+   "acute": 13.5459,
+   "chronic": 11.1601
   },
   {
    "day": "2025-01-29",
@@ -7100,8 +7435,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3693,
-   "chronic": 10.8795
+   "acute": 13.5459,
+   "chronic": 11.1601
   },
   {
    "day": "2025-01-29",
@@ -7110,8 +7445,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6847,
-   "chronic": 5.4398
+   "acute": 7.1505,
+   "chronic": 6.2423
   },
   {
    "day": "2025-01-29",
@@ -7120,8 +7455,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6847,
-   "chronic": 5.4398
+   "acute": 7.1505,
+   "chronic": 6.2423
   },
   {
    "day": "2025-01-29",
@@ -7130,8 +7465,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.027,
-   "chronic": 8.1597
+   "acute": 10.3685,
+   "chronic": 8.7313
   },
   {
    "day": "2025-01-29",
@@ -7140,8 +7475,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.027,
-   "chronic": 8.1597
+   "acute": 10.3685,
+   "chronic": 8.7313
   },
   {
    "day": "2025-01-29",
@@ -7150,8 +7485,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.027,
-   "chronic": 8.1597
+   "acute": 11.2826,
+   "chronic": 10.151
   },
   {
    "day": "2025-01-29",
@@ -7160,8 +7495,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.4562,
-   "chronic": 8.7525
+   "acute": 11.7117,
+   "chronic": 10.7438
   },
   {
    "day": "2025-01-30",
@@ -7170,8 +7505,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.3004,
-   "chronic": 27.3848
+   "acute": 34.3207,
+   "chronic": 29.1729
   },
   {
    "day": "2025-01-30",
@@ -7180,8 +7515,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.3004,
-   "chronic": 27.3848
+   "acute": 34.3207,
+   "chronic": 29.1729
   },
   {
    "day": "2025-01-30",
@@ -7190,8 +7525,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.3004,
-   "chronic": 27.3848
+   "acute": 34.338,
+   "chronic": 29.2266
   },
   {
    "day": "2025-01-30",
@@ -7200,8 +7535,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.3004,
-   "chronic": 27.3848
+   "acute": 34.338,
+   "chronic": 29.2266
   },
   {
    "day": "2025-01-30",
@@ -7210,8 +7545,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6601,
-   "chronic": 5.477
+   "acute": 7.0876,
+   "chronic": 6.1937
   },
   {
    "day": "2025-01-30",
@@ -7220,8 +7555,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6601,
-   "chronic": 5.477
+   "acute": 7.0876,
+   "chronic": 6.1937
   },
   {
    "day": "2025-01-30",
@@ -7230,8 +7565,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3202,
-   "chronic": 10.9539
+   "acute": 13.4732,
+   "chronic": 11.2246
   },
   {
    "day": "2025-01-30",
@@ -7240,8 +7575,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3202,
-   "chronic": 10.9539
+   "acute": 13.4732,
+   "chronic": 11.2246
   },
   {
    "day": "2025-01-30",
@@ -7250,8 +7585,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6601,
-   "chronic": 5.477
+   "acute": 7.0639,
+   "chronic": 6.2513
   },
   {
    "day": "2025-01-30",
@@ -7260,8 +7595,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6601,
-   "chronic": 5.477
+   "acute": 7.0639,
+   "chronic": 6.2513
   },
   {
    "day": "2025-01-30",
@@ -7270,8 +7605,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9901,
-   "chronic": 8.2155
+   "acute": 10.2862,
+   "chronic": 8.7671
   },
   {
    "day": "2025-01-30",
@@ -7280,8 +7615,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9901,
-   "chronic": 8.2155
+   "acute": 10.2862,
+   "chronic": 8.7671
   },
   {
    "day": "2025-01-30",
@@ -7290,8 +7625,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9901,
-   "chronic": 8.2155
+   "acute": 11.0785,
+   "chronic": 10.1369
   },
   {
    "day": "2025-01-30",
@@ -7300,8 +7635,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.3622,
-   "chronic": 8.7875
+   "acute": 11.4506,
+   "chronic": 10.7089
   },
   {
    "day": "2025-01-31",
@@ -7310,8 +7645,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.1939,
-   "chronic": 27.5643
+   "acute": 34.0783,
+   "chronic": 29.2896
   },
   {
    "day": "2025-01-31",
@@ -7320,8 +7655,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.1939,
-   "chronic": 27.5643
+   "acute": 34.0783,
+   "chronic": 29.2896
   },
   {
    "day": "2025-01-31",
@@ -7330,8 +7665,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.1939,
-   "chronic": 27.5643
+   "acute": 34.0934,
+   "chronic": 29.3414
   },
   {
    "day": "2025-01-31",
@@ -7340,8 +7675,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.1939,
-   "chronic": 27.5643
+   "acute": 34.0934,
+   "chronic": 29.3414
   },
   {
    "day": "2025-01-31",
@@ -7350,8 +7685,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6388,
-   "chronic": 5.5129
+   "acute": 7.0094,
+   "chronic": 6.2044
   },
   {
    "day": "2025-01-31",
@@ -7360,8 +7695,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6388,
-   "chronic": 5.5129
+   "acute": 7.0094,
+   "chronic": 6.2044
   },
   {
    "day": "2025-01-31",
@@ -7370,8 +7705,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2776,
-   "chronic": 11.0257
+   "acute": 13.4102,
+   "chronic": 11.2869
   },
   {
    "day": "2025-01-31",
@@ -7380,8 +7715,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2776,
-   "chronic": 11.0257
+   "acute": 13.4102,
+   "chronic": 11.2869
   },
   {
    "day": "2025-01-31",
@@ -7390,8 +7725,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6388,
-   "chronic": 5.5129
+   "acute": 6.9888,
+   "chronic": 6.26
   },
   {
    "day": "2025-01-31",
@@ -7400,8 +7735,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6388,
-   "chronic": 5.5129
+   "acute": 6.9888,
+   "chronic": 6.26
   },
   {
    "day": "2025-01-31",
@@ -7410,8 +7745,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9582,
-   "chronic": 8.2693
+   "acute": 10.2148,
+   "chronic": 8.8016
   },
   {
    "day": "2025-01-31",
@@ -7420,8 +7755,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9582,
-   "chronic": 8.2693
+   "acute": 10.2148,
+   "chronic": 8.8016
   },
   {
    "day": "2025-01-31",
@@ -7430,8 +7765,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9582,
-   "chronic": 8.2693
+   "acute": 10.9017,
+   "chronic": 10.1233
   },
   {
    "day": "2025-01-31",
@@ -7440,8 +7775,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.2807,
-   "chronic": 8.8213
+   "acute": 11.2242,
+   "chronic": 10.6753
   },
   {
    "day": "2025-02-01",
@@ -7450,8 +7785,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.1015,
-   "chronic": 27.7375
+   "acute": 33.8682,
+   "chronic": 29.4022
   },
   {
    "day": "2025-02-01",
@@ -7460,8 +7795,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.1015,
-   "chronic": 27.7375
+   "acute": 33.8682,
+   "chronic": 29.4022
   },
   {
    "day": "2025-02-01",
@@ -7470,8 +7805,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.1015,
-   "chronic": 27.7375
+   "acute": 33.8812,
+   "chronic": 29.4522
   },
   {
    "day": "2025-02-01",
@@ -7480,8 +7815,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.1015,
-   "chronic": 27.7375
+   "acute": 33.8812,
+   "chronic": 29.4522
   },
   {
    "day": "2025-02-01",
@@ -7490,8 +7825,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6203,
-   "chronic": 5.5475
+   "acute": 6.9415,
+   "chronic": 6.2148
   },
   {
    "day": "2025-02-01",
@@ -7500,8 +7835,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6203,
-   "chronic": 5.5475
+   "acute": 6.9415,
+   "chronic": 6.2148
   },
   {
    "day": "2025-02-01",
@@ -7510,8 +7845,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2406,
-   "chronic": 11.095
+   "acute": 13.3556,
+   "chronic": 11.347
   },
   {
    "day": "2025-02-01",
@@ -7520,8 +7855,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2406,
-   "chronic": 11.095
+   "acute": 13.3556,
+   "chronic": 11.347
   },
   {
    "day": "2025-02-01",
@@ -7530,8 +7865,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6203,
-   "chronic": 5.5475
+   "acute": 6.9238,
+   "chronic": 6.2685
   },
   {
    "day": "2025-02-01",
@@ -7540,8 +7875,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6203,
-   "chronic": 5.5475
+   "acute": 6.9238,
+   "chronic": 6.2685
   },
   {
    "day": "2025-02-01",
@@ -7550,8 +7885,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9305,
-   "chronic": 8.3212
+   "acute": 10.1529,
+   "chronic": 8.8348
   },
   {
    "day": "2025-02-01",
@@ -7560,8 +7895,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9305,
-   "chronic": 8.3212
+   "acute": 10.1529,
+   "chronic": 8.8348
   },
   {
    "day": "2025-02-01",
@@ -7570,8 +7905,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9305,
-   "chronic": 8.3212
+   "acute": 10.7484,
+   "chronic": 10.1102
   },
   {
    "day": "2025-02-01",
@@ -7580,8 +7915,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.21,
-   "chronic": 8.8538
+   "acute": 11.0279,
+   "chronic": 10.6428
   },
   {
    "day": "2025-02-02",
@@ -7590,8 +7925,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.0214,
-   "chronic": 27.9046
+   "acute": 33.6861,
+   "chronic": 29.5109
   },
   {
    "day": "2025-02-02",
@@ -7600,8 +7935,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.0214,
-   "chronic": 27.9046
+   "acute": 33.6861,
+   "chronic": 29.5109
   },
   {
    "day": "2025-02-02",
@@ -7610,8 +7945,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.0214,
-   "chronic": 27.9046
+   "acute": 33.6974,
+   "chronic": 29.5591
   },
   {
    "day": "2025-02-02",
@@ -7620,8 +7955,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.0214,
-   "chronic": 27.9046
+   "acute": 33.6974,
+   "chronic": 29.5591
   },
   {
    "day": "2025-02-02",
@@ -7630,8 +7965,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6043,
-   "chronic": 5.5809
+   "acute": 6.8828,
+   "chronic": 6.2248
   },
   {
    "day": "2025-02-02",
@@ -7640,8 +7975,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6043,
-   "chronic": 5.5809
+   "acute": 6.8828,
+   "chronic": 6.2248
   },
   {
    "day": "2025-02-02",
@@ -7650,8 +7985,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2086,
-   "chronic": 11.1618
+   "acute": 13.3083,
+   "chronic": 11.405
   },
   {
    "day": "2025-02-02",
@@ -7660,8 +7995,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2086,
-   "chronic": 11.1618
+   "acute": 13.3083,
+   "chronic": 11.405
   },
   {
    "day": "2025-02-02",
@@ -7670,8 +8005,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6043,
-   "chronic": 5.5809
+   "acute": 6.8673,
+   "chronic": 6.2766
   },
   {
    "day": "2025-02-02",
@@ -7680,8 +8015,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6043,
-   "chronic": 5.5809
+   "acute": 6.8673,
+   "chronic": 6.2766
   },
   {
    "day": "2025-02-02",
@@ -7690,8 +8025,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9064,
-   "chronic": 8.3714
+   "acute": 10.0993,
+   "chronic": 8.8669
   },
   {
    "day": "2025-02-02",
@@ -7700,8 +8035,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9064,
-   "chronic": 8.3714
+   "acute": 10.0993,
+   "chronic": 8.8669
   },
   {
    "day": "2025-02-02",
@@ -7710,8 +8045,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9064,
-   "chronic": 8.3714
+   "acute": 10.6155,
+   "chronic": 10.0976
   },
   {
    "day": "2025-02-02",
@@ -7720,8 +8055,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.1488,
-   "chronic": 8.8853
+   "acute": 10.8578,
+   "chronic": 10.6115
   },
   {
    "day": "2025-02-03",
@@ -7730,8 +8065,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.952,
-   "chronic": 28.0658
+   "acute": 33.5282,
+   "chronic": 29.6158
   },
   {
    "day": "2025-02-03",
@@ -7740,8 +8075,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.952,
-   "chronic": 28.0658
+   "acute": 33.5282,
+   "chronic": 29.6158
   },
   {
    "day": "2025-02-03",
@@ -7750,8 +8085,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.952,
-   "chronic": 28.0658
+   "acute": 33.538,
+   "chronic": 29.6623
   },
   {
    "day": "2025-02-03",
@@ -7760,8 +8095,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.952,
-   "chronic": 28.0658
+   "acute": 33.538,
+   "chronic": 29.6623
   },
   {
    "day": "2025-02-03",
@@ -7770,8 +8105,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5904,
-   "chronic": 5.6132
+   "acute": 6.8318,
+   "chronic": 6.2345
   },
   {
    "day": "2025-02-03",
@@ -7780,8 +8115,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5904,
-   "chronic": 5.6132
+   "acute": 6.8318,
+   "chronic": 6.2345
   },
   {
    "day": "2025-02-03",
@@ -7790,8 +8125,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1808,
-   "chronic": 11.2263
+   "acute": 13.2672,
+   "chronic": 11.461
   },
   {
    "day": "2025-02-03",
@@ -7800,8 +8135,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1808,
-   "chronic": 11.2263
+   "acute": 13.2672,
+   "chronic": 11.461
   },
   {
    "day": "2025-02-03",
@@ -7810,8 +8145,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5904,
-   "chronic": 5.6132
+   "acute": 6.8184,
+   "chronic": 6.2844
   },
   {
    "day": "2025-02-03",
@@ -7820,8 +8155,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5904,
-   "chronic": 5.6132
+   "acute": 6.8184,
+   "chronic": 6.2844
   },
   {
    "day": "2025-02-03",
@@ -7830,8 +8165,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8856,
-   "chronic": 8.4197
+   "acute": 10.0528,
+   "chronic": 8.8979
   },
   {
    "day": "2025-02-03",
@@ -7840,8 +8175,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8856,
-   "chronic": 8.4197
+   "acute": 10.0528,
+   "chronic": 8.8979
   },
   {
    "day": "2025-02-03",
@@ -7850,8 +8185,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8856,
-   "chronic": 8.4197
+   "acute": 10.5003,
+   "chronic": 10.0854
   },
   {
    "day": "2025-02-03",
@@ -7860,8 +8195,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0957,
-   "chronic": 8.9156
+   "acute": 10.7104,
+   "chronic": 10.5813
   },
   {
    "day": "2025-02-04",
@@ -7870,8 +8205,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.8919,
-   "chronic": 28.2214
+   "acute": 33.3913,
+   "chronic": 29.717
   },
   {
    "day": "2025-02-04",
@@ -7880,8 +8215,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.8919,
-   "chronic": 28.2214
+   "acute": 33.3913,
+   "chronic": 29.717
   },
   {
    "day": "2025-02-04",
@@ -7890,8 +8225,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.8919,
-   "chronic": 28.2214
+   "acute": 33.3998,
+   "chronic": 29.7619
   },
   {
    "day": "2025-02-04",
@@ -7900,8 +8235,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.8919,
-   "chronic": 28.2214
+   "acute": 33.3998,
+   "chronic": 29.7619
   },
   {
    "day": "2025-02-04",
@@ -7910,8 +8245,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5784,
-   "chronic": 5.6443
+   "acute": 6.7876,
+   "chronic": 6.2438
   },
   {
    "day": "2025-02-04",
@@ -7920,8 +8255,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5784,
-   "chronic": 5.6443
+   "acute": 6.7876,
+   "chronic": 6.2438
   },
   {
    "day": "2025-02-04",
@@ -7930,8 +8265,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1567,
-   "chronic": 11.2885
+   "acute": 13.2317,
+   "chronic": 11.515
   },
   {
    "day": "2025-02-04",
@@ -7940,8 +8275,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1567,
-   "chronic": 11.2885
+   "acute": 13.2317,
+   "chronic": 11.515
   },
   {
    "day": "2025-02-04",
@@ -7950,8 +8285,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5784,
-   "chronic": 5.6443
+   "acute": 6.7761,
+   "chronic": 6.292
   },
   {
    "day": "2025-02-04",
@@ -7960,8 +8295,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5784,
-   "chronic": 5.6443
+   "acute": 6.7761,
+   "chronic": 6.292
   },
   {
    "day": "2025-02-04",
@@ -7970,8 +8305,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8676,
-   "chronic": 8.4664
+   "acute": 10.0125,
+   "chronic": 8.9278
   },
   {
    "day": "2025-02-04",
@@ -7980,8 +8315,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8676,
-   "chronic": 8.4664
+   "acute": 10.0125,
+   "chronic": 8.9278
   },
   {
    "day": "2025-02-04",
@@ -7990,8 +8325,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8676,
-   "chronic": 8.4664
+   "acute": 10.4004,
+   "chronic": 10.0736
   },
   {
    "day": "2025-02-04",
@@ -8000,8 +8335,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0497,
-   "chronic": 8.9449
+   "acute": 10.5825,
+   "chronic": 10.5521
   },
   {
    "day": "2025-02-05",
@@ -8010,8 +8345,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.8397,
-   "chronic": 28.3715
+   "acute": 33.2727,
+   "chronic": 29.8146
   },
   {
    "day": "2025-02-05",
@@ -8020,8 +8355,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.8397,
-   "chronic": 28.3715
+   "acute": 33.2727,
+   "chronic": 29.8146
   },
   {
    "day": "2025-02-05",
@@ -8030,8 +8365,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.8397,
-   "chronic": 28.3715
+   "acute": 33.28,
+   "chronic": 29.8579
   },
   {
    "day": "2025-02-05",
@@ -8040,8 +8375,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.8397,
-   "chronic": 28.3715
+   "acute": 33.28,
+   "chronic": 29.8579
   },
   {
    "day": "2025-02-05",
@@ -8050,8 +8385,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5679,
-   "chronic": 5.6743
+   "acute": 6.7493,
+   "chronic": 6.2528
   },
   {
    "day": "2025-02-05",
@@ -8060,8 +8395,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5679,
-   "chronic": 5.6743
+   "acute": 6.7493,
+   "chronic": 6.2528
   },
   {
    "day": "2025-02-05",
@@ -8070,8 +8405,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1359,
-   "chronic": 11.3486
+   "acute": 13.2008,
+   "chronic": 11.5671
   },
   {
    "day": "2025-02-05",
@@ -8080,8 +8415,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1359,
-   "chronic": 11.3486
+   "acute": 13.2008,
+   "chronic": 11.5671
   },
   {
    "day": "2025-02-05",
@@ -8090,8 +8425,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5679,
-   "chronic": 5.6743
+   "acute": 6.7393,
+   "chronic": 6.2993
   },
   {
    "day": "2025-02-05",
@@ -8100,8 +8435,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5679,
-   "chronic": 5.6743
+   "acute": 6.7393,
+   "chronic": 6.2993
   },
   {
    "day": "2025-02-05",
@@ -8110,8 +8445,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8519,
-   "chronic": 8.5114
+   "acute": 9.9775,
+   "chronic": 8.9567
   },
   {
    "day": "2025-02-05",
@@ -8120,8 +8455,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8519,
-   "chronic": 8.5114
+   "acute": 9.9775,
+   "chronic": 8.9567
   },
   {
    "day": "2025-02-05",
@@ -8130,8 +8465,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8519,
-   "chronic": 8.5114
+   "acute": 10.3138,
+   "chronic": 10.0623
   },
   {
    "day": "2025-02-05",
@@ -8140,8 +8475,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0098,
-   "chronic": 8.9731
+   "acute": 10.4717,
+   "chronic": 10.524
   },
   {
    "day": "2025-02-06",
@@ -8150,8 +8485,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7945,
-   "chronic": 28.5163
+   "acute": 33.1698,
+   "chronic": 29.9088
   },
   {
    "day": "2025-02-06",
@@ -8160,8 +8495,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7945,
-   "chronic": 28.5163
+   "acute": 33.1698,
+   "chronic": 29.9088
   },
   {
    "day": "2025-02-06",
@@ -8170,8 +8505,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7945,
-   "chronic": 28.5163
+   "acute": 33.1762,
+   "chronic": 29.9506
   },
   {
    "day": "2025-02-06",
@@ -8180,8 +8515,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7945,
-   "chronic": 28.5163
+   "acute": 33.1762,
+   "chronic": 29.9506
   },
   {
    "day": "2025-02-06",
@@ -8190,8 +8525,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5589,
-   "chronic": 5.7033
+   "acute": 6.7162,
+   "chronic": 6.2614
   },
   {
    "day": "2025-02-06",
@@ -8200,8 +8535,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5589,
-   "chronic": 5.7033
+   "acute": 6.7162,
+   "chronic": 6.2614
   },
   {
    "day": "2025-02-06",
@@ -8210,8 +8545,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1178,
-   "chronic": 11.4065
+   "acute": 13.1741,
+   "chronic": 11.6173
   },
   {
    "day": "2025-02-06",
@@ -8220,8 +8555,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1178,
-   "chronic": 11.4065
+   "acute": 13.1741,
+   "chronic": 11.6173
   },
   {
    "day": "2025-02-06",
@@ -8230,8 +8565,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5589,
-   "chronic": 5.7033
+   "acute": 6.7074,
+   "chronic": 6.3063
   },
   {
    "day": "2025-02-06",
@@ -8240,8 +8575,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5589,
-   "chronic": 5.7033
+   "acute": 6.7074,
+   "chronic": 6.3063
   },
   {
    "day": "2025-02-06",
@@ -8250,8 +8585,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8383,
-   "chronic": 8.5549
+   "acute": 9.9473,
+   "chronic": 8.9845
   },
   {
    "day": "2025-02-06",
@@ -8260,8 +8595,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8383,
-   "chronic": 8.5549
+   "acute": 9.9473,
+   "chronic": 8.9845
   },
   {
    "day": "2025-02-06",
@@ -8270,8 +8605,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8383,
-   "chronic": 8.5549
+   "acute": 10.2387,
+   "chronic": 10.0513
   },
   {
    "day": "2025-02-06",
@@ -8280,8 +8615,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9752,
-   "chronic": 9.0004
+   "acute": 10.3756,
+   "chronic": 10.4968
   },
   {
    "day": "2025-02-07",
@@ -8290,8 +8625,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7553,
-   "chronic": 28.6561
+   "acute": 33.0806,
+   "chronic": 29.9997
   },
   {
    "day": "2025-02-07",
@@ -8300,8 +8635,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7553,
-   "chronic": 28.6561
+   "acute": 33.0806,
+   "chronic": 29.9997
   },
   {
    "day": "2025-02-07",
@@ -8310,8 +8645,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7553,
-   "chronic": 28.6561
+   "acute": 33.0862,
+   "chronic": 30.0401
   },
   {
    "day": "2025-02-07",
@@ -8320,8 +8655,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7553,
-   "chronic": 28.6561
+   "acute": 33.0862,
+   "chronic": 30.0401
   },
   {
    "day": "2025-02-07",
@@ -8330,8 +8665,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5511,
-   "chronic": 5.7312
+   "acute": 6.6874,
+   "chronic": 6.2698
   },
   {
    "day": "2025-02-07",
@@ -8340,8 +8675,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5511,
-   "chronic": 5.7312
+   "acute": 6.6874,
+   "chronic": 6.2698
   },
   {
    "day": "2025-02-07",
@@ -8350,8 +8685,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1021,
-   "chronic": 11.4624
+   "acute": 13.1509,
+   "chronic": 11.6658
   },
   {
    "day": "2025-02-07",
@@ -8360,8 +8695,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1021,
-   "chronic": 11.4624
+   "acute": 13.1509,
+   "chronic": 11.6658
   },
   {
    "day": "2025-02-07",
@@ -8370,8 +8705,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5511,
-   "chronic": 5.7312
+   "acute": 6.6798,
+   "chronic": 6.3131
   },
   {
    "day": "2025-02-07",
@@ -8380,8 +8715,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5511,
-   "chronic": 5.7312
+   "acute": 6.6798,
+   "chronic": 6.3131
   },
   {
    "day": "2025-02-07",
@@ -8390,8 +8725,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8266,
-   "chronic": 8.5968
+   "acute": 9.921,
+   "chronic": 9.0114
   },
   {
    "day": "2025-02-07",
@@ -8400,8 +8735,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8266,
-   "chronic": 8.5968
+   "acute": 9.921,
+   "chronic": 9.0114
   },
   {
    "day": "2025-02-07",
@@ -8410,8 +8745,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8266,
-   "chronic": 8.5968
+   "acute": 10.1737,
+   "chronic": 10.0408
   },
   {
    "day": "2025-02-07",
@@ -8420,8 +8755,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9452,
-   "chronic": 9.0267
+   "acute": 10.2923,
+   "chronic": 10.4706
   },
   {
    "day": "2025-02-08",
@@ -8430,8 +8765,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7213,
-   "chronic": 28.7909
+   "acute": 33.0033,
+   "chronic": 30.0875
   },
   {
    "day": "2025-02-08",
@@ -8440,8 +8775,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7213,
-   "chronic": 28.7909
+   "acute": 33.0033,
+   "chronic": 30.0875
   },
   {
    "day": "2025-02-08",
@@ -8450,8 +8785,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7213,
-   "chronic": 28.7909
+   "acute": 33.0081,
+   "chronic": 30.1264
   },
   {
    "day": "2025-02-08",
@@ -8460,8 +8795,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7213,
-   "chronic": 28.7909
+   "acute": 33.0081,
+   "chronic": 30.1264
   },
   {
    "day": "2025-02-08",
@@ -8470,8 +8805,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5443,
-   "chronic": 5.7582
+   "acute": 6.6624,
+   "chronic": 6.2779
   },
   {
    "day": "2025-02-08",
@@ -8480,8 +8815,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5443,
-   "chronic": 5.7582
+   "acute": 6.6624,
+   "chronic": 6.2779
   },
   {
    "day": "2025-02-08",
@@ -8490,8 +8825,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.0885,
-   "chronic": 11.5164
+   "acute": 13.1308,
+   "chronic": 11.7127
   },
   {
    "day": "2025-02-08",
@@ -8500,8 +8835,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.0885,
-   "chronic": 11.5164
+   "acute": 13.1308,
+   "chronic": 11.7127
   },
   {
    "day": "2025-02-08",
@@ -8510,8 +8845,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5443,
-   "chronic": 5.7582
+   "acute": 6.6559,
+   "chronic": 6.3197
   },
   {
    "day": "2025-02-08",
@@ -8520,8 +8855,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5443,
-   "chronic": 5.7582
+   "acute": 6.6559,
+   "chronic": 6.3197
   },
   {
    "day": "2025-02-08",
@@ -8530,8 +8865,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8164,
-   "chronic": 8.6373
+   "acute": 9.8982,
+   "chronic": 9.0373
   },
   {
    "day": "2025-02-08",
@@ -8540,8 +8875,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8164,
-   "chronic": 8.6373
+   "acute": 9.8982,
+   "chronic": 9.0373
   },
   {
    "day": "2025-02-08",
@@ -8550,8 +8885,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8164,
-   "chronic": 8.6373
+   "acute": 10.1173,
+   "chronic": 10.0306
   },
   {
    "day": "2025-02-08",
@@ -8560,8 +8895,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9192,
-   "chronic": 9.0521
+   "acute": 10.2201,
+   "chronic": 10.4453
   },
   {
    "day": "2025-02-09",
@@ -8570,8 +8905,8 @@
    "dose": 33.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7584,
-   "chronic": 28.9386
+   "acute": 33.0029,
+   "chronic": 30.1896
   },
   {
    "day": "2025-02-09",
@@ -8580,8 +8915,8 @@
    "dose": 33.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7584,
-   "chronic": 28.9386
+   "acute": 33.0029,
+   "chronic": 30.1896
   },
   {
    "day": "2025-02-09",
@@ -8590,8 +8925,8 @@
    "dose": 33.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7584,
-   "chronic": 28.9386
+   "acute": 33.007,
+   "chronic": 30.2272
   },
   {
    "day": "2025-02-09",
@@ -8600,8 +8935,8 @@
    "dose": 33.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.7584,
-   "chronic": 28.9386
+   "acute": 33.007,
+   "chronic": 30.2272
   },
   {
    "day": "2025-02-09",
@@ -8610,8 +8945,8 @@
    "dose": 6.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5517,
-   "chronic": 5.7877
+   "acute": 6.6541,
+   "chronic": 6.2892
   },
   {
    "day": "2025-02-09",
@@ -8620,8 +8955,8 @@
    "dose": 6.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5517,
-   "chronic": 5.7877
+   "acute": 6.6541,
+   "chronic": 6.2892
   },
   {
    "day": "2025-02-09",
@@ -8630,8 +8965,8 @@
    "dose": 13.2,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1034,
-   "chronic": 11.5754
+   "acute": 13.14,
+   "chronic": 11.7648
   },
   {
    "day": "2025-02-09",
@@ -8640,8 +8975,8 @@
    "dose": 13.2,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1034,
-   "chronic": 11.5754
+   "acute": 13.14,
+   "chronic": 11.7648
   },
   {
    "day": "2025-02-09",
@@ -8650,8 +8985,8 @@
    "dose": 6.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5517,
-   "chronic": 5.7877
+   "acute": 6.6485,
+   "chronic": 6.3295
   },
   {
    "day": "2025-02-09",
@@ -8660,8 +8995,8 @@
    "dose": 6.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5517,
-   "chronic": 5.7877
+   "acute": 6.6485,
+   "chronic": 6.3295
   },
   {
    "day": "2025-02-09",
@@ -8670,8 +9005,8 @@
    "dose": 9.9,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8275,
-   "chronic": 8.6816
+   "acute": 9.8985,
+   "chronic": 9.0675
   },
   {
    "day": "2025-02-09",
@@ -8680,8 +9015,8 @@
    "dose": 9.9,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8275,
-   "chronic": 8.6816
+   "acute": 9.8985,
+   "chronic": 9.0675
   },
   {
    "day": "2025-02-09",
@@ -8690,8 +9025,8 @@
    "dose": 9.9,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8275,
-   "chronic": 8.6816
+   "acute": 10.0884,
+   "chronic": 10.026
   },
   {
    "day": "2025-02-09",
@@ -8700,8 +9035,8 @@
    "dose": 9.9,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9167,
-   "chronic": 9.0818
+   "acute": 10.1775,
+   "chronic": 10.4262
   },
   {
    "day": "2025-02-10",
@@ -8710,8 +9045,8 @@
    "dose": 34.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.9237,
-   "chronic": 29.1162
+   "acute": 33.1356,
+   "chronic": 30.3233
   },
   {
    "day": "2025-02-10",
@@ -8720,8 +9055,8 @@
    "dose": 34.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.9237,
-   "chronic": 29.1162
+   "acute": 33.1356,
+   "chronic": 30.3233
   },
   {
    "day": "2025-02-10",
@@ -8730,8 +9065,8 @@
    "dose": 34.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.9237,
-   "chronic": 29.1162
+   "acute": 33.1392,
+   "chronic": 30.3596
   },
   {
    "day": "2025-02-10",
@@ -8740,8 +9075,8 @@
    "dose": 34.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 32.9237,
-   "chronic": 29.1162
+   "acute": 33.1392,
+   "chronic": 30.3596
   },
   {
    "day": "2025-02-10",
@@ -8750,8 +9085,8 @@
    "dose": 6.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5847,
-   "chronic": 5.8232
+   "acute": 6.6735,
+   "chronic": 6.3071
   },
   {
    "day": "2025-02-10",
@@ -8760,8 +9095,8 @@
    "dose": 6.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5847,
-   "chronic": 5.8232
+   "acute": 6.6735,
+   "chronic": 6.3071
   },
   {
    "day": "2025-02-10",
@@ -8770,8 +9105,8 @@
    "dose": 13.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1695,
-   "chronic": 11.6465
+   "acute": 13.2013,
+   "chronic": 11.8292
   },
   {
    "day": "2025-02-10",
@@ -8780,8 +9115,8 @@
    "dose": 13.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.1695,
-   "chronic": 11.6465
+   "acute": 13.2013,
+   "chronic": 11.8292
   },
   {
    "day": "2025-02-10",
@@ -8790,8 +9125,8 @@
    "dose": 6.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5847,
-   "chronic": 5.8232
+   "acute": 6.6686,
+   "chronic": 6.346
   },
   {
    "day": "2025-02-10",
@@ -8800,8 +9135,8 @@
    "dose": 6.8,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.5847,
-   "chronic": 5.8232
+   "acute": 6.6686,
+   "chronic": 6.346
   },
   {
    "day": "2025-02-10",
@@ -8810,8 +9145,8 @@
    "dose": 10.2,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8771,
-   "chronic": 8.7349
+   "acute": 9.9386,
+   "chronic": 9.1073
   },
   {
    "day": "2025-02-10",
@@ -8820,8 +9155,8 @@
    "dose": 10.2,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8771,
-   "chronic": 8.7349
+   "acute": 9.9386,
+   "chronic": 9.1073
   },
   {
    "day": "2025-02-10",
@@ -8830,8 +9165,8 @@
    "dose": 10.2,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.8771,
-   "chronic": 8.7349
+   "acute": 10.1032,
+   "chronic": 10.0321
   },
   {
    "day": "2025-02-10",
@@ -8840,8 +9175,8 @@
    "dose": 10.2,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.9544,
-   "chronic": 9.1211
+   "acute": 10.1805,
+   "chronic": 10.4183
   },
   {
    "day": "2025-02-11",
@@ -8850,8 +9185,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.2001,
-   "chronic": 29.3226
+   "acute": 33.3838,
+   "chronic": 30.4874
   },
   {
    "day": "2025-02-11",
@@ -8860,8 +9195,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.2001,
-   "chronic": 29.3226
+   "acute": 33.3838,
+   "chronic": 30.4874
   },
   {
    "day": "2025-02-11",
@@ -8870,8 +9205,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.2001,
-   "chronic": 29.3226
+   "acute": 33.3869,
+   "chronic": 30.5224
   },
   {
    "day": "2025-02-11",
@@ -8880,8 +9215,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.2001,
-   "chronic": 29.3226
+   "acute": 33.3869,
+   "chronic": 30.5224
   },
   {
    "day": "2025-02-11",
@@ -8890,8 +9225,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.64,
-   "chronic": 5.8645
+   "acute": 6.717,
+   "chronic": 6.3314
   },
   {
    "day": "2025-02-11",
@@ -8900,8 +9235,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.64,
-   "chronic": 5.8645
+   "acute": 6.717,
+   "chronic": 6.3314
   },
   {
    "day": "2025-02-11",
@@ -8910,8 +9245,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.28,
-   "chronic": 11.729
+   "acute": 13.3076,
+   "chronic": 11.9054
   },
   {
    "day": "2025-02-11",
@@ -8920,8 +9255,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.28,
-   "chronic": 11.729
+   "acute": 13.3076,
+   "chronic": 11.9054
   },
   {
    "day": "2025-02-11",
@@ -8930,8 +9265,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.64,
-   "chronic": 5.8645
+   "acute": 6.7127,
+   "chronic": 6.369
   },
   {
    "day": "2025-02-11",
@@ -8940,8 +9275,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.64,
-   "chronic": 5.8645
+   "acute": 6.7127,
+   "chronic": 6.369
   },
   {
    "day": "2025-02-11",
@@ -8950,8 +9285,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.96,
-   "chronic": 8.7968
+   "acute": 10.0133,
+   "chronic": 9.1561
   },
   {
    "day": "2025-02-11",
@@ -8960,8 +9295,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.96,
-   "chronic": 8.7968
+   "acute": 10.0133,
+   "chronic": 9.1561
   },
   {
    "day": "2025-02-11",
@@ -8970,8 +9305,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 9.96,
-   "chronic": 8.7968
+   "acute": 10.156,
+   "chronic": 10.0485
   },
   {
    "day": "2025-02-11",
@@ -8980,8 +9315,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.027,
-   "chronic": 9.1694
+   "acute": 10.223,
+   "chronic": 10.4211
   },
   {
    "day": "2025-02-12",
@@ -8990,8 +9325,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.4397,
-   "chronic": 29.5218
+   "acute": 33.599,
+   "chronic": 30.6457
   },
   {
    "day": "2025-02-12",
@@ -9000,8 +9335,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.4397,
-   "chronic": 29.5218
+   "acute": 33.599,
+   "chronic": 30.6457
   },
   {
    "day": "2025-02-12",
@@ -9010,8 +9345,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.4397,
-   "chronic": 29.5218
+   "acute": 33.6017,
+   "chronic": 30.6795
   },
   {
    "day": "2025-02-12",
@@ -9020,8 +9355,8 @@
    "dose": 35.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 33.4397,
-   "chronic": 29.5218
+   "acute": 33.6017,
+   "chronic": 30.6795
   },
   {
    "day": "2025-02-12",
@@ -9030,8 +9365,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6879,
-   "chronic": 5.9044
+   "acute": 6.7547,
+   "chronic": 6.3549
   },
   {
    "day": "2025-02-12",
@@ -9040,8 +9375,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6879,
-   "chronic": 5.9044
+   "acute": 6.7547,
+   "chronic": 6.3549
   },
   {
    "day": "2025-02-12",
@@ -9050,8 +9385,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3759,
-   "chronic": 11.8087
+   "acute": 13.3998,
+   "chronic": 11.9789
   },
   {
    "day": "2025-02-12",
@@ -9060,8 +9395,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3759,
-   "chronic": 11.8087
+   "acute": 13.3998,
+   "chronic": 11.9789
   },
   {
    "day": "2025-02-12",
@@ -9070,8 +9405,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6879,
-   "chronic": 5.9044
+   "acute": 6.751,
+   "chronic": 6.3911
   },
   {
    "day": "2025-02-12",
@@ -9080,8 +9415,8 @@
    "dose": 7.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 6.6879,
-   "chronic": 5.9044
+   "acute": 6.751,
+   "chronic": 6.3911
   },
   {
    "day": "2025-02-12",
@@ -9090,8 +9425,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0319,
-   "chronic": 8.8565
+   "acute": 10.0781,
+   "chronic": 9.2033
   },
   {
    "day": "2025-02-12",
@@ -9100,8 +9435,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0319,
-   "chronic": 8.8565
+   "acute": 10.0781,
+   "chronic": 9.2033
   },
   {
    "day": "2025-02-12",
@@ -9110,8 +9445,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.0319,
-   "chronic": 8.8565
+   "acute": 10.2018,
+   "chronic": 10.0643
   },
   {
    "day": "2025-02-12",
@@ -9120,8 +9455,8 @@
    "dose": 10.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.09,
-   "chronic": 9.2161
+   "acute": 10.2599,
+   "chronic": 10.4239
   },
   {
    "day": "2025-02-13",
@@ -9130,8 +9465,8 @@
    "dose": 51.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.8439,
-   "chronic": 30.2929
+   "acute": 35.982,
+   "chronic": 31.3774
   },
   {
    "day": "2025-02-13",
@@ -9140,8 +9475,8 @@
    "dose": 51.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.8439,
-   "chronic": 30.2929
+   "acute": 35.982,
+   "chronic": 31.3774
   },
   {
    "day": "2025-02-13",
@@ -9150,8 +9485,8 @@
    "dose": 51.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.8439,
-   "chronic": 30.2929
+   "acute": 35.9843,
+   "chronic": 31.4099
   },
   {
    "day": "2025-02-13",
@@ -9160,8 +9495,8 @@
    "dose": 51.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 35.8439,
-   "chronic": 30.2929
+   "acute": 35.9843,
+   "chronic": 31.4099
   },
   {
    "day": "2025-02-13",
@@ -9170,8 +9505,8 @@
    "dose": 10.3,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.1688,
-   "chronic": 6.0586
+   "acute": 7.2266,
+   "chronic": 6.4933
   },
   {
    "day": "2025-02-13",
@@ -9180,8 +9515,8 @@
    "dose": 10.3,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.1688,
-   "chronic": 6.0586
+   "acute": 7.2266,
+   "chronic": 6.4933
   },
   {
    "day": "2025-02-13",
@@ -9190,8 +9525,8 @@
    "dose": 20.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.3376,
-   "chronic": 12.1172
+   "acute": 14.3583,
+   "chronic": 12.2813
   },
   {
    "day": "2025-02-13",
@@ -9200,8 +9535,8 @@
    "dose": 20.6,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 14.3376,
-   "chronic": 12.1172
+   "acute": 14.3583,
+   "chronic": 12.2813
   },
   {
    "day": "2025-02-13",
@@ -9210,8 +9545,8 @@
    "dose": 10.3,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.1688,
-   "chronic": 6.0586
+   "acute": 7.2234,
+   "chronic": 6.5282
   },
   {
    "day": "2025-02-13",
@@ -9220,8 +9555,8 @@
    "dose": 10.3,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 7.1688,
-   "chronic": 6.0586
+   "acute": 7.2234,
+   "chronic": 6.5282
   },
   {
    "day": "2025-02-13",
@@ -9230,8 +9565,8 @@
    "dose": 15.45,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.7532,
-   "chronic": 9.0879
+   "acute": 10.7932,
+   "chronic": 9.4224
   },
   {
    "day": "2025-02-13",
@@ -9240,8 +9575,8 @@
    "dose": 15.45,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.7532,
-   "chronic": 9.0879
+   "acute": 10.7932,
+   "chronic": 9.4224
   },
   {
    "day": "2025-02-13",
@@ -9250,8 +9585,8 @@
    "dose": 15.45,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.7532,
-   "chronic": 9.0879
+   "acute": 10.9005,
+   "chronic": 10.2533
   },
   {
    "day": "2025-02-13",
@@ -9260,8 +9595,8 @@
    "dose": 15.45,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 10.8035,
-   "chronic": 9.4348
+   "acute": 10.9508,
+   "chronic": 10.6002
   },
   {
    "day": "2025-02-14",
@@ -9270,8 +9605,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.3908,
-   "chronic": 31.686
+   "acute": 40.5105,
+   "chronic": 32.7324
   },
   {
    "day": "2025-02-14",
@@ -9280,8 +9615,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.3908,
-   "chronic": 31.686
+   "acute": 40.5105,
+   "chronic": 32.7324
   },
   {
    "day": "2025-02-14",
@@ -9290,8 +9625,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.3908,
-   "chronic": 31.686
+   "acute": 40.5126,
+   "chronic": 32.7638
   },
   {
    "day": "2025-02-14",
@@ -9300,8 +9635,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.3908,
-   "chronic": 31.686
+   "acute": 40.5126,
+   "chronic": 32.7638
   },
   {
    "day": "2025-02-14",
@@ -9310,8 +9645,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0782,
-   "chronic": 6.3372
+   "acute": 8.1283,
+   "chronic": 6.7566
   },
   {
    "day": "2025-02-14",
@@ -9320,8 +9655,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0782,
-   "chronic": 6.3372
+   "acute": 8.1283,
+   "chronic": 6.7566
   },
   {
    "day": "2025-02-14",
@@ -9330,8 +9665,8 @@
    "dose": 28.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.1563,
-   "chronic": 12.6744
+   "acute": 16.1743,
+   "chronic": 12.8328
   },
   {
    "day": "2025-02-14",
@@ -9340,8 +9675,8 @@
    "dose": 28.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.1563,
-   "chronic": 12.6744
+   "acute": 16.1743,
+   "chronic": 12.8328
   },
   {
    "day": "2025-02-14",
@@ -9350,8 +9685,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0782,
-   "chronic": 6.3372
+   "acute": 8.1255,
+   "chronic": 6.7904
   },
   {
    "day": "2025-02-14",
@@ -9360,8 +9695,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0782,
-   "chronic": 6.3372
+   "acute": 8.1255,
+   "chronic": 6.7904
   },
   {
    "day": "2025-02-14",
@@ -9370,8 +9705,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.1173,
-   "chronic": 9.5058
+   "acute": 12.152,
+   "chronic": 9.8286
   },
   {
    "day": "2025-02-14",
@@ -9380,8 +9715,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.1173,
-   "chronic": 9.5058
+   "acute": 12.152,
+   "chronic": 9.8286
   },
   {
    "day": "2025-02-14",
@@ -9390,8 +9725,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.1173,
-   "chronic": 9.5058
+   "acute": 12.2449,
+   "chronic": 10.6303
   },
   {
    "day": "2025-02-14",
@@ -9400,8 +9735,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.1609,
-   "chronic": 9.8406
+   "acute": 12.2886,
+   "chronic": 10.9651
   },
   {
    "day": "2025-02-15",
@@ -9410,8 +9745,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 44.3325,
-   "chronic": 33.0302
+   "acute": 44.4362,
+   "chronic": 34.0399
   },
   {
    "day": "2025-02-15",
@@ -9420,8 +9755,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 44.3325,
-   "chronic": 33.0302
+   "acute": 44.4362,
+   "chronic": 34.0399
   },
   {
    "day": "2025-02-15",
@@ -9430,8 +9765,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 44.3325,
-   "chronic": 33.0302
+   "acute": 44.438,
+   "chronic": 34.0702
   },
   {
    "day": "2025-02-15",
@@ -9440,8 +9775,8 @@
    "dose": 70.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 44.3325,
-   "chronic": 33.0302
+   "acute": 44.438,
+   "chronic": 34.0702
   },
   {
    "day": "2025-02-15",
@@ -9450,8 +9785,8 @@
    "dose": 5.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.6755,
-   "chronic": 0.3425
+   "acute": 0.6769,
+   "chronic": 0.3515
   },
   {
    "day": "2025-02-15",
@@ -9460,8 +9795,8 @@
    "dose": 5.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.6755,
-   "chronic": 0.3425
+   "acute": 0.6769,
+   "chronic": 0.3515
   },
   {
    "day": "2025-02-15",
@@ -9470,8 +9805,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.8665,
-   "chronic": 6.606
+   "acute": 8.91,
+   "chronic": 7.0108
   },
   {
    "day": "2025-02-15",
@@ -9480,8 +9815,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.8665,
-   "chronic": 6.606
+   "acute": 8.91,
+   "chronic": 7.0108
   },
   {
    "day": "2025-02-15",
@@ -9490,8 +9825,8 @@
    "dose": 28.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 17.733,
-   "chronic": 13.2121
+   "acute": 17.7486,
+   "chronic": 13.3649
   },
   {
    "day": "2025-02-15",
@@ -9500,8 +9835,8 @@
    "dose": 28.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 17.733,
-   "chronic": 13.2121
+   "acute": 17.7486,
+   "chronic": 13.3649
   },
   {
    "day": "2025-02-15",
@@ -9510,8 +9845,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.8665,
-   "chronic": 6.606
+   "acute": 8.9076,
+   "chronic": 7.0433
   },
   {
    "day": "2025-02-15",
@@ -9520,8 +9855,8 @@
    "dose": 14.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.8665,
-   "chronic": 6.606
+   "acute": 8.9076,
+   "chronic": 7.0433
   },
   {
    "day": "2025-02-15",
@@ -9530,8 +9865,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2997,
-   "chronic": 9.9091
+   "acute": 13.3299,
+   "chronic": 10.2206
   },
   {
    "day": "2025-02-15",
@@ -9540,8 +9875,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2997,
-   "chronic": 9.9091
+   "acute": 13.3299,
+   "chronic": 10.2206
   },
   {
    "day": "2025-02-15",
@@ -9570,8 +9905,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.2997,
-   "chronic": 9.9091
+   "acute": 13.4104,
+   "chronic": 10.9941
   },
   {
    "day": "2025-02-15",
@@ -9580,8 +9915,8 @@
    "dose": 21.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.3376,
-   "chronic": 10.2321
+   "acute": 13.4483,
+   "chronic": 11.3172
   },
   {
    "day": "2025-02-15",
@@ -9610,8 +9945,8 @@
    "dose": 5.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.6755,
-   "chronic": 0.3425
+   "acute": 0.6766,
+   "chronic": 0.3497
   },
   {
    "day": "2025-02-15",
@@ -9620,8 +9955,8 @@
    "dose": 5.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.6755,
-   "chronic": 0.3425
+   "acute": 0.6766,
+   "chronic": 0.3497
   },
   {
    "day": "2025-02-16",
@@ -9630,8 +9965,8 @@
    "dose": 12.0,
    "sets": 1.0,
    "reps": 12.0,
-   "acute": 1.5981,
-   "chronic": 0.4315
+   "acute": 1.5993,
+   "chronic": 0.4402
   },
   {
    "day": "2025-02-16",
@@ -9640,8 +9975,8 @@
    "dose": 12.0,
    "sets": 1.0,
    "reps": 12.0,
-   "acute": 1.5981,
-   "chronic": 0.4315
+   "acute": 1.5993,
+   "chronic": 0.4402
   },
   {
    "day": "2025-02-16",
@@ -9650,8 +9985,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 42.7573,
-   "chronic": 33.0116
+   "acute": 42.8473,
+   "chronic": 33.9859
   },
   {
    "day": "2025-02-16",
@@ -9660,8 +9995,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 42.7573,
-   "chronic": 33.0116
+   "acute": 42.8473,
+   "chronic": 33.9859
   },
   {
    "day": "2025-02-16",
@@ -9670,8 +10005,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 42.7573,
-   "chronic": 33.0116
+   "acute": 42.8488,
+   "chronic": 34.0151
   },
   {
    "day": "2025-02-16",
@@ -9680,28 +10015,28 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 42.7573,
-   "chronic": 33.0116
+   "acute": 42.8488,
+   "chronic": 34.0151
   },
   {
    "day": "2025-02-16",
    "tissue": "front_delt",
    "side": "left",
-   "dose": 22.5,
+   "dose": 26.668,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 3.5808,
-   "chronic": 1.1199
+   "acute": 4.1369,
+   "chronic": 1.2748
   },
   {
    "day": "2025-02-16",
    "tissue": "front_delt",
    "side": "right",
-   "dose": 22.5,
+   "dose": 26.668,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 3.5808,
-   "chronic": 1.1199
+   "acute": 4.1369,
+   "chronic": 1.2748
   },
   {
    "day": "2025-02-16",
@@ -9710,8 +10045,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5515,
-   "chronic": 6.6023
+   "acute": 8.5892,
+   "chronic": 6.9929
   },
   {
    "day": "2025-02-16",
@@ -9720,8 +10055,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5515,
-   "chronic": 6.6023
+   "acute": 8.5892,
+   "chronic": 6.9929
   },
   {
    "day": "2025-02-16",
@@ -9730,8 +10065,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 17.1029,
-   "chronic": 13.2046
+   "acute": 17.1164,
+   "chronic": 13.3521
   },
   {
    "day": "2025-02-16",
@@ -9740,8 +10075,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 17.1029,
-   "chronic": 13.2046
+   "acute": 17.1164,
+   "chronic": 13.3521
   },
   {
    "day": "2025-02-16",
@@ -9750,8 +10085,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5515,
-   "chronic": 6.6023
+   "acute": 8.5871,
+   "chronic": 7.0243
   },
   {
    "day": "2025-02-16",
@@ -9760,28 +10095,48 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.5515,
-   "chronic": 6.6023
+   "acute": 8.5871,
+   "chronic": 7.0243
   },
   {
    "day": "2025-02-16",
    "tissue": "hip_flexors",
    "side": "left",
-   "dose": 15.75,
+   "dose": 17.834,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.6259,
-   "chronic": 10.114
+   "acute": 13.9295,
+   "chronic": 10.4877
   },
   {
    "day": "2025-02-16",
    "tissue": "hip_flexors",
    "side": "right",
-   "dose": 15.75,
+   "dose": 17.834,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.6259,
-   "chronic": 10.114
+   "acute": 13.9295,
+   "chronic": 10.4877
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "lats",
+   "side": "left",
+   "dose": 10.421,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.4002,
+   "chronic": 0.5643
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "lats",
+   "side": "right",
+   "dose": 10.421,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 1.4002,
+   "chronic": 0.5643
   },
   {
    "day": "2025-02-16",
@@ -9807,21 +10162,21 @@
    "day": "2025-02-16",
    "tissue": "pec_major",
    "side": "left",
-   "dose": 45.0,
+   "dose": 50.211,
    "sets": 1.0,
    "reps": 5.0,
-   "acute": 7.1631,
-   "chronic": 2.2637
+   "acute": 7.8567,
+   "chronic": 2.4465
   },
   {
    "day": "2025-02-16",
    "tissue": "pec_major",
    "side": "right",
-   "dose": 45.0,
+   "dose": 50.211,
    "sets": 1.0,
    "reps": 5.0,
-   "acute": 7.1631,
-   "chronic": 2.2637
+   "acute": 7.8567,
+   "chronic": 2.4465
   },
   {
    "day": "2025-02-16",
@@ -9830,8 +10185,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.8272,
-   "chronic": 9.9035
+   "acute": 12.9232,
+   "chronic": 10.9505
   },
   {
    "day": "2025-02-16",
@@ -9840,48 +10195,68 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.86,
-   "chronic": 10.2152
+   "acute": 12.956,
+   "chronic": 11.2622
   },
   {
    "day": "2025-02-16",
    "tissue": "rotator_cuff",
    "side": "left",
-   "dose": 11.25,
+   "dose": 19.587,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 1.7904,
-   "chronic": 0.5599
+   "acute": 2.9002,
+   "chronic": 0.8524
   },
   {
    "day": "2025-02-16",
    "tissue": "rotator_cuff",
    "side": "right",
-   "dose": 11.25,
+   "dose": 19.587,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 1.7904,
-   "chronic": 0.5599
+   "acute": 2.9002,
+   "chronic": 0.8524
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "side_delt",
+   "side": "left",
+   "dose": 3.126,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.4162,
+   "chronic": 0.1097
+  },
+  {
+   "day": "2025-02-16",
+   "tissue": "side_delt",
+   "side": "right",
+   "dose": 3.126,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.4162,
+   "chronic": 0.1097
   },
   {
    "day": "2025-02-16",
    "tissue": "triceps",
    "side": "left",
-   "dose": 22.5,
+   "dose": 26.668,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 3.5808,
-   "chronic": 1.1199
+   "acute": 4.1367,
+   "chronic": 1.2731
   },
   {
    "day": "2025-02-16",
    "tissue": "triceps",
    "side": "right",
-   "dose": 22.5,
+   "dose": 26.668,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 3.5808,
-   "chronic": 1.1199
+   "acute": 4.1367,
+   "chronic": 1.2731
   },
   {
    "day": "2025-02-17",
@@ -9890,8 +10265,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.3918,
-   "chronic": 32.9936
+   "acute": 41.4698,
+   "chronic": 33.9338
   },
   {
    "day": "2025-02-17",
@@ -9900,8 +10275,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.3918,
-   "chronic": 32.9936
+   "acute": 41.4698,
+   "chronic": 33.9338
   },
   {
    "day": "2025-02-17",
@@ -9910,8 +10285,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.3918,
-   "chronic": 32.9936
+   "acute": 41.4711,
+   "chronic": 33.962
   },
   {
    "day": "2025-02-17",
@@ -9920,8 +10295,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 41.3918,
-   "chronic": 32.9936
+   "acute": 41.4711,
+   "chronic": 33.962
   },
   {
    "day": "2025-02-17",
@@ -9930,8 +10305,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.2784,
-   "chronic": 6.5987
+   "acute": 8.311,
+   "chronic": 6.9756
   },
   {
    "day": "2025-02-17",
@@ -9940,8 +10315,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.2784,
-   "chronic": 6.5987
+   "acute": 8.311,
+   "chronic": 6.9756
   },
   {
    "day": "2025-02-17",
@@ -9950,8 +10325,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.5567,
-   "chronic": 13.1975
+   "acute": 16.5684,
+   "chronic": 13.3398
   },
   {
    "day": "2025-02-17",
@@ -9960,8 +10335,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.5567,
-   "chronic": 13.1975
+   "acute": 16.5684,
+   "chronic": 13.3398
   },
   {
    "day": "2025-02-17",
@@ -9970,8 +10345,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.2784,
-   "chronic": 6.5987
+   "acute": 8.3092,
+   "chronic": 7.0059
   },
   {
    "day": "2025-02-17",
@@ -9980,8 +10355,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.2784,
-   "chronic": 6.5987
+   "acute": 8.3092,
+   "chronic": 7.0059
   },
   {
    "day": "2025-02-17",
@@ -9990,8 +10365,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.11,
-   "chronic": 10.1012
+   "acute": 13.3731,
+   "chronic": 10.4618
   },
   {
    "day": "2025-02-17",
@@ -10000,8 +10375,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 13.11,
-   "chronic": 10.1012
+   "acute": 13.3731,
+   "chronic": 10.4618
   },
   {
    "day": "2025-02-17",
@@ -10010,8 +10385,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.4176,
-   "chronic": 9.8981
+   "acute": 12.5007,
+   "chronic": 10.9084
   },
   {
    "day": "2025-02-17",
@@ -10020,8 +10395,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.446,
-   "chronic": 10.1989
+   "acute": 12.5292,
+   "chronic": 11.2091
   },
   {
    "day": "2025-02-18",
@@ -10030,8 +10405,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.2081,
-   "chronic": 32.9763
+   "acute": 40.2757,
+   "chronic": 33.8835
   },
   {
    "day": "2025-02-18",
@@ -10040,8 +10415,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.2081,
-   "chronic": 32.9763
+   "acute": 40.2757,
+   "chronic": 33.8835
   },
   {
    "day": "2025-02-18",
@@ -10050,8 +10425,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.2081,
-   "chronic": 32.9763
+   "acute": 40.2769,
+   "chronic": 33.9107
   },
   {
    "day": "2025-02-18",
@@ -10060,8 +10435,8 @@
    "dose": 32.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.2081,
-   "chronic": 32.9763
+   "acute": 40.2769,
+   "chronic": 33.9107
   },
   {
    "day": "2025-02-18",
@@ -10070,8 +10445,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0416,
-   "chronic": 6.5953
+   "acute": 8.0699,
+   "chronic": 6.9589
   },
   {
    "day": "2025-02-18",
@@ -10080,8 +10455,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0416,
-   "chronic": 6.5953
+   "acute": 8.0699,
+   "chronic": 6.9589
   },
   {
    "day": "2025-02-18",
@@ -10090,8 +10465,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.0833,
-   "chronic": 13.1905
+   "acute": 16.0934,
+   "chronic": 13.3279
   },
   {
    "day": "2025-02-18",
@@ -10100,8 +10475,8 @@
    "dose": 13.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.0833,
-   "chronic": 13.1905
+   "acute": 16.0934,
+   "chronic": 13.3279
   },
   {
    "day": "2025-02-18",
@@ -10110,8 +10485,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0416,
-   "chronic": 6.5953
+   "acute": 8.0684,
+   "chronic": 6.9881
   },
   {
    "day": "2025-02-18",
@@ -10120,8 +10495,8 @@
    "dose": 6.5,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0416,
-   "chronic": 6.5953
+   "acute": 8.0684,
+   "chronic": 6.9881
   },
   {
    "day": "2025-02-18",
@@ -10130,8 +10505,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.6627,
-   "chronic": 10.0889
+   "acute": 12.8908,
+   "chronic": 10.4368
   },
   {
    "day": "2025-02-18",
@@ -10140,8 +10515,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.6627,
-   "chronic": 10.0889
+   "acute": 12.8908,
+   "chronic": 10.4368
   },
   {
    "day": "2025-02-18",
@@ -10150,8 +10525,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.0624,
-   "chronic": 9.8929
+   "acute": 12.1346,
+   "chronic": 10.8677
   },
   {
    "day": "2025-02-18",
@@ -10160,8 +10535,8 @@
    "dose": 9.75,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.0871,
-   "chronic": 10.1831
+   "acute": 12.1592,
+   "chronic": 11.1579
   },
   {
    "day": "2025-02-19",
@@ -10170,8 +10545,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 1.041,
-   "chronic": 0.3876
+   "acute": 1.0418,
+   "chronic": 0.3954
   },
   {
    "day": "2025-02-19",
@@ -10180,8 +10555,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 1.041,
-   "chronic": 0.3876
+   "acute": 1.0418,
+   "chronic": 0.3954
   },
   {
    "day": "2025-02-19",
@@ -10190,8 +10565,8 @@
    "dose": 40.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.1804,
-   "chronic": 33.2227
+   "acute": 40.239,
+   "chronic": 34.098
   },
   {
    "day": "2025-02-19",
@@ -10200,8 +10575,8 @@
    "dose": 40.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.1804,
-   "chronic": 33.2227
+   "acute": 40.239,
+   "chronic": 34.098
   },
   {
    "day": "2025-02-19",
@@ -10210,8 +10585,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0037,
-   "chronic": 0.0816
+   "acute": 0.0051,
+   "chronic": 0.1084
   },
   {
    "day": "2025-02-19",
@@ -10220,8 +10595,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0037,
-   "chronic": 0.0816
+   "acute": 0.0051,
+   "chronic": 0.1084
   },
   {
    "day": "2025-02-19",
@@ -10230,8 +10605,8 @@
    "dose": 40.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.1804,
-   "chronic": 33.2227
+   "acute": 40.24,
+   "chronic": 34.1243
   },
   {
    "day": "2025-02-19",
@@ -10240,8 +10615,8 @@
    "dose": 40.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 40.1804,
-   "chronic": 33.2227
+   "acute": 40.24,
+   "chronic": 34.1243
   },
   {
    "day": "2025-02-19",
@@ -10250,8 +10625,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0011,
-   "chronic": 0.0243
+   "acute": 0.0039,
+   "chronic": 0.078
   },
   {
    "day": "2025-02-19",
@@ -10260,8 +10635,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0011,
-   "chronic": 0.0243
+   "acute": 0.0039,
+   "chronic": 0.078
   },
   {
    "day": "2025-02-19",
@@ -10270,8 +10645,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0028,
-   "chronic": 0.0624
+   "acute": 0.0042,
+   "chronic": 0.0893
   },
   {
    "day": "2025-02-19",
@@ -10280,8 +10655,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0028,
-   "chronic": 0.0624
+   "acute": 0.0042,
+   "chronic": 0.0893
   },
   {
    "day": "2025-02-19",
@@ -10290,8 +10665,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 2.3327,
-   "chronic": 1.0061
+   "acute": 2.6949,
+   "chronic": 1.1453
   },
   {
    "day": "2025-02-19",
@@ -10300,8 +10675,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 2.3327,
-   "chronic": 1.0061
+   "acute": 2.6949,
+   "chronic": 1.1453
   },
   {
    "day": "2025-02-19",
@@ -10310,8 +10685,8 @@
    "dose": 8.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0361,
-   "chronic": 6.6445
+   "acute": 8.0606,
+   "chronic": 6.9954
   },
   {
    "day": "2025-02-19",
@@ -10320,8 +10695,8 @@
    "dose": 8.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0361,
-   "chronic": 6.6445
+   "acute": 8.0606,
+   "chronic": 6.9954
   },
   {
    "day": "2025-02-19",
@@ -10330,8 +10705,8 @@
    "dose": 16.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.0722,
-   "chronic": 13.2891
+   "acute": 16.081,
+   "chronic": 13.4216
   },
   {
    "day": "2025-02-19",
@@ -10340,8 +10715,8 @@
    "dose": 16.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 16.0722,
-   "chronic": 13.2891
+   "acute": 16.081,
+   "chronic": 13.4216
   },
   {
    "day": "2025-02-19",
@@ -10350,8 +10725,8 @@
    "dose": 8.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0361,
-   "chronic": 6.6445
+   "acute": 8.0593,
+   "chronic": 7.0236
   },
   {
    "day": "2025-02-19",
@@ -10360,8 +10735,8 @@
    "dose": 8.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 8.0361,
-   "chronic": 6.6445
+   "acute": 8.0593,
+   "chronic": 7.0236
   },
   {
    "day": "2025-02-19",
@@ -10370,8 +10745,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.5745,
-   "chronic": 10.1559
+   "acute": 12.7722,
+   "chronic": 10.4917
   },
   {
    "day": "2025-02-19",
@@ -10380,8 +10755,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.5745,
-   "chronic": 10.1559
+   "acute": 12.7722,
+   "chronic": 10.4917
   },
   {
    "day": "2025-02-19",
@@ -10390,8 +10765,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0056,
-   "chronic": 0.1249
+   "acute": 0.9122,
+   "chronic": 0.507
   },
   {
    "day": "2025-02-19",
@@ -10400,8 +10775,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0056,
-   "chronic": 0.1249
+   "acute": 0.9122,
+   "chronic": 0.507
   },
   {
    "day": "2025-02-19",
@@ -10410,8 +10785,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0056,
-   "chronic": 0.1208
+   "acute": 0.0084,
+   "chronic": 0.1745
   },
   {
    "day": "2025-02-19",
@@ -10420,8 +10795,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0056,
-   "chronic": 0.1208
+   "acute": 0.0084,
+   "chronic": 0.1745
   },
   {
    "day": "2025-02-19",
@@ -10446,12 +10821,22 @@
   {
    "day": "2025-02-19",
    "tissue": "patellar_tendon",
+   "side": "left",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.0523,
+   "chronic": 0.7949
+  },
+  {
+   "day": "2025-02-19",
+   "tissue": "patellar_tendon",
    "side": "right",
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0171,
-   "chronic": 0.224
+   "acute": 0.0694,
+   "chronic": 1.019
   },
   {
    "day": "2025-02-19",
@@ -10460,8 +10845,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 4.6663,
-   "chronic": 2.0337
+   "acute": 5.1182,
+   "chronic": 2.1979
   },
   {
    "day": "2025-02-19",
@@ -10470,8 +10855,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 4.6663,
-   "chronic": 2.0337
+   "acute": 5.1182,
+   "chronic": 2.1979
   },
   {
    "day": "2025-02-19",
@@ -10480,8 +10865,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.0541,
-   "chronic": 9.9668
+   "acute": 12.1166,
+   "chronic": 10.9075
   },
   {
    "day": "2025-02-19",
@@ -10490,8 +10875,8 @@
    "dose": 12.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 12.0755,
-   "chronic": 10.2469
+   "acute": 12.138,
+   "chronic": 11.1875
   },
   {
    "day": "2025-02-19",
@@ -10500,8 +10885,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0029,
-   "chronic": 0.0628
+   "acute": 0.0043,
+   "chronic": 0.0896
   },
   {
    "day": "2025-02-19",
@@ -10510,8 +10895,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 0.0029,
-   "chronic": 0.0628
+   "acute": 0.0043,
+   "chronic": 0.0896
   },
   {
    "day": "2025-02-19",
@@ -10520,8 +10905,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 1.1663,
-   "chronic": 0.5031
+   "acute": 1.8893,
+   "chronic": 0.7658
   },
   {
    "day": "2025-02-19",
@@ -10530,8 +10915,28 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 1.1663,
-   "chronic": 0.5031
+   "acute": 1.8893,
+   "chronic": 0.7658
+  },
+  {
+   "day": "2025-02-19",
+   "tissue": "side_delt",
+   "side": "left",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.2711,
+   "chronic": 0.0985
+  },
+  {
+   "day": "2025-02-19",
+   "tissue": "side_delt",
+   "side": "right",
+   "dose": 0.0,
+   "sets": 0.0,
+   "reps": 0.0,
+   "acute": 0.2711,
+   "chronic": 0.0985
   },
   {
    "day": "2025-02-19",
@@ -10540,8 +10945,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 2.3327,
-   "chronic": 1.0061
+   "acute": 2.6948,
+   "chronic": 1.1437
   },
   {
    "day": "2025-02-19",
@@ -10550,8 +10955,8 @@
    "dose": 0.0,
    "sets": 0.0,
    "reps": 0.0,
-   "acute": 2.3327,
-   "chronic": 1.0061
+   "acute": 2.6948,
+   "chronic": 1.1437
   }
  ]
 }

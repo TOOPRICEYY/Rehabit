@@ -16,6 +16,18 @@ import Foundation
 /// days before, and the 28 days before the first reading with the median of
 /// the first 28 readings, so neither reads as a change in load.
 ///
+/// Recorded activities (a ride, a row, a run) count as one "set" of their own
+/// pattern on both sides (`activitySets`):
+///
+///     effective reps = minutes x rate(type) x intensity
+///
+/// The rate is effective reps a minute at a moderate effort, from the library.
+/// For an activity whose steps the daily count already holds, it is only what
+/// the activity adds beyond those steps. Intensity is the heart-rate reserve
+/// used, (average - resting) / (max - resting), over that of a moderate effort
+/// (0.5), kept between 0.5 and 2, and 1 when a heart rate is unknown. An
+/// activity type with no rate (a sauna, a walk, an unnamed "cardio") adds nothing.
+///
 /// This is a port of the service's `ledger.py` and is held to the same numbers
 /// by a shared fixture. The values are starting settings, not measured constants.
 public struct LedgerSettings: Sendable {
@@ -29,7 +41,54 @@ public struct LedgerSettings: Sendable {
     /// Steps on one leg that count as one effective rep at usual weight.
     public var stepsPerEffectiveRep = 100.0
     public var countSteps = true
+    public var countActivities = true
+    /// Heart-rate reserve of the moderate effort each activity rate is set at.
+    public var activityReferenceReserve = 0.5
+    public var activityIntensityMin = 0.5
+    public var activityIntensityMax = 2.0
+    /// The highest heart rate seen is trusted as the maximum only after this many
+    /// recordings, and only when it is this far above the resting rate.
+    public var activityMinHRRecordings = 5
+    public var activityMinHRRange = 40.0
+    public var activityMaxMinutes = 600.0
     public init() {}
+}
+
+/// The part of a recorded activity the ledger needs.
+public struct LedgerActivity: Sendable, Equatable {
+    public var day: Day
+    /// The recording's type, such as Garmin's "indoor_cycling".
+    public var type: String?
+    public var name: String?
+    public var minutes: Double?
+    public var averageHR: Double?
+
+    public init(day: Day, type: String?, name: String?, minutes: Double?, averageHR: Double?) {
+        self.day = day; self.type = type; self.name = name; self.minutes = minutes; self.averageHR = averageHR
+    }
+}
+
+/// Names a recorded activity's pattern with the service's rules
+/// (`library.match_activity`): the type first, then the name when the type
+/// matched nothing. A rule with no pattern means the activity adds nothing.
+public enum ActivityMatcher {
+    private static let rules: [(NSRegularExpression, String)] = Library.standard.activityMatchers.compactMap { rule in
+        guard rule.count == 2, let regex = try? NSRegularExpression(pattern: rule[0]) else { return nil }
+        return (regex, rule[1])
+    }
+
+    public static func pattern(type: String?, name: String?) -> String? {
+        for raw in [type, name] {
+            let text = (raw ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                .replacingOccurrences(of: "_", with: " ")
+            guard !text.isEmpty else { continue }
+            let whole = NSRange(text.startIndex..., in: text)
+            if let found = rules.first(where: { $0.0.firstMatch(in: text, range: whole) != nil }) {
+                return found.1.isEmpty ? nil : found.1
+            }
+        }
+        return nil
+    }
 }
 
 /// The part of a set the ledger needs.
@@ -148,6 +207,51 @@ public struct Ledger: Sendable {
         return out
     }
 
+    /// How hard an activity was against a moderate effort, from heart-rate reserve.
+    /// 1 when any of the three is unknown or they do not make sense together.
+    public func activityIntensity(averageHR: Double?, restingHR: Double?, maxHR: Double?) -> Double {
+        guard let avg = averageHR, let rest = restingHR, let top = maxHR,
+              [avg, rest, top].allSatisfy({ $0.isFinite && $0 > 0 }),
+              top - rest >= settings.activityMinHRRange, settings.activityReferenceReserve > 0 else { return 1 }
+        let reserve = (avg - rest) / (top - rest)
+        return min(settings.activityIntensityMax, max(settings.activityIntensityMin, reserve / settings.activityReferenceReserve))
+    }
+
+    /// The median resting heart rate of the 28 days up to and including `day`.
+    public static func usualRestingHR(_ resting: [Day: Double], on day: Day) -> Double? {
+        let values = resting.filter { (0...28).contains(day.days(since: $0.key)) }.map(\.value)
+        return values.isEmpty ? nil : median(values)
+    }
+
+    /// The highest heart rate recorded, once there are enough recordings to trust it.
+    public func observedMaxHR(_ values: [Double]) -> Double? {
+        let seen = values.filter { $0.isFinite && $0 > 0 }
+        return seen.count >= settings.activityMinHRRecordings ? seen.max() : nil
+    }
+
+    /// Effective reps of one activity on a tissue with share 1.
+    public func activityReps(pattern: String?, minutes: Double?, intensity: Double) -> Double {
+        guard let pattern, let rate = library.activityRates[pattern], rate > 0,
+              let minutes, minutes.isFinite, minutes > 0 else { return 0 }
+        return min(minutes, settings.activityMaxMinutes) * rate * intensity
+    }
+
+    /// Recorded activities as one "set" each on both sides, in effective reps.
+    /// `restingHR` is the day's resting heart rate (the lowest reading of a day);
+    /// `maxHR` is the trusted maximum (`observedMaxHR`), if any.
+    public func activitySets(_ activities: [LedgerActivity], restingHR: [Day: Double], maxHR: Double?) -> [LedgerSet] {
+        guard settings.countActivities else { return [] }
+        return activities.compactMap { a in
+            let pattern = ActivityMatcher.pattern(type: a.type, name: a.name)
+            let intensity = activityIntensity(averageHR: a.averageHR, restingHR: Ledger.usualRestingHR(restingHR, on: a.day),
+                                              maxHR: maxHR)
+            let reps = activityReps(pattern: pattern, minutes: a.minutes, intensity: intensity)
+            guard let pattern, reps > 0 else { return nil }
+            return LedgerSet(day: a.day, exercise: library.pattern(pattern)?.name ?? pattern, pattern: pattern, side: .both,
+                             kind: .reps, reps: reps, holdSeconds: nil, loadKg: nil)
+        }
+    }
+
     /// One record per mapped set, in day order. Sets with no pattern are left out.
     public func setDoses(_ sets: [LedgerSet]) -> [SetDose] {
         let ordered = sets.enumerated()
@@ -196,8 +300,9 @@ public struct Ledger: Sendable {
                 for side in record.set.side.bodySides {
                     var cell = daily[Key(tissue: link.tissue, side: side)]?[record.set.day] ?? Cell()
                     cell.dose += link.share * record.dose
-                    // Walking has no sets or reps to count.
-                    if link.role == "prime", record.set.pattern != Ledger.walkingPattern {
+                    // Walking and recorded activities have no sets or reps to count.
+                    if link.role == "prime", record.set.pattern != Ledger.walkingPattern,
+                       !library.isActivity(record.set.pattern) {
                         cell.sets += 1
                         cell.reps += record.effectiveReps
                     }

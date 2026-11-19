@@ -17,7 +17,7 @@ from ..profile import Profile
 
 SOURCE = "garmin_bridge"
 GYM_TYPES = {"strength_training"}
-SKIP_TYPES = {"yoga", "other", "meditation", "breathwork"}
+SKIP_TYPES = {"other", "meditation", "breathwork"}
 # A "pull up" logged with more than this is taken to be a pulldown stack weight,
 # not weight added to a body-weight pull-up.
 MAX_ADDED_PULLUP_KG = 20.5

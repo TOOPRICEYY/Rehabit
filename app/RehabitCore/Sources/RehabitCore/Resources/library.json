@@ -988,6 +988,391 @@
      "role": "assist"
     }
    ]
+  },
+  {
+   "id": "running",
+   "name": "Running (beyond its steps)",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "calf",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "achilles",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "quads",
+     "share": 0.8,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.8,
+     "role": "assist"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.35,
+     "role": "assist"
+    },
+    {
+     "tissue": "hip_flexors",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.2,
+     "role": "assist"
+    },
+    {
+     "tissue": "glute_med",
+     "share": 0.15,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "hiking",
+   "name": "Hiking and hill walking (beyond its steps)",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.7,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "calf",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "achilles",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.3,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "stair_climbing",
+   "name": "Stair climbing (beyond its steps)",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.8,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "calf",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "achilles",
+     "share": 0.4,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "court_sports",
+   "name": "Court and field sports (beyond their steps)",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "calf",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "achilles",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "quads",
+     "share": 0.7,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "adductors",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "glute_med",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.3,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "cycling",
+   "name": "Cycling",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "calf",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "hip_flexors",
+     "share": 0.2,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "elliptical",
+   "name": "Elliptical",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.3,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "rowing",
+   "name": "Rowing machine",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.8,
+     "role": "assist"
+    },
+    {
+     "tissue": "erectors",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "lats",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "mid_back",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "biceps",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "forearm",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "rear_delt",
+     "share": 0.3,
+     "role": "assist"
+    }
+   ]
+  },
+  {
+   "id": "swimming",
+   "name": "Swimming",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "lats",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "rotator_cuff",
+     "share": 0.8,
+     "role": "assist"
+    },
+    {
+     "tissue": "pec_major",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "triceps",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "side_delt",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "hip_flexors",
+     "share": 0.2,
+     "role": "stabiliser"
+    }
+   ]
+  },
+  {
+   "id": "yoga",
+   "name": "Yoga",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "abs",
+     "share": 0.5,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "triceps",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "quads",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "glute_med",
+     "share": 0.4,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.3,
+     "role": "end_range"
+    }
+   ]
+  },
+  {
+   "id": "pilates",
+   "name": "Pilates",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "abs",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "obliques",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "hip_flexors",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "glute_med",
+     "share": 0.3,
+     "role": "stabiliser"
+    }
+   ]
   }
  ],
  "catalogue": [
@@ -2077,6 +2462,98 @@
   [
    "sit[- ]?up|crunch|plank|ab wheel|twist|scissor|rotation",
    "core"
+  ]
+ ],
+ "activities": [
+  {
+   "pattern": "running",
+   "perMinute": 2.4
+  },
+  {
+   "pattern": "hiking",
+   "perMinute": 0.4
+  },
+  {
+   "pattern": "stair_climbing",
+   "perMinute": 0.5
+  },
+  {
+   "pattern": "court_sports",
+   "perMinute": 1.2
+  },
+  {
+   "pattern": "cycling",
+   "perMinute": 0.25
+  },
+  {
+   "pattern": "elliptical",
+   "perMinute": 0.2
+  },
+  {
+   "pattern": "rowing",
+   "perMinute": 0.65
+  },
+  {
+   "pattern": "swimming",
+   "perMinute": 0.3
+  },
+  {
+   "pattern": "yoga",
+   "perMinute": 0.1
+  },
+  {
+   "pattern": "pilates",
+   "perMinute": 0.15
+  }
+ ],
+ "activityMatchers": [
+  [
+   "sauna|steam|cold plunge|ice bath|meditat|breath|stretch|mobility",
+   ""
+  ],
+  [
+   "\\bwalk",
+   ""
+  ],
+  [
+   "stair|step ?mill|floor climb|stepper",
+   "stair_climbing"
+  ],
+  [
+   "\\b(run|running|jog|jogging|treadmill)\\b|ultra run|virtual run|obstacle",
+   "running"
+  ],
+  [
+   "\\bhik(e|ing)\\b|mountaineer|backcountry|snowshoe",
+   "hiking"
+  ],
+  [
+   "tennis|pickleball|padel|squash|badminton|racquet|basketball|soccer|football|volleyball|rugby|hockey|lacrosse|ultimate|handball",
+   "court_sports"
+  ],
+  [
+   "cycl|bik(e|ing)|\\bride\\b|spin",
+   "cycling"
+  ],
+  [
+   "elliptical",
+   "elliptical"
+  ],
+  [
+   "\\brow(ing)?\\b|\\berg\\b",
+   "rowing"
+  ],
+  [
+   "swim",
+   "swimming"
+  ],
+  [
+   "pilates",
+   "pilates"
+  ],
+  [
+   "yoga",
+   "yoga"
   ]
  ]
 }

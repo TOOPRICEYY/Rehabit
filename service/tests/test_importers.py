@@ -55,7 +55,7 @@ def test_garmin_totals_pullups_and_skips(con, profile, garmin_file):
             {"exercise": "lat pulldown", "category": "pull up", "reps": 9, "sets": 1,
              "avg_weight_per_rep_kg": 40, "max_weight_kg": 40},
         ]),
-        garmin_activity(2, "2025-03-04 08:00", type_key="yoga"),
+        garmin_activity(2, "2025-03-04 08:00", type_key="breathwork"),
         garmin_activity(3, "2025-03-04 18:00", type_key="running", minutes=20),
         garmin_activity(1, "2025-03-03 16:00", exercises=[]),   # duplicate id, ignored
     ])

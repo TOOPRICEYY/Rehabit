@@ -47,6 +47,29 @@ def _vector_steps() -> dict[str, float]:
     return {(start + timedelta(days=o)).isoformat(): v for o, v in plan.items()}
 
 
+def _vector_activities() -> list[dict]:
+    """Recorded activities: known and unknown types, with and without heart rate."""
+    start = date(2025, 1, 6)
+    plan = [  # (day offset, type key, name, minutes, average HR, max HR)
+        (1, "cycling", "Morning Ride", 45.0, 118.0, 150.0),
+        (4, "indoor_rowing", "Indoor Rowing", 12.0, 140.0, 172.0),
+        (6, "running", "Easy Run", 25.5, 150.0, 181.0),
+        (8, "indoor_cardio", "Sauna", 20.0, 120.0, 150.0),
+        (10, "yoga", "Yoga", 30.0, 80.0, 105.0),
+        (11, "walking", "Walk", 50.0, 95.0, 120.0),
+        (12, "indoor_cardio", "Stairmaster", 15.0, None, None),
+        (41, "lap_swimming", "Pool", 30.0, 125.0, 160.0),
+    ]
+    return [{"day": (start + timedelta(days=o)).isoformat(), "type": t, "name": n, "minutes": m,
+             "averageHR": a, "maxHR": x} for o, t, n, m, a, x in plan]
+
+
+def _vector_resting() -> dict[str, float]:
+    start = date(2025, 1, 6)
+    plan = {0: 52, 1: 50, 3: 55, 5: 49, 6: 51, 9: 53, 30: 48}
+    return {(start + timedelta(days=o)).isoformat(): float(v) for o, v in plan.items()}
+
+
 def ledger_vectors() -> dict:
     con = db.connect(":memory:")
     db.init(con)
@@ -68,13 +91,25 @@ def ledger_vectors() -> dict:
     for day, value in steps.items():
         con.execute("INSERT INTO daily_metric(day, metric, value, source) VALUES (?,?,?,?)",
                     (day, "steps", value, "vec"))
+    activities = _vector_activities()
+    for i, a in enumerate(activities):
+        con.execute(
+            "INSERT INTO session(id, start, day, kind, title, activity_type, minutes, avg_hr, max_hr,"
+            " source, source_id, imported_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (f"act:{i}", a["day"], a["day"], "cardio", a["name"], a["type"], a["minutes"],
+             a["averageHR"], a["maxHR"], "vec", f"act:{i}", "x"))
+    resting = _vector_resting()
+    for day, value in resting.items():
+        con.execute("INSERT INTO daily_metric(day, metric, value, source) VALUES (?,?,?,?)",
+                    (day, "resting_hr", value, "vec"))
     ledger.compute(con)
     days = [dict(r) for r in con.execute(
         "SELECT day, tissue_id AS tissue, side, dose, sets, reps, acute, chronic"
         " FROM tissue_load_day WHERE dose > 0 OR day = (SELECT MAX(day) FROM tissue_load_day)"
         " ORDER BY day, tissue_id, side")]
     return {"note": "Synthetic. Written by `rehabit export-shared`; do not edit by hand.",
-            "sets": sets, "steps": steps, "tissueDays": days}
+            "sets": sets, "steps": steps, "activities": activities, "restingHR": resting,
+            "tissueDays": days}
 
 
 def files() -> dict[Path, str]:

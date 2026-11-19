@@ -135,7 +135,109 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
     "walking": ("Walking (daily steps)", 0.0, {
         "calf": (1.0, P), "achilles": (1.0, P), "glute_med": (0.4, S), "quads": (0.3, A),
         "hip_flexors": (0.3, A), "hamstrings": (0.2, A), "glute_max": (0.2, A)}),
+    # Whole activities recorded by a watch (see ACTIVITIES for how much a minute
+    # counts). Like walking they are never logged as sets. For an activity whose
+    # steps the daily step count already holds (running, hiking, stairs, sports),
+    # the shares describe only what it adds on top of those steps counted as walking.
+    "running": ("Running (beyond its steps)", 0.0, {
+        "calf": (1.0, P), "achilles": (1.0, P), "quads": (0.8, A), "patellar_tendon": (0.8, A),
+        "hamstrings": (0.35, A), "hip_flexors": (0.3, A), "glute_max": (0.2, A), "glute_med": (0.15, S)}),
+    "hiking": ("Hiking and hill walking (beyond its steps)", 0.0, {
+        "quads": (1.0, P), "glute_max": (0.7, A), "patellar_tendon": (0.5, A), "calf": (0.5, A),
+        "achilles": (0.5, A), "hamstrings": (0.3, A)}),
+    "stair_climbing": ("Stair climbing (beyond its steps)", 0.0, {
+        "quads": (1.0, P), "glute_max": (0.8, A), "patellar_tendon": (0.5, A), "calf": (0.4, A),
+        "achilles": (0.4, A)}),
+    "court_sports": ("Court and field sports (beyond their steps)", 0.0, {
+        "calf": (1.0, P), "achilles": (1.0, P), "quads": (0.7, A), "patellar_tendon": (0.6, A),
+        "adductors": (0.4, A), "glute_med": (0.4, A), "hamstrings": (0.3, A)}),
+    "cycling": ("Cycling", 0.0, {
+        "quads": (1.0, P), "glute_max": (0.5, A), "patellar_tendon": (0.5, A), "hamstrings": (0.4, A),
+        "calf": (0.3, A), "hip_flexors": (0.2, S)}),
+    "elliptical": ("Elliptical", 0.0, {
+        "quads": (1.0, P), "glute_max": (0.6, A), "hamstrings": (0.3, A), "patellar_tendon": (0.3, A)}),
+    "rowing": ("Rowing machine", 0.0, {
+        "quads": (1.0, P), "glute_max": (0.8, A), "erectors": (0.6, A), "lats": (0.6, A),
+        "mid_back": (0.6, A), "hamstrings": (0.5, A), "patellar_tendon": (0.4, A), "biceps": (0.3, A),
+        "forearm": (0.3, A), "rear_delt": (0.3, A)}),
+    "swimming": ("Swimming", 0.0, {
+        "lats": (1.0, P), "rotator_cuff": (0.8, A), "pec_major": (0.5, A), "front_delt": (0.4, A),
+        "triceps": (0.4, A), "side_delt": (0.3, A), "hip_flexors": (0.2, S)}),
+    "yoga": ("Yoga", 0.0, {
+        "abs": (0.5, S), "front_delt": (0.5, A), "triceps": (0.4, A), "quads": (0.4, A),
+        "glute_med": (0.4, S), "hamstrings": (0.3, E)}),
+    "pilates": ("Pilates", 0.0, {
+        "abs": (1.0, P), "obliques": (0.5, A), "hip_flexors": (0.5, A), "glute_med": (0.3, S)}),
 }
+
+# How much a minute of each activity counts, as effective reps per minute on a
+# tissue with share 1.0, at a moderate effort (half the heart-rate reserve, see
+# ledger.activity_intensity). Starting estimates, not measurements, worked out
+# against the walking unit (100 steps on one leg make one effective rep):
+#
+# - Running: about 160 steps a minute, 80 a leg, so 0.8 walking reps a minute.
+#   The calf and Achilles take about twice the force of a walking step, and the
+#   ledger squares a load ratio, so a running step counts as 4 walking steps.
+#   The step count already holds 1 of them: 0.8 x 3 = 2.4 a minute on top.
+#   The knee takes about three times its walking load (9x squared, against a
+#   walking share of 0.3), hence quads and patellar tendon at 0.8.
+# - Hiking: about 45 steps a leg a minute; climbing doubles the knee's load,
+#   0.45 x 0.3 x (4 - 1) = 0.4. Stairs are steeper and steadier: 0.5.
+# - Court and field sports: steps plus cutting, jumping and sprints; about half
+#   of running's surplus over a session that includes standing about: 1.2.
+# - Cycling: about 80 pedal strokes a leg a minute, each loading the knee about
+#   like a walking step does (share 0.3): 0.8 x 0.3 = 0.25. No steps are counted.
+# - Elliptical: like cycling with some body weight on the leg, but a wrist
+#   watch counts part of it as steps: 0.2, and no calf share.
+# - Rowing machine: about 24 strokes a minute, each a leg drive of about three
+#   times the knee's walking load (0.3 x 9 = 2.7 walking units): 0.65.
+# - Swimming: about 30 pulls an arm a minute, each counted like a walking step
+#   for the lats and cuff: 0.3.
+# - Yoga 0.1 and Pilates 0.15: body-weight holds at low effort; shares spread.
+#
+# An activity type not listed here (an "indoor cardio" or "other" recording, a
+# sauna, a walk whose steps are already counted) adds nothing: a wrong tissue is
+# worse than none.
+ACTIVITIES: dict[str, float] = {
+    "running": 2.4, "hiking": 0.4, "stair_climbing": 0.5, "court_sports": 1.2,
+    "cycling": 0.25, "elliptical": 0.2, "rowing": 0.65, "swimming": 0.3,
+    "yoga": 0.1, "pilates": 0.15,
+}
+
+# Activity type keys and names, matched in order: the type first, then the name
+# when the type matched nothing (a generic "indoor cardio" recording named
+# "Rowing"). An empty id means "known, and adds nothing". Underscores in type
+# keys are read as spaces.
+_ACTIVITY_PATTERNS: list[tuple[str, str]] = [
+    (r"sauna|steam|cold plunge|ice bath|meditat|breath|stretch|mobility", ""),
+    (r"\bwalk", ""),   # its steps are already counted
+    (r"stair|step ?mill|floor climb|stepper", "stair_climbing"),
+    (r"\b(run|running|jog|jogging|treadmill)\b|ultra run|virtual run|obstacle", "running"),
+    (r"\bhik(e|ing)\b|mountaineer|backcountry|snowshoe", "hiking"),
+    (r"tennis|pickleball|padel|squash|badminton|racquet|basketball|soccer|football|volleyball"
+     r"|rugby|hockey|lacrosse|ultimate|handball", "court_sports"),
+    (r"cycl|bik(e|ing)|\bride\b|spin", "cycling"),
+    (r"elliptical", "elliptical"),
+    (r"\brow(ing)?\b|\berg\b", "rowing"),
+    (r"swim", "swimming"),
+    (r"pilates", "pilates"),
+    (r"yoga", "yoga"),
+]
+
+_ACTIVITY_COMPILED = [(re.compile(p), a) for p, a in _ACTIVITY_PATTERNS]
+
+
+def match_activity(type_key: str | None, name: str | None = None) -> str | None:
+    """The activity pattern a recorded activity loads, or None when it adds nothing
+    or nothing is known about it."""
+    for text in (type_key, name):
+        text = (text or "").strip().lower().replace("_", " ")
+        if not text:
+            continue
+        for pattern, activity in _ACTIVITY_COMPILED:
+            if pattern.search(text):
+                return activity or None
+    return None
 
 # Named exercises offered by the app's picker: (name, movement pattern, how the
 # load is entered, whether it is usually done one side at a time). The pattern
@@ -356,6 +458,10 @@ def export() -> dict:
                       for n, p, c, u in CATALOGUE],
         # The app maps imported exercise names with the same rules, in this order.
         "matchers": [[pattern, exercise_id] for pattern, exercise_id in _PATTERNS],
+        # Recorded activities: effective reps per minute at moderate effort for each
+        # activity pattern, and the rules that name an activity's pattern.
+        "activities": [{"pattern": a, "perMinute": rate} for a, rate in ACTIVITIES.items()],
+        "activityMatchers": [[pattern, activity] for pattern, activity in _ACTIVITY_PATTERNS],
     }
 
 

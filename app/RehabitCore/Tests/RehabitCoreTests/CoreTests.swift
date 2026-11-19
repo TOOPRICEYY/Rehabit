@@ -36,7 +36,11 @@ final class LedgerParityTests: XCTestCase {
             let day: Day, tissue: String, side: Side
             let dose: Double, sets: Double, reps: Double, acute: Double, chronic: Double
         }
-        let sets: [VSet], steps: [String: Double], tissueDays: [VDay]
+        struct VActivity: Decodable {
+            let day: Day, type: String?, name: String?, minutes: Double?, averageHR: Double?, maxHR: Double?
+        }
+        let sets: [VSet], steps: [String: Double], activities: [VActivity], restingHR: [String: Double]
+        let tissueDays: [VDay]
     }
 
     func testDosesMatchTheService() throws {
@@ -47,7 +51,14 @@ final class LedgerParityTests: XCTestCase {
         }
         let steps = Dictionary(uniqueKeysWithValues: vectors.steps.map { (Day($0.key)!, $0.value) })
         let ledger = Ledger()
-        let mine = ledger.tissueDays(sets + ledger.walkingSets(steps: steps))
+        let resting = Dictionary(uniqueKeysWithValues: vectors.restingHR.map { (Day($0.key)!, $0.value) })
+        let activities = vectors.activities.map {
+            LedgerActivity(day: $0.day, type: $0.type, name: $0.name, minutes: $0.minutes, averageHR: $0.averageHR)
+        }
+        let recorded = ledger.activitySets(activities, restingHR: resting,
+                                           maxHR: ledger.observedMaxHR(vectors.activities.compactMap(\.maxHR)))
+        XCTAssertEqual(recorded.map(\.pattern), ["cycling", "rowing", "running", "yoga", "stair_climbing", "swimming"])
+        let mine = ledger.tissueDays(sets + ledger.walkingSets(steps: steps) + recorded)
         var byKey: [String: TissueDay] = [:]
         for d in mine { byKey["\(d.day)|\(d.tissue)|\(d.side.rawValue)"] = d }
         XCTAssertGreaterThan(vectors.tissueDays.count, 50)

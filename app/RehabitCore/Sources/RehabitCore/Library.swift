@@ -57,17 +57,34 @@ public struct Library: Codable, Sendable {
     /// Rules that map another app's exercise name to a pattern: a regular
     /// expression and a pattern id each, first match wins.
     public let matchers: [[String]]
+    /// Recorded activities (a ride, a row, a run): effective reps a minute at a
+    /// moderate effort for each activity pattern (`library.ACTIVITIES` in the service).
+    public let activityRates: [String: Double]
+    /// Rules that name a recorded activity's pattern from its type, then its name:
+    /// a regular expression and a pattern id each, first match wins, an empty id
+    /// meaning "adds nothing".
+    public let activityMatchers: [[String]]
     private let patternIndex: [String: Pattern]
     private let tissueIndex: [String: Tissue]
 
-    /// The movement patterns a logged exercise can have: all but walking,
-    /// which is worked out from daily steps and never logged as a set.
-    public var exercisePatterns: [Pattern] { patterns.filter { $0.id != Ledger.walkingPattern } }
+    /// The movement patterns a logged exercise can have: all but walking, which
+    /// is worked out from daily steps, and the recorded activities, which come
+    /// from a watch. Neither is ever logged as a set.
+    public var exercisePatterns: [Pattern] {
+        patterns.filter { $0.id != Ledger.walkingPattern && !isActivity($0.id) }
+    }
 
-    private enum CodingKeys: String, CodingKey { case tissues, patterns, catalogue, matchers }
+    /// True for the pattern of a recorded activity such as cycling or rowing.
+    public func isActivity(_ pattern: String?) -> Bool { pattern.map { activityRates[$0] != nil } ?? false }
 
-    public init(tissues: [Tissue], patterns: [Pattern], catalogue: [CatalogueExercise], matchers: [[String]] = []) {
+    private struct ActivityRate: Codable { let pattern: String; let perMinute: Double }
+
+    private enum CodingKeys: String, CodingKey { case tissues, patterns, catalogue, matchers, activities, activityMatchers }
+
+    public init(tissues: [Tissue], patterns: [Pattern], catalogue: [CatalogueExercise], matchers: [[String]] = [],
+                activityRates: [String: Double] = [:], activityMatchers: [[String]] = []) {
         self.tissues = tissues; self.patterns = patterns; self.catalogue = catalogue; self.matchers = matchers
+        self.activityRates = activityRates; self.activityMatchers = activityMatchers
         patternIndex = Dictionary(patterns.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         tissueIndex = Dictionary(tissues.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
     }
@@ -77,7 +94,22 @@ public struct Library: Codable, Sendable {
         self.init(tissues: try c.decode([Tissue].self, forKey: .tissues),
                   patterns: try c.decode([Pattern].self, forKey: .patterns),
                   catalogue: try c.decode([CatalogueExercise].self, forKey: .catalogue),
-                  matchers: (try? c.decodeIfPresent([[String]].self, forKey: .matchers)) ?? [])
+                  matchers: (try? c.decodeIfPresent([[String]].self, forKey: .matchers)) ?? [],
+                  activityRates: Dictionary(((try? c.decodeIfPresent([ActivityRate].self, forKey: .activities)) ?? [])
+                      .filter { $0.perMinute.isFinite && $0.perMinute > 0 }.map { ($0.pattern, $0.perMinute) },
+                      uniquingKeysWith: { first, _ in first }),
+                  activityMatchers: (try? c.decodeIfPresent([[String]].self, forKey: .activityMatchers)) ?? [])
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(tissues, forKey: .tissues)
+        try c.encode(patterns, forKey: .patterns)
+        try c.encode(catalogue, forKey: .catalogue)
+        try c.encode(matchers, forKey: .matchers)
+        try c.encode(activityRates.sorted { $0.key < $1.key }.map { ActivityRate(pattern: $0.key, perMinute: $0.value) },
+                     forKey: .activities)
+        try c.encode(activityMatchers, forKey: .activityMatchers)
     }
 
     public static let standard: Library = {

@@ -17,6 +17,21 @@ watch was not worn are filled with the median of the 28 days before, and the
 the start of the step record and a day off the wrist do not read as a change
 in load. The same rules run on the phone (`Ledger.walkingSets`).
 
+Recorded activities (a ride, a row, a run) count as one "set" of their own
+pattern on both sides:
+
+    effective reps = minutes x rate(type) x intensity
+
+`rate` is effective reps per minute at a moderate effort (`library.ACTIVITIES`,
+where each is worked out). For an activity whose steps are already in the daily
+step count, the rate holds only what it adds beyond those steps. `intensity` is
+the heart-rate reserve used, (average - resting) / (max - resting), divided by
+the reserve of a moderate effort (0.5) and kept between 0.5 and 2. It is 1 when
+any of the three heart rates is unknown. It is linear, not squared like a load
+ratio: heart rate measures the whole body's work, part of a harder effort goes
+into a faster cadence rather than a harder stroke, and heat or a poor night
+raise it with no extra load. An activity type with no rate adds nothing.
+
 Every number here is a starting value chosen for the design, not a measured
 constant. They live in Settings so the replay can test alternatives.
 """
@@ -28,6 +43,8 @@ import sqlite3
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, timedelta
+
+from . import library
 
 
 @dataclass(frozen=True)
@@ -41,6 +58,16 @@ class Settings:
     max_ratio: float = 3.0
     steps_per_effective_rep: float = 100.0   # per leg
     count_steps: bool = True
+    count_activities: bool = True
+    # Heart-rate reserve of the moderate effort each activity rate is set at.
+    activity_reference_reserve: float = 0.5
+    activity_intensity_min: float = 0.5
+    activity_intensity_max: float = 2.0
+    # The highest heart rate seen is only trusted as the maximum after this many
+    # recordings, and only when it is this far above the resting rate.
+    activity_min_hr_recordings: int = 5
+    activity_min_hr_range: float = 40.0
+    activity_max_minutes: float = 600.0
 
 
 WALKING = "walking"
@@ -81,6 +108,61 @@ def daily_steps(con: sqlite3.Connection) -> dict[date, float]:
     count the same walking, so they are never added."""
     return {_d(r[0]): r[1] for r in con.execute(
         "SELECT day, MAX(value) FROM daily_metric WHERE metric = 'steps' AND value > 0 GROUP BY day")}
+
+
+def activity_intensity(avg_hr: float | None, resting_hr: float | None, max_hr: float | None,
+                       settings: Settings = Settings()) -> float:
+    """How hard an activity was against a moderate effort, from heart-rate reserve.
+    1 when any of the three is unknown or they do not make sense together."""
+    if not all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0 for v in (avg_hr, resting_hr, max_hr)):
+        return 1.0
+    if max_hr - resting_hr < settings.activity_min_hr_range or settings.activity_reference_reserve <= 0:
+        return 1.0
+    reserve = (avg_hr - resting_hr) / (max_hr - resting_hr)
+    return min(settings.activity_intensity_max,
+               max(settings.activity_intensity_min, reserve / settings.activity_reference_reserve))
+
+
+def activity_reps(pattern: str | None, minutes: float | None, intensity: float,
+                  settings: Settings = Settings()) -> float:
+    """Effective reps of one recorded activity on a tissue with share 1."""
+    rate = library.ACTIVITIES.get(pattern or "")
+    if not rate or not isinstance(minutes, (int, float)) or not math.isfinite(minutes) or minutes <= 0:
+        return 0.0
+    return min(minutes, settings.activity_max_minutes) * rate * intensity
+
+
+def usual_resting_hr(resting: dict[date, float], day: date) -> float | None:
+    """The median resting heart rate of the 28 days up to and including `day`."""
+    values = [v for d, v in resting.items() if 0 <= (day - d).days <= 28]
+    return _median(values) if values else None
+
+
+def observed_max_hr(values: list[float], settings: Settings = Settings()) -> float | None:
+    """The highest heart rate recorded, once there are enough recordings to trust it."""
+    seen = [v for v in values if isinstance(v, (int, float)) and math.isfinite(v) and v > 0]
+    return max(seen) if len(seen) >= settings.activity_min_hr_recordings else None
+
+
+def activity_doses(con: sqlite3.Connection, settings: Settings = Settings()) -> list[dict]:
+    """One record per recorded activity whose type has a rate."""
+    resting = {_d(r[0]): r[1] for r in con.execute(
+        "SELECT day, MIN(value) FROM daily_metric WHERE metric = 'resting_hr' AND value > 0 GROUP BY day")}
+    top = observed_max_hr([r[0] for r in con.execute(
+        "SELECT max_hr FROM session WHERE max_hr IS NOT NULL")], settings)
+    out = []
+    for r in con.execute(
+            "SELECT day, activity_type, title, minutes, avg_hr FROM session"
+            " WHERE activity_type IS NOT NULL ORDER BY day, start, id"):
+        pattern = library.match_activity(r["activity_type"], r["title"])
+        day = _d(r["day"])
+        intensity = activity_intensity(r["avg_hr"], usual_resting_hr(resting, day), top, settings)
+        reps = activity_reps(pattern, r["minutes"], intensity, settings)
+        if reps > 0:
+            out.append({"row": {"exercise_id": pattern, "side": "both", "set_count": 1},
+                        "day": day, "reference_kg": None, "ratio": 1.0, "intensity": intensity,
+                        "effective_reps": reps, "dose": reps})
+    return out
 
 
 SIDES = {"left": ("left",), "right": ("right",), "both": ("left", "right")}
@@ -151,6 +233,8 @@ def compute(con: sqlite3.Connection, settings: Settings = Settings()) -> dict:
             doses.append({"row": {"exercise_id": WALKING, "side": "both", "set_count": 1},
                           "day": day, "reference_kg": None, "ratio": 1.0,
                           "effective_reps": reps, "dose": reps})
+    if settings.count_activities:
+        doses.extend(activity_doses(con, settings))
     for rec in doses:
         row = rec["row"]
         for tissue_id, share, role in links.get(row["exercise_id"], []):
@@ -159,7 +243,8 @@ def compute(con: sqlite3.Connection, settings: Settings = Settings()) -> dict:
                 cell[0] += share * rec["dose"]
                 if row["exercise_id"] == WALKING:
                     cell[3] += share * rec["dose"]
-                elif role == "prime":   # walking has no sets or reps to count
+                elif role == "prime" and row["exercise_id"] not in library.ACTIVITIES:
+                    # walking and recorded activities have no sets or reps to count
                     cell[1] += row["set_count"] or 1
                     cell[2] += rec["effective_reps"]
 
