@@ -1373,6 +1373,63 @@
      "role": "stabiliser"
     }
    ]
+  },
+  {
+   "id": "hiit",
+   "name": "HIIT and circuits",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "quads",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.6,
+     "role": "assist"
+    },
+    {
+     "tissue": "calf",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "achilles",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "pec_major",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "front_delt",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "abs",
+     "share": 0.4,
+     "role": "stabiliser"
+    },
+    {
+     "tissue": "hip_flexors",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "triceps",
+     "share": 0.3,
+     "role": "assist"
+    }
+   ]
   }
  ],
  "catalogue": [
@@ -2504,11 +2561,19 @@
   {
    "pattern": "pilates",
    "perMinute": 0.15
+  },
+  {
+   "pattern": "hiit",
+   "perMinute": 0.5
   }
  ],
  "activityMatchers": [
   [
    "sauna|steam|cold plunge|ice bath|meditat|breath|stretch|mobility",
+   ""
+  ],
+  [
+   "motor|hand cycl|wheelchair|\\bski|snowboard|table tennis|golf",
    ""
   ],
   [
@@ -2524,15 +2589,15 @@
    "running"
   ],
   [
-   "\\bhik(e|ing)\\b|mountaineer|backcountry|snowshoe",
+   "\\bhik(e|ing)\\b|mountaineer|snowshoe|rucking",
    "hiking"
   ],
   [
-   "tennis|pickleball|padel|squash|badminton|racquet|basketball|soccer|football|volleyball|rugby|hockey|lacrosse|ultimate|handball",
+   "tennis|pickleball|padel|squash|badminton|racquet|basketball|soccer|football|volleyball|rugby|field hockey|lacrosse|ultimate|handball",
    "court_sports"
   ],
   [
-   "cycl|bik(e|ing)|\\bride\\b|spin",
+   "cycl|bik(e|ing)|\\bride\\b|spin|stationary|peloton|assault|airdyne",
    "cycling"
   ],
   [
@@ -2554,6 +2619,10 @@
   [
    "yoga",
    "yoga"
+  ],
+  [
+   "\\bhiit\\b|interval training|circuit|tabata|boot ?camp|crossfit|\\bwod\\b",
+   "hiit"
   ]
  ]
 }

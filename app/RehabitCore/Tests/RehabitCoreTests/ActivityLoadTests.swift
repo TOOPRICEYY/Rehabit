@@ -14,6 +14,10 @@ final class ActivityLoadTests: XCTestCase {
             ("pickleball", nil, "court_sports"), ("walking", "Walk", nil), ("treadmill_walking", nil, nil),
             ("strength_training", "Strength", nil), ("indoor_cardio", "Sauna", nil),
             ("indoor_cardio", "Cardio", nil), ("indoor_cardio", "Rowing", "rowing"), (nil, nil, nil),
+            ("hand_cycling", nil, nil), ("motorcycling", nil, nil), ("wheelchair_push_run", nil, nil),
+            ("backcountry_skiing", nil, nil), ("ice_hockey", nil, nil), ("e_bike_fitness", nil, "cycling"),
+            ("floor_climbing", nil, "stair_climbing"), ("rucking", nil, "hiking"), ("hiit", nil, "hiit"),
+            ("indoor_cardio", "Stationary bike", "cycling"), ("indoor_cardio", "Peloton", "cycling"),
         ]
         for (type, name, want) in cases {
             XCTAssertEqual(ActivityMatcher.pattern(type: type, name: name), want, "\(type ?? "-") \(name ?? "-")")
@@ -90,5 +94,16 @@ final class ActivityLoadTests: XCTestCase {
         XCTAssertEqual(ledger.activitySets([long], restingHR: [:], maxHR: nil).first?.reps ?? 0, 150, accuracy: 1e-9)
         ledger.settings.countActivities = false
         XCTAssertTrue(ledger.activitySets([long], restingHR: [:], maxHR: nil).isEmpty)
+    }
+
+    func testThePersonsAnswerWinsOverTheType() {
+        let ledger = Ledger()
+        let bike = LedgerActivity(day: day, type: "indoor_cardio", name: "Cardio", minutes: 20, averageHR: nil, countsAs: "cycling")
+        let none = LedgerActivity(day: day, type: "cycling", name: "Ride", minutes: 30, averageHR: nil, countsAs: "none")
+        XCTAssertEqual(ledger.activityPattern(bike), "cycling")
+        XCTAssertNil(ledger.activityPattern(none))
+        let sets = ledger.activitySets([bike, none], restingHR: [:], maxHR: nil)
+        XCTAssertEqual(sets.count, 1)
+        XCTAssertEqual(sets.first?.reps ?? 0, 5, accuracy: 1e-9)
     }
 }

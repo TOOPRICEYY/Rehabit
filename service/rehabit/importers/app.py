@@ -116,12 +116,27 @@ def import_export(con: sqlite3.Connection, path: str | Path, profile: Profile,
             counts["in_progress"] += 1
             continue
         kept.add(w["id"])
+        # A recorded activity (a ride, a row, a run) from a watch: the ledger
+        # counts it by type, minutes and heart rate (ledger.activity_doses).
+        activity = w.get("activity") if isinstance(w.get("activity"), dict) else {}
+        activity_type = activity.get("type") if isinstance(activity.get("type"), str) else None
+        # The person's own answer to what a recording was: an activity pattern, or
+        # "none" for a recording that is no load. It wins over the type and name.
+        counts_as = activity.get("countsAs") if isinstance(activity.get("countsAs"), str) else None
+        counts_as = counts_as if counts_as in library.ACTIVITIES else ("none" if counts_as else None)
+        cardio = (bool(activity_type) and activity_type != "strength_training") or counts_as in library.ACTIVITIES
+        distance = _number(activity.get("distanceMeters"), 0, 1_000_000)
         con.execute(
             "INSERT INTO session(id, start, end, day, kind, title, minutes, notes, source,"
-            " source_id, imported_at, effort) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-            ("app:" + w["id"], _local(w["start"]), _local(w.get("end")), w["startDay"], "gym",
+            " source_id, imported_at, effort, activity_type, distance_km, avg_hr, max_hr, counts_as)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("app:" + w["id"], _local(w["start"]), _local(w.get("end")), w["startDay"],
+             "cardio" if cardio else "gym",
              w.get("title"), _minutes(w["start"], w.get("end")), w.get("notes") or None,
-             SOURCE, w["id"], db.now(), _number(w.get("effort"), 0, 10)))
+             SOURCE, w["id"], db.now(), _number(w.get("effort"), 0, 10),
+             activity_type if cardio else None, distance / 1000 if distance is not None else None,
+             _number(activity.get("averageHeartRate"), 20, 260),
+             _number(activity.get("maxHeartRate"), 20, 260), counts_as))
         counts["sessions"] += 1
 
     for s in raw.get("sets", []):

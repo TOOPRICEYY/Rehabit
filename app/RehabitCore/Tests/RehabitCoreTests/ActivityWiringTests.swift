@@ -6,7 +6,7 @@ final class ActivityWiringTests: XCTestCase {
     let zone = TimeZone(identifier: "America/Detroit")!
 
     @MainActor
-    func testARideAddsQuadLoadAndASaunaNone() throws {
+    func testARideAddsQuadLoadAndASaunaNone() async throws {
         let now = Date(timeIntervalSince1970: 1_795_000_000)
         let m = AppModel(store: try Store(path: ":memory:"), zone: zone, now: { now })
         let ride = now.addingTimeInterval(-2 * 86_400), sauna = now.addingTimeInterval(-86_400)

@@ -62,9 +62,13 @@ public struct LedgerActivity: Sendable, Equatable {
     public var name: String?
     public var minutes: Double?
     public var averageHR: Double?
+    /// What the person said the recording was: an activity pattern, or any other
+    /// text ("none") for no load. It wins over the type and the name.
+    public var countsAs: String?
 
-    public init(day: Day, type: String?, name: String?, minutes: Double?, averageHR: Double?) {
+    public init(day: Day, type: String?, name: String?, minutes: Double?, averageHR: Double?, countsAs: String? = nil) {
         self.day = day; self.type = type; self.name = name; self.minutes = minutes; self.averageHR = averageHR
+        self.countsAs = countsAs
     }
 }
 
@@ -236,13 +240,20 @@ public struct Ledger: Sendable {
         return min(minutes, settings.activityMaxMinutes) * rate * intensity
     }
 
+    /// The pattern a recorded activity counts as: the person's answer when there
+    /// is one (a word that is no activity pattern means none), else the type and name.
+    public func activityPattern(_ activity: LedgerActivity) -> String? {
+        if let chosen = activity.countsAs, !chosen.isEmpty { return library.isActivity(chosen) ? chosen : nil }
+        return ActivityMatcher.pattern(type: activity.type, name: activity.name)
+    }
+
     /// Recorded activities as one "set" each on both sides, in effective reps.
     /// `restingHR` is the day's resting heart rate (the lowest reading of a day);
     /// `maxHR` is the trusted maximum (`observedMaxHR`), if any.
     public func activitySets(_ activities: [LedgerActivity], restingHR: [Day: Double], maxHR: Double?) -> [LedgerSet] {
         guard settings.countActivities else { return [] }
         return activities.compactMap { a in
-            let pattern = ActivityMatcher.pattern(type: a.type, name: a.name)
+            let pattern = activityPattern(a)
             let intensity = activityIntensity(averageHR: a.averageHR, restingHR: Ledger.usualRestingHR(restingHR, on: a.day),
                                               maxHR: maxHR)
             let reps = activityReps(pattern: pattern, minutes: a.minutes, intensity: intensity)

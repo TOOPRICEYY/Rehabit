@@ -152,9 +152,15 @@ def activity_doses(con: sqlite3.Connection, settings: Settings = Settings()) -> 
         "SELECT max_hr FROM session WHERE max_hr IS NOT NULL")], settings)
     out = []
     for r in con.execute(
-            "SELECT day, activity_type, title, minutes, avg_hr FROM session"
-            " WHERE activity_type IS NOT NULL ORDER BY day, start, id"):
-        pattern = library.match_activity(r["activity_type"], r["title"])
+            "SELECT day, activity_type, title, minutes, avg_hr, counts_as FROM session"
+            " WHERE activity_type IS NOT NULL OR counts_as IS NOT NULL ORDER BY day, start, id"):
+        # What the person said it was wins over what the type and name suggest;
+        # an answer that is no activity pattern ("none") means no load.
+        chosen = r["counts_as"]
+        if chosen:
+            pattern = chosen if chosen in library.ACTIVITIES else None
+        else:
+            pattern = library.match_activity(r["activity_type"], r["title"])
         day = _d(r["day"])
         intensity = activity_intensity(r["avg_hr"], usual_resting_hr(resting, day), top, settings)
         reps = activity_reps(pattern, r["minutes"], intensity, settings)

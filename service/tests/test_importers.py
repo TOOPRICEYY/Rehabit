@@ -1,4 +1,5 @@
 import json
+import pytest
 
 from rehabit.importers import doestrack, garmin, hevy
 from tests.conftest import garmin_activity
@@ -241,7 +242,6 @@ def test_app_export_skips_logs_the_service_reads_itself(con, profile, tmp_path, 
 
 
 def test_app_export_from_a_newer_app_is_refused(con, profile, tmp_path):
-    import pytest
     from rehabit.importers import app
     with pytest.raises(ValueError):
         app.import_export(con, _app_export(tmp_path, schemaVersion=2), profile)
@@ -249,6 +249,7 @@ def test_app_export_from_a_newer_app_is_refused(con, profile, tmp_path):
 
 def test_app_sets_reach_the_ledger_and_pain_tool(con, profile, tmp_path):
     from rehabit import ledger
+    from rehabit.importers import app
     from rehabit.importers import app
     from rehabit.mcp_server import Tools
     app.import_export(con, _app_export(tmp_path), profile)
@@ -312,3 +313,34 @@ def test_app_export_carries_effort_tempo_and_the_injury_plan(con, profile, tmp_p
     assert "effort" in {r[1] for r in old.execute("PRAGMA table_info(session)")}
     assert "tempo" in {r[1] for r in old.execute("PRAGMA table_info(set_entry)")}
     db.init(old)                               # and opening it again changes nothing
+
+
+def test_app_export_carries_a_recorded_activity_into_the_load(con, profile, tmp_path):
+    from rehabit import ledger
+    from rehabit.importers import app
+    ride = {"id": "garmin:9", "title": "Morning Ride", "start": "2026-11-12T13:00:00.000Z",
+            "end": "2026-11-12T13:40:00.000Z", "startDay": "2026-11-12", "notes": "",
+            "updatedAt": "2026-11-12T13:40:00.000Z",
+            "activity": {"type": "cycling", "distanceMeters": 15000, "averageHeartRate": 120,
+                         "maxHeartRate": 150}}
+    sauna = {"id": "garmin:10", "title": "Sauna", "start": "2026-11-13T13:00:00.000Z",
+             "end": "2026-11-13T13:20:00.000Z", "startDay": "2026-11-13", "notes": "",
+             "updatedAt": "2026-11-13T13:20:00.000Z",
+             "activity": {"type": "indoor_cardio", "averageHeartRate": "fast", "countsAs": {"odd": 1}}}
+    bike = {"id": "garmin:11", "title": "Cardio", "start": "2026-11-14T13:00:00.000Z",
+            "end": "2026-11-14T13:20:00.000Z", "startDay": "2026-11-14", "notes": "",
+            "updatedAt": "2026-11-14T13:20:00.000Z",
+            "activity": {"type": "indoor_cardio", "countsAs": "cycling"}}
+    app.import_export(con, _app_export(tmp_path, workouts=[ride, sauna, bike], sets=[]), profile)
+    row = con.execute("SELECT * FROM session WHERE id = 'app:garmin:9'").fetchone()
+    assert (row["kind"], row["activity_type"], row["distance_km"], row["avg_hr"], row["max_hr"]) == \
+        ("cardio", "cycling", 15.0, 120.0, 150.0)
+    assert con.execute("SELECT avg_hr FROM session WHERE id = 'app:garmin:10'").fetchone()[0] is None
+    ledger.compute(con)
+    quads = con.execute("SELECT dose FROM tissue_load_day WHERE tissue_id = 'quads' AND side = 'left'"
+                        " AND day = '2026-11-12'").fetchone()[0]
+    assert quads == pytest.approx(40 * 0.25)        # too few heart rates to trust a maximum: intensity 1
+    assert con.execute("SELECT COUNT(*) FROM tissue_load_day WHERE day = '2026-11-13' AND dose > 0").fetchone()[0] == 0
+    bike_quads = con.execute("SELECT dose FROM tissue_load_day WHERE tissue_id = 'quads' AND side = 'left'"
+                             " AND day = '2026-11-14'").fetchone()[0]
+    assert bike_quads == pytest.approx(20 * 0.25)   # he said the "Cardio" was the bike

@@ -26,6 +26,7 @@ ADDED_COLUMNS = (
     ("session", "effort", "REAL"),        # how hard the session felt, 0..10
     ("set_entry", "tempo", "TEXT"),       # seconds per phase of a rep, "3-1-1-0"
     ("injury", "plan", "TEXT"),           # JSON: the limits and milestones set for it
+    ("session", "counts_as", "TEXT"),     # the activity pattern the person chose for a recording
 )
 
 

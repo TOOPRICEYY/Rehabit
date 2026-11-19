@@ -168,6 +168,10 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
         "glute_med": (0.4, S), "hamstrings": (0.3, E)}),
     "pilates": ("Pilates", 0.0, {
         "abs": (1.0, P), "obliques": (0.5, A), "hip_flexors": (0.5, A), "glute_med": (0.3, S)}),
+    "hiit": ("HIIT and circuits", 0.0, {
+        "quads": (1.0, P), "glute_max": (0.6, A), "calf": (0.5, A), "achilles": (0.5, A),
+        "patellar_tendon": (0.5, A), "pec_major": (0.4, A), "front_delt": (0.4, A), "abs": (0.4, S),
+        "hip_flexors": (0.3, A), "triceps": (0.3, A)}),
 }
 
 # How much a minute of each activity counts, as effective reps per minute on a
@@ -194,6 +198,10 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
 # - Swimming: about 30 pulls an arm a minute, each counted like a walking step
 #   for the lats and cuff: 0.3.
 # - Yoga 0.1 and Pilates 0.15: body-weight holds at low effort; shares spread.
+# - HIIT and circuits: squats, lunges, jumps, burpees and push-ups at body
+#   weight, about half the session working at 20 to 30 moves a minute, each
+#   about a walking step's share for the thigh times two squared: 0.5. Its
+#   steps, a small part of it, are not taken off.
 #
 # An activity type not listed here (an "indoor cardio" or "other" recording, a
 # sauna, a walk whose steps are already counted) adds nothing: a wrong tissue is
@@ -201,7 +209,7 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
 ACTIVITIES: dict[str, float] = {
     "running": 2.4, "hiking": 0.4, "stair_climbing": 0.5, "court_sports": 1.2,
     "cycling": 0.25, "elliptical": 0.2, "rowing": 0.65, "swimming": 0.3,
-    "yoga": 0.1, "pilates": 0.15,
+    "yoga": 0.1, "pilates": 0.15, "hiit": 0.5,
 }
 
 # Activity type keys and names, matched in order: the type first, then the name
@@ -210,18 +218,22 @@ ACTIVITIES: dict[str, float] = {
 # keys are read as spaces.
 _ACTIVITY_PATTERNS: list[tuple[str, str]] = [
     (r"sauna|steam|cold plunge|ice bath|meditat|breath|stretch|mobility", ""),
+    # Garmin types whose words would otherwise land on the wrong tissue: an engine
+    # or the arms do the work, or it is snow sport the rates do not cover.
+    (r"motor|hand cycl|wheelchair|\bski|snowboard|table tennis|golf", ""),
     (r"\bwalk", ""),   # its steps are already counted
     (r"stair|step ?mill|floor climb|stepper", "stair_climbing"),
     (r"\b(run|running|jog|jogging|treadmill)\b|ultra run|virtual run|obstacle", "running"),
-    (r"\bhik(e|ing)\b|mountaineer|backcountry|snowshoe", "hiking"),
+    (r"\bhik(e|ing)\b|mountaineer|snowshoe|rucking", "hiking"),
     (r"tennis|pickleball|padel|squash|badminton|racquet|basketball|soccer|football|volleyball"
-     r"|rugby|hockey|lacrosse|ultimate|handball", "court_sports"),
-    (r"cycl|bik(e|ing)|\bride\b|spin", "cycling"),
+     r"|rugby|field hockey|lacrosse|ultimate|handball", "court_sports"),
+    (r"cycl|bik(e|ing)|\bride\b|spin|stationary|peloton|assault|airdyne", "cycling"),
     (r"elliptical", "elliptical"),
     (r"\brow(ing)?\b|\berg\b", "rowing"),
     (r"swim", "swimming"),
     (r"pilates", "pilates"),
     (r"yoga", "yoga"),
+    (r"\bhiit\b|interval training|circuit|tabata|boot ?camp|crossfit|\bwod\b", "hiit"),
 ]
 
 _ACTIVITY_COMPILED = [(re.compile(p), a) for p, a in _ACTIVITY_PATTERNS]
