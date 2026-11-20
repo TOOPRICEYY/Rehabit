@@ -84,6 +84,12 @@ Android.
    top 5 percent, three short nights in seven, and training while HRV or heart rate is
    flagged. Percentile rules stay silent until there are 30 earlier values.
    Recovery flags apply to every injury; step flags only to hip, thigh, knee and lower leg.
+   Steps are weighted by the heart rate they were taken at (the phone's
+   `StepWeighting`, stored as the daily `step_hr_weight`): (HR - resting) / (walking HR -
+   resting), kept between 0.3 and 4, with steps inside a recorded workout and steps with
+   no heart rate at 1. Two flags follow sessions on foot: `activity_jump` (a session's
+   load 1.5 times the typical one of its kind in 28 days, on its main tissues) and
+   `heavy_pair` (two of a tissue's top-10-percent days within 48 hours).
    Steps also count as tissue dose (`ledger.py`, "walking"): each leg takes half the day's
    steps and every 100 steps on a leg count as one effective rep, mostly on the calf and
    Achilles with small shares for the thigh and hip. The weekly spike sees training and
@@ -98,6 +104,9 @@ Android.
    hiking, stairs and sports it is only what they add beyond their steps, which the
    step count already holds. Intensity is the heart-rate reserve used against that of a
    moderate effort (half), kept between 0.5 and 2, and 1 when a heart rate is unknown.
+   Activities on foot with a step count (running, pickleball, court sports, hiking,
+   stairs) are counted from their steps instead: each step is 2 to 4 walking steps on
+   their main tissues (`library.PER_STEP`), less the one the step count already holds.
    A type with no rate adds nothing: an "indoor cardio" recording is often a sauna. What
    the person says a recording was (`counts_as`, "none" for no load) wins over its type.
 6. **Replay** (`replay.py`). For each injury with a known onset, lists the flags that

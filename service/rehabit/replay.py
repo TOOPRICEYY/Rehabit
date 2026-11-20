@@ -18,7 +18,7 @@ from .ledger import _d
 SLACK_DAYS = {"day": 0, "week": 7, "month": 15}
 MIN_SHARE = 0.25
 KINDS = ["spike", "re_entry", "re_entry_period", "intensity_jump", "density", "density_cluster",
-         "layoff_no_step_back", "session_jump", "freeze",
+         "layoff_no_step_back", "session_jump", "freeze", "heavy_pair", "activity_jump",
          "hrv_suppressed", "rhr_elevated", "short_sleep", "load_on_low_recovery",
          "step_spike", "step_day_jump"]
 # Which daily metric each of these kinds needs. Their base rates only count

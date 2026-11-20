@@ -1148,6 +1148,58 @@
    ]
   },
   {
+   "id": "pickleball",
+   "name": "Pickleball (beyond its steps)",
+   "bodyweightShare": 0.0,
+   "links": [
+    {
+     "tissue": "calf",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "achilles",
+     "share": 1.0,
+     "role": "prime"
+    },
+    {
+     "tissue": "quads",
+     "share": 0.5,
+     "role": "assist"
+    },
+    {
+     "tissue": "patellar_tendon",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "glute_max",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "glute_med",
+     "share": 0.4,
+     "role": "assist"
+    },
+    {
+     "tissue": "adductors",
+     "share": 0.3,
+     "role": "assist"
+    },
+    {
+     "tissue": "hamstrings",
+     "share": 0.25,
+     "role": "assist"
+    },
+    {
+     "tissue": "hip_flexors",
+     "share": 0.25,
+     "role": "assist"
+    }
+   ]
+  },
+  {
    "id": "cycling",
    "name": "Cycling",
    "bodyweightShare": 0.0,
@@ -2524,19 +2576,28 @@
  "activities": [
   {
    "pattern": "running",
-   "perMinute": 2.4
+   "perMinute": 2.4,
+   "perStep": 4.0
   },
   {
    "pattern": "hiking",
-   "perMinute": 0.4
+   "perMinute": 0.4,
+   "perStep": 2.0
   },
   {
    "pattern": "stair_climbing",
-   "perMinute": 0.5
+   "perMinute": 0.5,
+   "perStep": 2.0
   },
   {
    "pattern": "court_sports",
-   "perMinute": 1.2
+   "perMinute": 1.2,
+   "perStep": 3.0
+  },
+  {
+   "pattern": "pickleball",
+   "perMinute": 0.6,
+   "perStep": 3.0
   },
   {
    "pattern": "cycling",
@@ -2593,7 +2654,11 @@
    "hiking"
   ],
   [
-   "tennis|pickleball|padel|squash|badminton|racquet|basketball|soccer|football|volleyball|rugby|field hockey|lacrosse|ultimate|handball",
+   "pickle ?ball",
+   "pickleball"
+  ],
+  [
+   "tennis|padel|squash|badminton|racquet|basketball|soccer|football|volleyball|rugby|field hockey|lacrosse|ultimate|handball",
    "court_sports"
   ],
   [

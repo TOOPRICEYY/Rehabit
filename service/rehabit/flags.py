@@ -13,7 +13,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from .ledger import Settings, _d, reference_key, set_doses
+from . import library
+from .ledger import Settings, _d, _median, activity_doses, reference_key, set_doses
 
 
 @dataclass(frozen=True)
@@ -51,6 +52,9 @@ class Thresholds:
     short_sleep_nights: int = 3        # ... this many times in 7
     step_spike: float = 1.2            # floor: 7-day mean steps against the baseline
     step_day_jump: float = 1.5         # one day's steps against the 28-day highest
+    heavy_day_percentile: float = 0.90 # a tissue's heavy day: in the top 10 percent of its own days
+    heavy_pair_days: int = 2           # two heavy days this close together
+    activity_jump: float = 1.5         # one activity's load against its 28-day typical session
 
 
 def _insert(con, day, kind, scope_type, scope, detail, side=None, value=None,
@@ -87,6 +91,53 @@ class _Own:
         return cut if (value > cut if self.high else value < cut) else None
 
 
+def _heavy_pairs(con, t: Thresholds, tissue: str, side: str, by_day: dict[date, float]) -> None:
+    """Two of a tissue's own heavy days (its top 10 percent, walking included)
+    within 48 hours of each other. Each day is judged against the trailing year
+    before it, the last fortnight left out, as the other percentile rules are."""
+    heavy: dict[date, float] = {}
+    history: list[tuple[date, float]] = []
+    for d in sorted(by_day):
+        past = sorted(v for x, v in history if t.history_lag_days <= (d - x).days <= t.history_days)
+        history.append((d, by_day[d]))
+        if len(past) < t.history_min or by_day[d] <= 0:
+            continue
+        cut = past[min(len(past) - 1, int(t.heavy_day_percentile * len(past)))]
+        if by_day[d] > cut:
+            heavy[d] = cut
+            before = [x for x in heavy if 0 < (d - x).days <= t.heavy_pair_days]
+            if before:
+                x = max(before)
+                _insert(con, d, "heavy_pair", "tissue", tissue, side=side, value=round(by_day[d], 1),
+                        threshold=round(cut, 1),
+                        detail=f"{tissue} ({side}) heavy day of {by_day[d]:.0f} effective reps"
+                               f" {(d - x).days} day{'s' if (d - x).days > 1 else ''} after another of"
+                               f" {by_day[x]:.0f}; its own heavy day starts at {cut:.0f}")
+
+
+def _activity_jump_flags(con, t: Thresholds, settings: Settings) -> None:
+    """One activity's load against the typical (median) session of the same kind
+    in the 28 days before, flagged on the tissues it loads most, both sides."""
+    by_pattern: dict[str, list[tuple[date, float]]] = defaultdict(list)
+    for rec in activity_doses(con, settings):
+        by_pattern[rec["row"]["exercise_id"]].append((rec["day"], rec["effective_reps"]))
+    for pattern, sessions in by_pattern.items():
+        primes = [tissue for tissue, (_, role) in library.EXERCISES[pattern][2].items() if role == "prime"]
+        name = library.EXERCISES[pattern][0].split(" (")[0]
+        for i, (d, reps) in enumerate(sessions):
+            prior = [r for x, r in sessions[:i] if 0 < (d - x).days <= 28]
+            if not prior or reps <= 0:
+                continue
+            typical = _median(prior)
+            if typical > 0 and reps / typical >= t.activity_jump:
+                for tissue in primes:
+                    for side in ("left", "right"):
+                        _insert(con, d, "activity_jump", "tissue", tissue, side=side,
+                                value=round(reps / typical, 2), threshold=t.activity_jump,
+                                detail=f"{tissue} ({side}): {name} session of {reps:.0f} effective reps,"
+                                       f" {reps / typical:.1f} times the typical one of the 28 days before ({typical:.0f})")
+
+
 def _tissue_flags(con, t: Thresholds) -> None:
     # Total dose (training and walking) for the weekly spike; training alone for
     # the flags about sessions (density, re-entry), since walking happens daily.
@@ -96,6 +147,7 @@ def _tissue_flags(con, t: Thresholds) -> None:
         series[(r["tissue_id"], r["side"])][_d(r["day"])] = r["dose"]
         trained[(r["tissue_id"], r["side"])][_d(r["day"])] = max(0.0, r["dose"] - r["walking_dose"])
     for (tissue, side), by_day in series.items():
+        _heavy_pairs(con, t, tissue, side, by_day)
         training = trained[(tissue, side)]
         days = sorted(by_day)
         loaded = [d for d in days if training[d] >= t.density_min_dose]
@@ -370,6 +422,7 @@ def compute(con: sqlite3.Connection, thresholds: Thresholds = Thresholds(),
     _tissue_flags(con, thresholds)
     _exercise_flags(con, thresholds, settings)
     _activity_flags(con, thresholds)
+    _activity_jump_flags(con, thresholds, settings)
     _compensation_flags(con, thresholds)
     _recovery_flags(con, thresholds)
     _step_flags(con, thresholds)

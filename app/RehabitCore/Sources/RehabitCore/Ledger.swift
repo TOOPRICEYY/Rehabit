@@ -51,6 +51,9 @@ public struct LedgerSettings: Sendable {
     public var activityMinHRRecordings = 5
     public var activityMinHRRange = 40.0
     public var activityMaxMinutes = 600.0
+    public var activityMaxSteps = 100_000.0
+    /// Weight a day's walking by the heart rate of its steps (`StepWeighting`).
+    public var weightStepsByHR = true
     public init() {}
 }
 
@@ -65,10 +68,13 @@ public struct LedgerActivity: Sendable, Equatable {
     /// What the person said the recording was: an activity pattern, or any other
     /// text ("none") for no load. It wins over the type and the name.
     public var countsAs: String?
+    /// The steps the recording counted, for an activity on foot.
+    public var steps: Double?
 
-    public init(day: Day, type: String?, name: String?, minutes: Double?, averageHR: Double?, countsAs: String? = nil) {
+    public init(day: Day, type: String?, name: String?, minutes: Double?, averageHR: Double?, countsAs: String? = nil,
+                steps: Double? = nil) {
         self.day = day; self.type = type; self.name = name; self.minutes = minutes; self.averageHR = averageHR
-        self.countsAs = countsAs
+        self.countsAs = countsAs; self.steps = steps
     }
 }
 
@@ -180,14 +186,16 @@ public struct Ledger: Sendable {
     public static let walkingPattern = "walking"
     public static let walkingName = "Walking (daily steps)"
 
-    private static func median(_ values: [Double]) -> Double {
+    static func median(_ values: [Double]) -> Double {
         let v = values.sorted(), m = v.count / 2
         return v.count % 2 == 1 ? v[m] : (v[m - 1] + v[m]) / 2
     }
 
     /// Daily steps (the largest reading of each day) as one walking "set" a day
     /// on both legs, in effective reps per leg.
-    public func walkingSets(steps: [Day: Double]) -> [LedgerSet] {
+    /// `weights` is each day's heart-rate weight of its steps (`StepWeighting`);
+    /// a day without one, or a filled day, counts its steps at 1.
+    public func walkingSets(steps: [Day: Double], weights: [Day: Double] = [:]) -> [LedgerSet] {
         let readings = steps.filter { $0.value > 0 && $0.value.isFinite }
         guard settings.countSteps, settings.stepsPerEffectiveRep > 0,
               let first = readings.keys.min(), let last = readings.keys.max() else { return [] }
@@ -204,8 +212,10 @@ public struct Ledger: Sendable {
                 let before = (1...28).compactMap { readings[day.adding(-$0)] }
                 value = before.isEmpty ? warm : Ledger.median(before)
             }
+            var weight = 1.0
+            if settings.weightStepsByHR, readings[day] != nil, let w = weights[day], w.isFinite, w > 0 { weight = w }
             out.append(LedgerSet(day: day, exercise: Ledger.walkingName, pattern: Ledger.walkingPattern, side: .both,
-                                 kind: .reps, reps: value / 2 / settings.stepsPerEffectiveRep, holdSeconds: nil, loadKg: nil))
+                                 kind: .reps, reps: value * weight / 2 / settings.stepsPerEffectiveRep, holdSeconds: nil, loadKg: nil))
             day = day.adding(1)
         }
         return out
@@ -233,9 +243,16 @@ public struct Ledger: Sendable {
         return seen.count >= settings.activityMinHRRecordings ? seen.max() : nil
     }
 
-    /// Effective reps of one activity on a tissue with share 1.
-    public func activityReps(pattern: String?, minutes: Double?, intensity: Double) -> Double {
-        guard let pattern, let rate = library.activityRates[pattern], rate > 0,
+    /// Effective reps of one activity on a tissue with share 1. An activity on
+    /// foot with a step count is counted from its steps: each step on a leg is
+    /// `activityPerStep` walking steps, less the one the day's step count holds.
+    public func activityReps(pattern: String?, minutes: Double?, intensity: Double, steps: Double? = nil) -> Double {
+        guard let pattern else { return 0 }
+        if let perStep = library.activityPerStep[pattern], let steps, steps.isFinite, steps > 0,
+           settings.stepsPerEffectiveRep > 0 {
+            return min(steps, settings.activityMaxSteps) / 2 / settings.stepsPerEffectiveRep * (perStep - 1) * intensity
+        }
+        guard let rate = library.activityRates[pattern], rate > 0,
               let minutes, minutes.isFinite, minutes > 0 else { return 0 }
         return min(minutes, settings.activityMaxMinutes) * rate * intensity
     }
@@ -256,7 +273,7 @@ public struct Ledger: Sendable {
             let pattern = activityPattern(a)
             let intensity = activityIntensity(averageHR: a.averageHR, restingHR: Ledger.usualRestingHR(restingHR, on: a.day),
                                               maxHR: maxHR)
-            let reps = activityReps(pattern: pattern, minutes: a.minutes, intensity: intensity)
+            let reps = activityReps(pattern: pattern, minutes: a.minutes, intensity: intensity, steps: a.steps)
             guard let pattern, reps > 0 else { return nil }
             return LedgerSet(day: a.day, exercise: library.pattern(pattern)?.name ?? pattern, pattern: pattern, side: .both,
                              kind: .reps, reps: reps, holdSeconds: nil, loadKg: nil)

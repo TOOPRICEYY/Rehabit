@@ -74,13 +74,13 @@ def import_listing(con: sqlite3.Connection, paths: list[str | Path], profile: Pr
             session_id = f"garmin:{source_id}"
             con.execute(
                 "INSERT INTO session(id, start, day, kind, title, activity_type, minutes,"
-                " distance_km, avg_hr, max_hr, source, source_id, imported_at)"
-                " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                " distance_km, avg_hr, max_hr, steps, source, source_id, imported_at)"
+                " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     session_id, act["start"], act["start"][:10],
                     "gym" if is_gym else "cardio", act.get("name"),
                     None if is_gym else type_key, act.get("duration_minutes"),
-                    act.get("distance_km"), act.get("avg_hr"), act.get("max_hr"),
+                    act.get("distance_km"), act.get("avg_hr"), act.get("max_hr"), act.get("steps"),
                     SOURCE, source_id, db.now(),
                 ),
             )

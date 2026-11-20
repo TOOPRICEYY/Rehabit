@@ -60,6 +60,9 @@ public struct Library: Codable, Sendable {
     /// Recorded activities (a ride, a row, a run): effective reps a minute at a
     /// moderate effort for each activity pattern (`library.ACTIVITIES` in the service).
     public let activityRates: [String: Double]
+    /// For activities on foot: how many walking steps one step counts as on the
+    /// pattern's prime tissues, used when a recording gives its steps.
+    public let activityPerStep: [String: Double]
     /// Rules that name a recorded activity's pattern from its type, then its name:
     /// a regular expression and a pattern id each, first match wins, an empty id
     /// meaning "adds nothing".
@@ -77,28 +80,32 @@ public struct Library: Codable, Sendable {
     /// True for the pattern of a recorded activity such as cycling or rowing.
     public func isActivity(_ pattern: String?) -> Bool { pattern.map { activityRates[$0] != nil } ?? false }
 
-    private struct ActivityRate: Codable { let pattern: String; let perMinute: Double }
+    private struct ActivityRate: Codable { let pattern: String; let perMinute: Double; let perStep: Double? }
 
     private enum CodingKeys: String, CodingKey { case tissues, patterns, catalogue, matchers, activities, activityMatchers }
 
     public init(tissues: [Tissue], patterns: [Pattern], catalogue: [CatalogueExercise], matchers: [[String]] = [],
-                activityRates: [String: Double] = [:], activityMatchers: [[String]] = []) {
+                activityRates: [String: Double] = [:], activityMatchers: [[String]] = [],
+                activityPerStep: [String: Double] = [:]) {
         self.tissues = tissues; self.patterns = patterns; self.catalogue = catalogue; self.matchers = matchers
         self.activityRates = activityRates; self.activityMatchers = activityMatchers
+        self.activityPerStep = activityPerStep
         patternIndex = Dictionary(patterns.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         tissueIndex = Dictionary(tissues.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
     }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
+        let rates = ((try? c.decodeIfPresent([ActivityRate].self, forKey: .activities)) ?? [])
+            .filter { $0.perMinute.isFinite && $0.perMinute > 0 }
         self.init(tissues: try c.decode([Tissue].self, forKey: .tissues),
                   patterns: try c.decode([Pattern].self, forKey: .patterns),
                   catalogue: try c.decode([CatalogueExercise].self, forKey: .catalogue),
                   matchers: (try? c.decodeIfPresent([[String]].self, forKey: .matchers)) ?? [],
-                  activityRates: Dictionary(((try? c.decodeIfPresent([ActivityRate].self, forKey: .activities)) ?? [])
-                      .filter { $0.perMinute.isFinite && $0.perMinute > 0 }.map { ($0.pattern, $0.perMinute) },
-                      uniquingKeysWith: { first, _ in first }),
-                  activityMatchers: (try? c.decodeIfPresent([[String]].self, forKey: .activityMatchers)) ?? [])
+                  activityRates: Dictionary(rates.map { ($0.pattern, $0.perMinute) }, uniquingKeysWith: { first, _ in first }),
+                  activityMatchers: (try? c.decodeIfPresent([[String]].self, forKey: .activityMatchers)) ?? [],
+                  activityPerStep: Dictionary(rates.compactMap { r in r.perStep.flatMap { $0.isFinite && $0 >= 1 ? (r.pattern, $0) : nil } },
+                                              uniquingKeysWith: { first, _ in first }))
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -107,7 +114,8 @@ public struct Library: Codable, Sendable {
         try c.encode(patterns, forKey: .patterns)
         try c.encode(catalogue, forKey: .catalogue)
         try c.encode(matchers, forKey: .matchers)
-        try c.encode(activityRates.sorted { $0.key < $1.key }.map { ActivityRate(pattern: $0.key, perMinute: $0.value) },
+        try c.encode(activityRates.sorted { $0.key < $1.key }
+                        .map { ActivityRate(pattern: $0.key, perMinute: $0.value, perStep: activityPerStep[$0.key]) },
                      forKey: .activities)
         try c.encode(activityMatchers, forKey: .activityMatchers)
     }
