@@ -151,6 +151,14 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
     "court_sports": ("Court and field sports (beyond their steps)", 0.0, {
         "calf": (1.0, P), "achilles": (1.0, P), "quads": (0.7, A), "patellar_tendon": (0.6, A),
         "adductors": (0.4, A), "glute_med": (0.4, A), "hamstrings": (0.3, A)}),
+    # Pickleball: short sprints, lunges and stops on a small court; push-off and
+    # braking load the calf and Achilles far more than heart rate shows. The
+    # paddle arm is left out until the paddle side is known: a load on the wrong
+    # arm is worse than none.
+    "pickleball": ("Pickleball (beyond its steps)", 0.0, {
+        "calf": (1.0, P), "achilles": (1.0, P), "quads": (0.5, A), "patellar_tendon": (0.4, A),
+        "glute_max": (0.4, A), "glute_med": (0.4, A), "adductors": (0.3, A), "hamstrings": (0.25, A),
+        "hip_flexors": (0.25, A)}),
     "cycling": ("Cycling", 0.0, {
         "quads": (1.0, P), "glute_max": (0.5, A), "patellar_tendon": (0.5, A), "hamstrings": (0.4, A),
         "calf": (0.3, A), "hip_flexors": (0.2, S)}),
@@ -203,13 +211,27 @@ EXERCISES: dict[str, tuple[str, float, dict[str, tuple[float, str]]]] = {
 #   about a walking step's share for the thigh times two squared: 0.5. Its
 #   steps, a small part of it, are not taken off.
 #
+# - Pickleball: much of a session is standing between rallies, about 40 steps a
+#   minute in all; each step about 3 walking steps on the calf: 0.2 x 2 = 0.4
+#   at the step count, 0.6 with the sprints. Used only when the steps are unknown.
+#
+# When a recording gives its steps, the activities that move on foot are counted
+# from them instead (PER_STEP): each step on a leg counts as that many walking
+# steps on the pattern's prime tissues, less the one the step count already
+# holds. Running 4 (twice the force, squared), pickleball and court sports 3
+# (push-off and braking), hiking and stairs 2 (the knee's load on a climb).
+#
 # An activity type not listed here (an "indoor cardio" or "other" recording, a
 # sauna, a walk whose steps are already counted) adds nothing: a wrong tissue is
 # worse than none.
 ACTIVITIES: dict[str, float] = {
-    "running": 2.4, "hiking": 0.4, "stair_climbing": 0.5, "court_sports": 1.2,
+    "running": 2.4, "hiking": 0.4, "stair_climbing": 0.5, "court_sports": 1.2, "pickleball": 0.6,
     "cycling": 0.25, "elliptical": 0.2, "rowing": 0.65, "swimming": 0.3,
     "yoga": 0.1, "pilates": 0.15, "hiit": 0.5,
+}
+
+PER_STEP: dict[str, float] = {
+    "running": 4.0, "pickleball": 3.0, "court_sports": 3.0, "hiking": 2.0, "stair_climbing": 2.0,
 }
 
 # Activity type keys and names, matched in order: the type first, then the name
@@ -225,7 +247,8 @@ _ACTIVITY_PATTERNS: list[tuple[str, str]] = [
     (r"stair|step ?mill|floor climb|stepper", "stair_climbing"),
     (r"\b(run|running|jog|jogging|treadmill)\b|ultra run|virtual run|obstacle", "running"),
     (r"\bhik(e|ing)\b|mountaineer|snowshoe|rucking", "hiking"),
-    (r"tennis|pickleball|padel|squash|badminton|racquet|basketball|soccer|football|volleyball"
+    (r"pickle ?ball", "pickleball"),
+    (r"tennis|padel|squash|badminton|racquet|basketball|soccer|football|volleyball"
      r"|rugby|field hockey|lacrosse|ultimate|handball", "court_sports"),
     (r"cycl|bik(e|ing)|\bride\b|spin|stationary|peloton|assault|airdyne", "cycling"),
     (r"elliptical", "elliptical"),
@@ -472,7 +495,8 @@ def export() -> dict:
         "matchers": [[pattern, exercise_id] for pattern, exercise_id in _PATTERNS],
         # Recorded activities: effective reps per minute at moderate effort for each
         # activity pattern, and the rules that name an activity's pattern.
-        "activities": [{"pattern": a, "perMinute": rate} for a, rate in ACTIVITIES.items()],
+        "activities": [{"pattern": a, "perMinute": rate, **({"perStep": PER_STEP[a]} if a in PER_STEP else {})}
+                       for a, rate in ACTIVITIES.items()],
         "activityMatchers": [[pattern, activity] for pattern, activity in _ACTIVITY_PATTERNS],
     }
 

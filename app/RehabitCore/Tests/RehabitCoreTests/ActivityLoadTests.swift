@@ -11,7 +11,7 @@ final class ActivityLoadTests: XCTestCase {
             ("cycling", "Plainfield Cycling", "cycling"), ("indoor_cycling", nil, "cycling"),
             ("indoor_rowing", "Indoor Rowing", "rowing"), ("treadmill_running", nil, "running"),
             ("lap_swimming", nil, "swimming"), ("hiking", nil, "hiking"), ("yoga", nil, "yoga"),
-            ("pickleball", nil, "court_sports"), ("walking", "Walk", nil), ("treadmill_walking", nil, nil),
+            ("pickleball", nil, "pickleball"), ("tennis", nil, "court_sports"), ("walking", "Walk", nil), ("treadmill_walking", nil, nil),
             ("strength_training", "Strength", nil), ("indoor_cardio", "Sauna", nil),
             ("indoor_cardio", "Cardio", nil), ("indoor_cardio", "Rowing", "rowing"), (nil, nil, nil),
             ("hand_cycling", nil, nil), ("motorcycling", nil, nil), ("wheelchair_push_run", nil, nil),

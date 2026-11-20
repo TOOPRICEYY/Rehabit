@@ -38,7 +38,8 @@ def load(con, tissue, side="left", day=DAY):
     ("elliptical", None, "elliptical"),
     ("yoga", None, "yoga"),
     ("pilates", None, "pilates"),
-    ("pickleball", None, "court_sports"),
+    ("pickleball", None, "pickleball"),
+    ("indoor_cardio", "Pickleball", "pickleball"),
     ("walking", "Grand Rapids Walking", None),          # its steps are already counted
     ("treadmill_walking", None, None),
     ("strength_training", "Strength", None),            # its sets are the load
@@ -143,3 +144,61 @@ def test_the_persons_answer_wins_over_the_type(con):
     con.execute("UPDATE session SET counts_as = 'none' WHERE title = 'Ride'")
     ledger.compute(con)
     assert load(con, "quads")[0] == pytest.approx(20 * 0.25)     # the bike counts, the "none" ride does not
+
+
+def test_on_foot_activities_count_from_their_steps(con):
+    add(con, DAY, "pickleball", 120)
+    con.execute("UPDATE session SET steps = 4000")
+    ledger.compute(con)
+    # 2,000 steps a leg, 100 to a walking rep, three walking steps each less the one already counted.
+    assert load(con, "calf")[0] == pytest.approx(2000 / 100 * 2)
+    assert load(con, "achilles", "right")[0] == pytest.approx(40)
+    assert load(con, "quads")[0] == pytest.approx(20)
+    con.execute("UPDATE session SET steps = NULL")
+    ledger.compute(con)
+    assert load(con, "calf")[0] == pytest.approx(120 * 0.6)          # no steps: minutes x the rate
+
+
+def test_heart_rate_weight_scales_a_days_walking(con):
+    for i in range(3):
+        d = (DAY + timedelta(days=i)).isoformat()
+        con.execute("INSERT INTO daily_metric(day, metric, value, unit, source) VALUES (?,?,?,?,?)",
+                    (d, "steps", 8000, "steps", "test"))
+    con.execute("INSERT INTO daily_metric(day, metric, value, unit, source) VALUES (?,?,?,?,?)",
+                ((DAY + timedelta(days=1)).isoformat(), "step_hr_weight", 1.5, None, "phone"))
+    ledger.compute(con)
+    assert load(con, "calf")[0] == pytest.approx(40)
+    assert load(con, "calf", day=DAY + timedelta(days=1))[0] == pytest.approx(60)
+    ledger.compute(con, ledger.Settings(weight_steps_by_hr=False))
+    assert load(con, "calf", day=DAY + timedelta(days=1))[0] == pytest.approx(40)
+
+
+def test_a_long_court_session_after_a_heavy_day_flags_the_calf(con):
+    """Made-up record shaped like the case that asked for these rules: ordinary
+    walking, an hour of pickleball a week, then a heavy walking day followed by
+    a session twice the usual length."""
+    from rehabit import flags
+    start = DAY - timedelta(days=120)
+    for i in range(121):
+        d = start + timedelta(days=i)
+        con.execute("INSERT INTO daily_metric(day, metric, value, unit, source) VALUES (?,?,?,?,?)",
+                    (d.isoformat(), "steps", 7000 + 900 * (i % 5), "steps", "test"))
+        con.execute("INSERT INTO daily_metric(day, metric, value, unit, source) VALUES (?,?,?,?,?)",
+                    (d.isoformat(), "resting_hr", 50, "bpm", "test"))
+    for week in range(1, 17):
+        add(con, DAY - timedelta(days=7 * week + 2), "pickleball", 60, avg_hr=118, max_hr=170)
+        con.execute("UPDATE session SET steps = 2200 WHERE day = ?", ((DAY - timedelta(days=7 * week + 2)).isoformat(),))
+    con.execute("UPDATE daily_metric SET value = 13000 WHERE metric = 'steps' AND day = ?",
+                ((DAY - timedelta(days=1)).isoformat(),))
+    con.execute("INSERT INTO daily_metric(day, metric, value, unit, source) VALUES (?,?,?,?,?)",
+                ((DAY - timedelta(days=1)).isoformat(), "step_hr_weight", 1.4, None, "phone"))
+    add(con, DAY, "pickleball", 115, avg_hr=123, max_hr=175, n=9)
+    con.execute("UPDATE session SET steps = 4400 WHERE id LIKE '%:9'")
+    ledger.compute(con)
+    flags.compute(con)
+    found = {(r["kind"], r["scope"]) for r in con.execute(
+        "SELECT kind, scope FROM flag WHERE day = ? AND side = 'right'", (DAY.isoformat(),))}
+    assert ("activity_jump", "calf") in found and ("activity_jump", "achilles") in found
+    assert ("heavy_pair", "calf") in found
+    assert not con.execute("SELECT COUNT(*) FROM flag WHERE kind = 'activity_jump' AND day < ?",
+                           (DAY.isoformat(),)).fetchone()[0]          # the ordinary weeks stay quiet

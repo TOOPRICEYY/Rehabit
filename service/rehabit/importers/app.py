@@ -128,15 +128,16 @@ def import_export(con: sqlite3.Connection, path: str | Path, profile: Profile,
         distance = _number(activity.get("distanceMeters"), 0, 1_000_000)
         con.execute(
             "INSERT INTO session(id, start, end, day, kind, title, minutes, notes, source,"
-            " source_id, imported_at, effort, activity_type, distance_km, avg_hr, max_hr, counts_as)"
-            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            " source_id, imported_at, effort, activity_type, distance_km, avg_hr, max_hr, counts_as, steps)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             ("app:" + w["id"], _local(w["start"]), _local(w.get("end")), w["startDay"],
              "cardio" if cardio else "gym",
              w.get("title"), _minutes(w["start"], w.get("end")), w.get("notes") or None,
              SOURCE, w["id"], db.now(), _number(w.get("effort"), 0, 10),
              activity_type if cardio else None, distance / 1000 if distance is not None else None,
              _number(activity.get("averageHeartRate"), 20, 260),
-             _number(activity.get("maxHeartRate"), 20, 260), counts_as))
+             _number(activity.get("maxHeartRate"), 20, 260), counts_as,
+             _number(activity.get("steps"), 0, 200_000)))
         counts["sessions"] += 1
 
     for s in raw.get("sets", []):

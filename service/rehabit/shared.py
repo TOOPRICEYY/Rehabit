@@ -50,21 +50,29 @@ def _vector_steps() -> dict[str, float]:
 def _vector_activities() -> list[dict]:
     """Recorded activities: known and unknown types, with and without heart rate."""
     start = date(2025, 1, 6)
-    plan = [  # (day offset, type key, name, minutes, average HR, max HR, counts as)
-        (1, "cycling", "Morning Ride", 45.0, 118.0, 150.0, None),
-        (4, "indoor_rowing", "Indoor Rowing", 12.0, 140.0, 172.0, None),
-        (6, "running", "Easy Run", 25.5, 150.0, 181.0, None),
-        (8, "indoor_cardio", "Sauna", 20.0, 120.0, 150.0, None),
-        (10, "yoga", "Yoga", 30.0, 80.0, 105.0, None),
-        (11, "walking", "Walk", 50.0, 95.0, 120.0, None),
-        (12, "indoor_cardio", "Stairmaster", 15.0, None, None, None),
-        (13, "indoor_cardio", "Cardio", 20.0, 135.0, 170.0, "cycling"),   # the person said what it was
-        (14, "hiit", "HIIT", 18.0, 140.0, 175.0, None),
-        (15, "cycling", "Ride", 30.0, 120.0, 150.0, "none"),             # and that this one was no load
-        (41, "lap_swimming", "Pool", 30.0, 125.0, 160.0, None),
+    plan = [  # (day offset, type key, name, minutes, average HR, max HR, counts as, steps)
+        (1, "cycling", "Morning Ride", 45.0, 118.0, 150.0, None, None),
+        (4, "indoor_rowing", "Indoor Rowing", 12.0, 140.0, 172.0, None, None),
+        (6, "running", "Easy Run", 25.5, 150.0, 181.0, None, 4100.0),
+        (8, "indoor_cardio", "Sauna", 20.0, 120.0, 150.0, None, None),
+        (10, "yoga", "Yoga", 30.0, 80.0, 105.0, None, None),
+        (11, "walking", "Walk", 50.0, 95.0, 120.0, None, None),
+        (12, "indoor_cardio", "Stairmaster", 15.0, None, None, None, None),
+        (13, "indoor_cardio", "Cardio", 20.0, 135.0, 170.0, "cycling", None),   # the person said what it was
+        (14, "hiit", "HIIT", 18.0, 140.0, 175.0, None, None),
+        (15, "cycling", "Ride", 30.0, 120.0, 150.0, "none", None),             # and that this one was no load
+        (16, "pickleball", "Pickleball", 90.0, 121.0, 166.0, None, 3600.0),
+        (17, "pickleball", "Pickleball", 60.0, 118.0, 160.0, None, None),     # no steps: minutes x rate
+        (41, "lap_swimming", "Pool", 30.0, 125.0, 160.0, None, None),
     ]
     return [{"day": (start + timedelta(days=o)).isoformat(), "type": t, "name": n, "minutes": m,
-             "averageHR": a, "maxHR": x, "countsAs": c} for o, t, n, m, a, x, c in plan]
+             "averageHR": a, "maxHR": x, "countsAs": c, "steps": st} for o, t, n, m, a, x, c, st in plan]
+
+
+def _vector_step_weights() -> dict[str, float]:
+    start = date(2025, 1, 6)
+    plan = {5: 1.2, 6: 0.8, 12: 2.5, 13: 1.7, 44: 0.5}    # day 13 has no steps: the weight is ignored
+    return {(start + timedelta(days=o)).isoformat(): v for o, v in plan.items()}
 
 
 def _vector_resting() -> dict[str, float]:
@@ -98,9 +106,13 @@ def ledger_vectors() -> dict:
     for i, a in enumerate(activities):
         con.execute(
             "INSERT INTO session(id, start, day, kind, title, activity_type, minutes, avg_hr, max_hr,"
-            " counts_as, source, source_id, imported_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            " counts_as, steps, source, source_id, imported_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (f"act:{i}", a["day"], a["day"], "cardio", a["name"], a["type"], a["minutes"],
-             a["averageHR"], a["maxHR"], a["countsAs"], "vec", f"act:{i}", "x"))
+             a["averageHR"], a["maxHR"], a["countsAs"], a["steps"], "vec", f"act:{i}", "x"))
+    weights = _vector_step_weights()
+    for day, value in weights.items():
+        con.execute("INSERT INTO daily_metric(day, metric, value, source) VALUES (?,?,?,?)",
+                    (day, "step_hr_weight", value, "vec"))
     resting = _vector_resting()
     for day, value in resting.items():
         con.execute("INSERT INTO daily_metric(day, metric, value, source) VALUES (?,?,?,?)",
@@ -111,7 +123,8 @@ def ledger_vectors() -> dict:
         " FROM tissue_load_day WHERE dose > 0 OR day = (SELECT MAX(day) FROM tissue_load_day)"
         " ORDER BY day, tissue_id, side")]
     return {"note": "Synthetic. Written by `rehabit export-shared`; do not edit by hand.",
-            "sets": sets, "steps": steps, "activities": activities, "restingHR": resting,
+            "sets": sets, "steps": steps, "stepWeights": weights, "activities": activities,
+            "restingHR": resting,
             "tissueDays": days}
 
 

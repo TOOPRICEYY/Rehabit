@@ -68,6 +68,10 @@ class Settings:
     activity_min_hr_recordings: int = 5
     activity_min_hr_range: float = 40.0
     activity_max_minutes: float = 600.0
+    activity_max_steps: float = 100_000.0
+    # Steps weighted by heart rate (the phone's daily `step_hr_weight`): a day's
+    # walking load is its step count times that day's mean weight, 1 when unknown.
+    weight_steps_by_hr: bool = True
 
 
 WALKING = "walking"
@@ -80,9 +84,13 @@ def _median(values: list[float]) -> float:
     return v[m] if len(v) % 2 else (v[m - 1] + v[m]) / 2
 
 
-def walking_reps(steps: dict[date, float], settings: Settings = Settings()) -> dict[date, float]:
+def walking_reps(steps: dict[date, float], settings: Settings = Settings(),
+                 weights: dict[date, float] | None = None) -> dict[date, float]:
     """Effective reps per leg for each day, from daily step counts (several
-    sources already reduced to the largest reading of each day)."""
+    sources already reduced to the largest reading of each day). `weights` is
+    each day's mean heart-rate weight of its steps; a day without one, or a
+    filled day, counts its steps at 1."""
+    weights = {d: w for d, w in (weights or {}).items() if _positive(w)}
     readings = {d: v for d, v in steps.items() if v and v > 0 and math.isfinite(v)}
     if not readings or settings.steps_per_effective_rep <= 0:
         return {}
@@ -98,9 +106,17 @@ def walking_reps(steps: dict[date, float], settings: Settings = Settings()) -> d
         else:
             before = [readings[day - timedelta(days=i)] for i in range(1, 29) if day - timedelta(days=i) in readings]
             value = _median(before) if before else warm
-        out[day] = value / 2 / settings.steps_per_effective_rep
+        weight = weights.get(day, 1.0) if day in readings else 1.0
+        out[day] = value * weight / 2 / settings.steps_per_effective_rep
         day += timedelta(days=1)
     return out
+
+
+def step_weights(con: sqlite3.Connection) -> dict[date, float]:
+    """Each day's heart-rate weight of its steps, worked out on the phone. When
+    two sources gave one, the later import is not known, so the mean is taken."""
+    return {_d(r[0]): r[1] for r in con.execute(
+        "SELECT day, AVG(value) FROM daily_metric WHERE metric = 'step_hr_weight' AND value > 0 GROUP BY day")}
 
 
 def daily_steps(con: sqlite3.Connection) -> dict[date, float]:
@@ -123,11 +139,23 @@ def activity_intensity(avg_hr: float | None, resting_hr: float | None, max_hr: f
                max(settings.activity_intensity_min, reserve / settings.activity_reference_reserve))
 
 
+def _positive(value) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value > 0
+
+
 def activity_reps(pattern: str | None, minutes: float | None, intensity: float,
-                  settings: Settings = Settings()) -> float:
-    """Effective reps of one recorded activity on a tissue with share 1."""
+                  settings: Settings = Settings(), steps: float | None = None) -> float:
+    """Effective reps of one recorded activity on a tissue with share 1.
+
+    An activity on foot with a step count is counted from its steps: each step
+    on a leg is `PER_STEP` walking steps, less the one the day's step count
+    already holds. Otherwise it is minutes times the rate for its type."""
     rate = library.ACTIVITIES.get(pattern or "")
-    if not rate or not isinstance(minutes, (int, float)) or not math.isfinite(minutes) or minutes <= 0:
+    per_step = library.PER_STEP.get(pattern or "")
+    if per_step and _positive(steps) and settings.steps_per_effective_rep > 0:
+        legs = min(steps, settings.activity_max_steps) / 2
+        return legs / settings.steps_per_effective_rep * (per_step - 1) * intensity
+    if not rate or not _positive(minutes):
         return 0.0
     return min(minutes, settings.activity_max_minutes) * rate * intensity
 
@@ -152,7 +180,7 @@ def activity_doses(con: sqlite3.Connection, settings: Settings = Settings()) -> 
         "SELECT max_hr FROM session WHERE max_hr IS NOT NULL")], settings)
     out = []
     for r in con.execute(
-            "SELECT day, activity_type, title, minutes, avg_hr, counts_as FROM session"
+            "SELECT day, activity_type, title, minutes, avg_hr, counts_as, steps FROM session"
             " WHERE activity_type IS NOT NULL OR counts_as IS NOT NULL ORDER BY day, start, id"):
         # What the person said it was wins over what the type and name suggest;
         # an answer that is no activity pattern ("none") means no load.
@@ -163,7 +191,7 @@ def activity_doses(con: sqlite3.Connection, settings: Settings = Settings()) -> 
             pattern = library.match_activity(r["activity_type"], r["title"])
         day = _d(r["day"])
         intensity = activity_intensity(r["avg_hr"], usual_resting_hr(resting, day), top, settings)
-        reps = activity_reps(pattern, r["minutes"], intensity, settings)
+        reps = activity_reps(pattern, r["minutes"], intensity, settings, r["steps"])
         if reps > 0:
             out.append({"row": {"exercise_id": pattern, "side": "both", "set_count": 1},
                         "day": day, "reference_kg": None, "ratio": 1.0, "intensity": intensity,
@@ -235,7 +263,8 @@ def compute(con: sqlite3.Connection, settings: Settings = Settings()) -> dict:
     daily: dict[tuple[str, str], dict[date, list[float]]] = defaultdict(lambda: defaultdict(lambda: [0.0, 0.0, 0.0, 0.0]))
     doses = set_doses(con, settings)
     if settings.count_steps:
-        for day, reps in sorted(walking_reps(daily_steps(con), settings).items()):
+        for day, reps in sorted(walking_reps(daily_steps(con), settings,
+                                                  step_weights(con) if settings.weight_steps_by_hr else None).items()):
             doses.append({"row": {"exercise_id": WALKING, "side": "both", "set_count": 1},
                           "day": day, "reference_kg": None, "ratio": 1.0,
                           "effective_reps": reps, "dose": reps})
