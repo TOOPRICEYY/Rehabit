@@ -102,10 +102,11 @@ struct SettingsView: View {
                             let count = await model.importHealth(from: HealthKitSource())
                             // Connected once by hand: from now on it refreshes by itself.
                             if count != nil { AutoRefresh.healthConnected = true }
+                            let sessions = count != nil ? await AutoRefresh.readHealthSessions(model, days: 90, ask: true) : nil
                             if let error = model.lastError {
                                 healthStatus = error
                             } else if let count, count > 0 {
-                                healthStatus = "\(count) daily values read from the last 60 days."
+                                healthStatus = "\(count) daily values read from the last 60 days." + (sessions.map { " " + $0.prefix(1).uppercased() + $0.dropFirst() + "." } ?? "")
                             } else if count == 0 {
                                 // Apple does not tell an app whether reading was refused; refused and empty look the same.
                                 healthStatus = "Nothing was returned. If you expected data, allow Rehabit to read it in the Health app under Sharing, then Apps."
@@ -340,6 +341,7 @@ struct SettingsView: View {
 
     private func describe(_ summary: ImportSummary) -> String {
         var text = "\(Format.count(summary.workoutsAdded, "strength session")) (\(Format.count(summary.setsAdded, "set"))) and \(summary.activitiesAdded) \(summary.activitiesAdded == 1 ? "other activity" : "other activities") (runs, rides, walks and the like) added."
+        if summary.activitiesUpdated > 0 { text += " \(summary.activitiesUpdated) renamed or changed on Garmin were brought up to date." }
         if summary.workoutsSkipped > 0 { text += " \(summary.workoutsSkipped) were already here." }
         if summary.sidesInferred > 0 { text += " \(summary.sidesInferred) sets were given a side from a note or an injury." }
         if !summary.unmapped.isEmpty {

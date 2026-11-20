@@ -5,7 +5,7 @@ import RehabitCore
 /// Apple Health as a source of nightly and daily values. Read-only.
 struct HealthKitSource: HealthSource {
     let name = "apple_health"
-    private let store = HKHealthStore()
+    let store = HKHealthStore()
 
     private var quantities: [(HKQuantityTypeIdentifier, String, HKStatisticsOptions, HKUnit)] {
         [(.stepCount, MetricName.steps, .cumulativeSum, .count()),

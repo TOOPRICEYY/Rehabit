@@ -101,6 +101,36 @@ enum AutoRefresh {
         set { UserDefaults.standard.set(newValue, forKey: healthConnectedKey) }
     }
 
+    /// Workouts recorded in Apple Health (pickleball from an Apple Watch, say),
+    /// and the heart-rate weighting of steps. Reading workouts and heart rate
+    /// needs a second permission: asked only when `ask` (the person tapped),
+    /// otherwise skipped with a note. Nil when nothing to say.
+    static func readHealthSessions(_ model: AppModel, days: Int, ask: Bool) async -> String? {
+        let source = HealthKitSource()
+        if await source.needsPermission(for: HealthKitSource.activityTypes) {
+            guard ask else { return "tap Read from Apple Health once to allow workouts and heart rate" }
+            try? await source.requestActivityAccess()
+        }
+        let today = Day(Date())
+        guard let found = try? await source.workouts(from: today.adding(-days), through: today) else { return nil }
+        // A session a Garmin watch also recorded is Garmin's.
+        let garmin = model.workouts.filter { $0.id.hasPrefix(GarminSource.sourceName + ":") }
+        let fresh = found.filter { item in
+            !garmin.contains { other in
+                let end = item.end ?? item.start, otherEnd = other.end ?? other.start
+                let shared = min(end, otherEnd).timeIntervalSince(max(item.start, other.start))
+                return shared > 0.5 * max(60, end.timeIntervalSince(item.start))
+            }
+        }
+        let summary = model.importWorkouts(fresh, source: "apple_health", inferSide: false)
+        let weighted = await StepWeightRefresh.run(model, days: days)
+        var parts: [String] = []
+        if summary.activitiesAdded > 0 { parts.append("\(summary.activitiesAdded) \(summary.activitiesAdded == 1 ? "workout" : "workouts") added") }
+        if summary.activitiesUpdated > 0 { parts.append("\(summary.activitiesUpdated) updated") }
+        if let weighted { parts.append(weighted) }
+        return parts.isEmpty ? nil : parts.joined(separator: ", ")
+    }
+
     static func runIfDue(_ model: AppModel, now: Date = Date()) {
         guard !Demo.isRunning else { return }
         for source in Source.allCases where !running.contains(source) {
@@ -113,8 +143,13 @@ enum AutoRefresh {
                 Task { @MainActor in
                     defer { running.remove(source) }
                     let count = await model.importHealth(from: HealthKitSource(), days: days)
-                    if let count { record(source, count > 0 ? "\(count) daily values read." : "nothing new.", ranAt: now) }
-                    else { record(source, "could not read Health: \(model.lastError ?? "not available").", ranAt: nil) }
+                    guard let count else {
+                        record(source, "could not read Health: \(model.lastError ?? "not available").", ranAt: nil)
+                        return
+                    }
+                    let extras = await readHealthSessions(model, days: days, ask: false)
+                    let parts = [count > 0 ? "\(count) daily values read" : nil, extras].compactMap { $0 }
+                    record(source, parts.isEmpty ? "nothing new." : parts.joined(separator: "; ") + ".", ranAt: now)
                 }
             case .garmin:
                 guard let client = GarminAccount.client() else { continue }
@@ -131,6 +166,9 @@ enum AutoRefresh {
                     if sessions.workoutsAdded > 0 { parts.append(Format.count(sessions.workoutsAdded, "strength session")) }
                     if sessions.activitiesAdded > 0 {
                         parts.append("\(sessions.activitiesAdded) \(sessions.activitiesAdded == 1 ? "other activity" : "other activities")")
+                    }
+                    if sessions.activitiesUpdated > 0 {
+                        parts.append("\(sessions.activitiesUpdated) renamed or changed on Garmin")
                     }
                     if let values, values > 0 { parts.append("\(values) daily values") }
                     record(source, parts.isEmpty ? "nothing new." : parts.joined(separator: ", ") + " added.", ranAt: now)

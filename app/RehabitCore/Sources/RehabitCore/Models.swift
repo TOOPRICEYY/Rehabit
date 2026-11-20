@@ -99,6 +99,9 @@ public struct ActivitySummary: Codable, Equatable, Sendable {
     /// pattern id (such as "cycling" for a stationary bike Garmin called
     /// "Cardio"), or "none" for not counted. Nil: worked out from the type.
     public var countsAs: String?
+    /// The watch's own name for the session when it was last read. While the
+    /// session's title still matches it, a new name given on the watch is taken up.
+    public var sourceTitle: String?
 
     public init(type: String, distanceMeters: Double? = nil, averageHeartRate: Double? = nil, maxHeartRate: Double? = nil,
                 calories: Double? = nil, elevationGainMeters: Double? = nil, steps: Double? = nil) {

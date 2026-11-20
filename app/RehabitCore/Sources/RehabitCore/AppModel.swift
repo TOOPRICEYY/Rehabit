@@ -713,6 +713,16 @@ public final class AppModel {
 
     public func dailyMetrics(_ metric: String) -> [DailyMetric] { (try? store.dailyMetrics(metric)) ?? [] }
 
+    /// Stores daily values worked out on the phone (such as the heart-rate
+    /// weighting of steps). A value for the same day, metric and source is replaced.
+    public func saveDailyMetrics(_ metrics: [DailyMetric]) {
+        let usable = metrics.filter { $0.value.isFinite }
+        guard !usable.isEmpty else { return }
+        attempt { try store.save(usable) }
+        history = nil; massSeries = nil
+        revision += 1
+    }
+
     // MARK: Body weight
 
     /// Body weight by day, oldest first: one value a day, the one typed in if

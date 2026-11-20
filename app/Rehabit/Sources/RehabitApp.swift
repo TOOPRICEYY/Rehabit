@@ -139,7 +139,8 @@ enum Format {
         if t.contains("elliptical") { return "figure.elliptical" }
         if t.contains("stair") { return "figure.stair.stepper" }
         if t.contains("ski") || t.contains("snowboard") { return "figure.skiing.downhill" }
-        if t.contains("tennis") || t.contains("pickleball") || t.contains("padel") { return "figure.tennis" }
+        if t.contains("pickleball") { return "figure.pickleball" }
+        if t.contains("tennis") || t.contains("padel") { return "figure.tennis" }
         return "figure.mixed.cardio"
     }
 

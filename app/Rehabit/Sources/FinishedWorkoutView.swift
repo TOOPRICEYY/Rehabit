@@ -201,6 +201,7 @@ struct WorkoutDetailView: View {
     static func source(_ workout: Workout) -> String? {
         if workout.id.hasPrefix("hevy:") { return "Hevy" }
         if workout.id.hasPrefix("garmin:") { return "Garmin" }
+        if workout.id.hasPrefix("apple_health:") { return "Apple Health" }
         return nil
     }
 }
@@ -250,7 +251,7 @@ struct ActivitySection: View {
         } header: {
             Text("Activity")
         } footer: {
-            Text("From Garmin. Load is worked out from the kind of activity, its length and, when known, heart rate. If Garmin's kind is wrong or vague, such as Cardio for a stationary bike, choose what it was.")
+            Text("Load is worked out from the kind of activity, its length, its steps and, when known, heart rate. If the recorded kind is wrong or vague, such as Cardio for a stationary bike or pickleball, choose what it was.")
         }
         .confirmationDialog("Change all \(model.sessionsLike(workout)) “\(workout.title)” sessions?",
                             isPresented: Binding(get: { pending != nil }, set: { if !$0 { pending = nil } }),

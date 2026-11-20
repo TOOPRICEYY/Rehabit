@@ -48,6 +48,8 @@ public struct ImportSummary: Equatable, Sendable {
     public var workoutsAdded = 0
     /// Sessions with no sets added: runs, rides, walks and the like.
     public var activitiesAdded = 0
+    /// Sessions with no sets already here that were renamed or changed on the watch since.
+    public var activitiesUpdated = 0
     public var setsAdded = 0
     /// Workouts already here, or deleted here earlier, and so left alone.
     public var workoutsSkipped = 0
@@ -294,6 +296,24 @@ extension AppModel {
         return changed.count
     }
 
+    /// An activity already here, brought up to date with the watch: a new name
+    /// (unless it was renamed here) and new totals. What the person chose it
+    /// counts as, the effort, notes and times stay. Nil when nothing changed,
+    /// or the session was deleted here.
+    func refreshed(id: String, title: String, activity: ActivitySummary) -> Workout? {
+        guard var existing = workouts.first(where: { $0.id == id }), let old = existing.activity else { return nil }
+        // Sessions read before the watch's name was kept: never edited here means the title is still the watch's.
+        let watchName = old.sourceTitle ?? (existing.updatedAt == existing.start ? existing.title : nil)
+        var fresh = activity
+        fresh.countsAs = old.countsAs
+        fresh.sourceTitle = title
+        if let watchName, existing.title == watchName { existing.title = title }
+        else if old.sourceTitle == nil { fresh.sourceTitle = watchName }   // renamed here before: keep it so
+        existing.activity = fresh
+        guard existing.title != workouts.first(where: { $0.id == id })?.title || fresh != old else { return nil }
+        return existing
+    }
+
     /// Stores workouts read from another app. Reading the same file again adds nothing.
     @discardableResult
     public func importWorkouts(_ imported: [ImportedWorkout], source: String, inferSide: Bool = true) -> ImportSummary {
@@ -306,6 +326,7 @@ extension AppModel {
                                       zone: importZone, notes: item.notes)
                 if let end = workout.end, end < workout.start { workout.end = workout.start }
                 workout.activity = item.activity
+                workout.activity?.sourceTitle = item.title
                 var sets: [WorkoutSet] = [], inferred = 0
                 for (position, s) in item.sets.enumerated() {
                     let match = ExerciseMatcher.entry(for: s.exercise, in: library)
@@ -329,6 +350,9 @@ extension AppModel {
                 if try storeImported(workout, sets: sets) {
                     if item.activity != nil { summary.activitiesAdded += 1 } else { summary.workoutsAdded += 1 }
                     summary.setsAdded += sets.count; summary.sidesInferred += inferred
+                } else if let fresh = item.activity, let changed = refreshed(id: id, title: item.title, activity: fresh) {
+                    update(changed)
+                    summary.activitiesUpdated += 1
                 } else { summary.workoutsSkipped += 1 }
             }
         }

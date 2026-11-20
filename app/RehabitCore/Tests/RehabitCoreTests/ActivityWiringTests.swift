@@ -90,4 +90,41 @@ final class ActivityWiringTests: XCTestCase {
         m.setActivityCountsAs(nil, for: first, sameName: true)
         XCTAssertTrue(m.workouts.filter { $0.title == "Cardio" }.allSatisfy { $0.activity?.countsAs == nil })
     }
+
+    /// A session renamed on the watch after it came in takes the new name, and
+    /// with it the load the name says; one renamed here keeps the person's name.
+    @MainActor
+    func testARenameOnTheWatchIsTakenUp() async throws {
+        let now = Date(timeIntervalSince1970: 1_795_000_000)
+        let m = AppModel(store: try Store(path: ":memory:"), zone: zone, now: { now })
+        let a = now.addingTimeInterval(-2 * 86_400), b = now.addingTimeInterval(-86_400)
+        func read(_ nameA: String, _ nameB: String) -> ImportSummary {
+            m.importWorkouts([
+                ImportedWorkout(sourceID: "a", title: nameA, start: a, end: a.addingTimeInterval(1800),
+                                activity: ActivitySummary(type: "indoor_cardio", averageHeartRate: 140)),
+                ImportedWorkout(sourceID: "b", title: nameB, start: b, end: b.addingTimeInterval(1800),
+                                activity: ActivitySummary(type: "indoor_cardio", averageHeartRate: 140)),
+            ], source: GarminSource.sourceName, inferSide: false)
+        }
+        _ = read("Sauna", "Sauna")
+        let first = try XCTUnwrap(m.workouts.first { $0.start == a })
+        XCTAssertEqual(m.activityLoad(for: first)?.effectiveReps, 0)
+
+        // B is renamed here; then both are renamed on the watch.
+        var mine = try XCTUnwrap(m.workouts.first { $0.start == b })
+        mine.title = "Steam room"
+        m.update(mine)
+        let again = read("Stationary Bike", "Stationary Bike")
+        XCTAssertEqual(again.activitiesUpdated, 2); XCTAssertEqual(again.activitiesAdded, 0)
+        let renamed = try XCTUnwrap(m.workouts.first { $0.start == a })
+        XCTAssertEqual(renamed.title, "Stationary Bike")
+        XCTAssertEqual(m.activityLoad(for: renamed)?.pattern, "cycling")
+        XCTAssertGreaterThan(m.activityLoad(for: renamed)?.effectiveReps ?? 0, 0)
+        XCTAssertEqual(m.workouts.first { $0.start == b }?.title, "Steam room")   // the person's name stays
+        XCTAssertEqual(m.workouts.count, 2)
+
+        // Reading the same again changes nothing.
+        let same = read("Stationary Bike", "Stationary Bike")
+        XCTAssertEqual(same.activitiesUpdated, 0); XCTAssertEqual(same.workoutsSkipped, 2)
+    }
 }

@@ -4,6 +4,7 @@ import SwiftUI
 struct WorkoutsView: View {
     @Environment(AppModel.self) private var model
     @State private var showingActive = false
+    @State private var loggingActivity = false
     @State private var showingChecks = false
     @State private var checksWaiting = false
     @State private var busy = false
@@ -43,6 +44,10 @@ struct WorkoutsView: View {
                         Label("Routines", systemImage: "list.bullet.clipboard")
                     }
                     .accessibilityHint("Start a workout from a saved routine")
+                    Button { loggingActivity = true } label: {
+                        Label("Log an activity", systemImage: "figure.pickleball")
+                    }
+                    .accessibilityHint("A session with no sets, such as pickleball or a ride, that no watch recorded")
                 }
                 RecoveryCard()
                 Section("This week") {
@@ -126,6 +131,7 @@ struct WorkoutsView: View {
                 }
             }
             .navigationTitle("Workouts")
+            .sheet(isPresented: $loggingActivity) { LogActivitySheet() }
             // An alert rather than a confirmation dialog: on iOS 26 a dialog becomes a
             // popover pointing at the list, not at the row being deleted.
             .alert(pendingDelete.map { "Delete \($0.title)?" } ?? "", isPresented: Binding(
