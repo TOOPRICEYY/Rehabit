@@ -127,4 +127,31 @@ final class ActivityWiringTests: XCTestCase {
         let same = read("Stationary Bike", "Stationary Bike")
         XCTAssertEqual(same.activitiesUpdated, 0); XCTAssertEqual(same.workoutsSkipped, 2)
     }
+
+    /// Pickleball with steps loads the calf more than its steps as walking would,
+    /// and a day's heart-rate weighting of steps scales its walking load.
+    @MainActor
+    func testPickleballStepsAndWeightedWalking() async throws {
+        let now = Date(timeIntervalSince1970: 1_795_000_000)
+        let m = AppModel(store: try Store(path: ":memory:"), zone: zone, now: { now })
+        let today = Day(now, in: zone)
+        let start = now.addingTimeInterval(-2 * 86_400)
+        m.importWorkouts([ImportedWorkout(sourceID: "p", title: "Pickleball", start: start, end: start.addingTimeInterval(7200),
+                                          activity: ActivitySummary(type: "pickleball", averageHeartRate: 120, steps: 4600))],
+                         source: "apple_health", inferSide: false)
+        let game = try XCTUnwrap(m.workouts.first)
+        let load = try XCTUnwrap(m.activityLoad(for: game))
+        XCTAssertEqual(load.pattern, "pickleball")
+        XCTAssertGreaterThan(load.effectiveReps, 0)
+        XCTAssertTrue(["calf", "achilles"].contains(load.tissue?.id ?? ""), load.tissue?.id ?? "none")
+
+        // The same 8,000 steps a day, then one day weighted 2: that day's calf load from walking doubles.
+        var metrics: [DailyMetric] = []
+        for i in 0..<10 { metrics.append(DailyMetric(day: today.adding(-i), metric: MetricName.steps, value: 8000, source: "phone")) }
+        m.saveDailyMetrics(metrics)
+        let before = m.tissueDays(last: 7).days.first { $0.tissue == "achilles" && $0.side == .left && $0.day == today.adding(-1) }?.dose ?? 0
+        m.saveDailyMetrics([DailyMetric(day: today.adding(-1), metric: MetricName.stepHRWeight, value: 2, source: "apple_health")])
+        let after = m.tissueDays(last: 7).days.first { $0.tissue == "achilles" && $0.side == .left && $0.day == today.adding(-1) }?.dose ?? 0
+        XCTAssertEqual(after, before * 2, accuracy: 1e-6)
+    }
 }

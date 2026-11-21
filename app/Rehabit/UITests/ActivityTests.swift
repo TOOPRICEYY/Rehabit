@@ -71,4 +71,38 @@ final class ActivityTests: XCTestCase {
         XCTAssertTrue(line.label.hasPrefix("Counts as load: about"), line.label)
         shot("12-cardio-as-bike")
     }
+
+    /// A pickleball evening no watch recorded, logged by hand, counts on the calf.
+    func testLogPickleballByHand() {
+        XCUIDevice.shared.appearance = .light
+        let app = XCUIApplication()
+        app.launchArguments = ["-demo-workout"]
+        app.launch()
+        app.tabBars.buttons["Workouts"].tap()
+        app.buttons["Log an activity"].tap()
+        XCTAssertTrue(app.navigationBars["Log an activity"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.navigationBars.buttons["Save"].isEnabled, "a kind is needed")
+        app.descendants(matching: .any)["log-activity-kind"].firstMatch.tap()
+        let pickleball = app.buttons["Pickleball"].firstMatch
+        XCTAssertTrue(pickleball.waitForExistence(timeout: 3))
+        pickleball.tap()
+        let steps = app.textFields["Steps"].firstMatch
+        steps.tap()
+        steps.typeText("4600")
+        let hr = app.textFields["Average heart rate"].firstMatch
+        hr.tap()
+        hr.typeText("120")
+        shot("20-log-pickleball")
+        app.navigationBars.buttons["Save"].tap()
+        let row = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Pickleball'")).firstMatch
+        for _ in 0..<6 where !(row.exists && row.isHittable) { app.swipeUp() }
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        let line = app.descendants(matching: .any)["activity-load"]
+        for _ in 0..<3 where !(line.exists && line.isHittable) { app.swipeUp() }
+        XCTAssertTrue(line.waitForExistence(timeout: 5))
+        XCTAssertTrue(line.label.hasPrefix("Counts as load: about"), line.label)
+        XCTAssertTrue(["calf", "gastrocnemius", "achilles", "Achilles"].contains { line.label.contains($0) }, line.label)
+        shot("21-pickleball-load")
+    }
 }

@@ -107,8 +107,14 @@ enum StepWeightRefresh {
         let today = Day(Date())
         // 28 days more than asked, for the usual walking heart rate.
         let from = today.adding(-(days + 28))
-        guard let steps = try? await source.hourly(.stepCount, from: from, through: today),
-              let heart = try? await source.hourly(.heartRate, from: from, through: today) else { return nil }
+        // Minutes for the last two weeks, where step bursts and heart rate line up;
+        // hours before that, which is plenty for the 28-day walking heart rate.
+        let recent = today.adding(-13)
+        guard let oldSteps = try? await source.samples(.stepCount, from: from, through: recent.adding(-1), minutes: 60),
+              let oldHeart = try? await source.samples(.heartRate, from: from, through: recent.adding(-1), minutes: 60),
+              let newSteps = try? await source.samples(.stepCount, from: recent, through: today, minutes: 1),
+              let newHeart = try? await source.samples(.heartRate, from: recent, through: today, minutes: 1) else { return nil }
+        let steps = oldSteps + newSteps, heart = oldHeart + newHeart
         let excluded = model.workouts.map { DateInterval(start: $0.start, end: max($0.start, $0.end ?? $0.start)) }
         var resting: [Day: Double] = [:]
         for m in model.dailyMetrics(MetricName.restingHeartRate) where m.value > 0 {
@@ -127,14 +133,15 @@ enum StepWeightRefresh {
 }
 
 extension HealthKitSource {
-    /// Hourly sums (steps) or averages (heart rate) as samples for the core.
-    func hourly(_ id: HKQuantityTypeIdentifier, from: Day, through: Day) async throws -> [IntervalSample] {
+    /// Sums (steps) or averages (heart rate) over buckets of `minutes`, as samples for the core.
+    func samples(_ id: HKQuantityTypeIdentifier, from: Day, through: Day, minutes: Int) async throws -> [IntervalSample] {
+        guard from <= through else { return [] }
         let start = from.start(), end = through.adding(1).start()
         let sum = id == .stepCount
         let descriptor = HKStatisticsCollectionQueryDescriptor(
             predicate: .quantitySample(type: HKQuantityType(id), predicate: HKQuery.predicateForSamples(withStart: start, end: end)),
             options: sum ? .cumulativeSum : .discreteAverage, anchorDate: Calendar.current.startOfDay(for: start),
-            intervalComponents: DateComponents(hour: 1))
+            intervalComponents: DateComponents(minute: minutes))
         let unit: HKUnit = sum ? .count() : HKUnit.count().unitDivided(by: .minute())
         var out: [IntervalSample] = []
         try await descriptor.result(for: store).enumerateStatistics(from: start, to: end) { s, _ in

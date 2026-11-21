@@ -355,7 +355,7 @@ public final class AppModel {
         // A kind the person chose wins over the watch's type and name; "none" adds nothing.
         return LedgerActivity(day: workout.startDay, type: activity.type, name: workout.title,
                               minutes: workout.minutes, averageHR: activity.averageHeartRate,
-                              countsAs: activity.countsAs)
+                              countsAs: activity.countsAs, steps: activity.steps)
     }
 
     /// `ActivitySummary.countsAs` for a session the person says adds no load.
@@ -363,8 +363,13 @@ public final class AppModel {
 
     /// The kinds a session can be counted as, by name.
     public var activityKinds: [(id: String, name: String)] {
-        library.activityRates.keys.sorted().map { ($0, library.pattern($0)?.name ?? $0) }
-            .sorted { $0.name < $1.name }
+        // The library's names can carry a note in brackets ("Pickleball (beyond its steps)"); a menu shows the plain name.
+        library.activityRates.keys.sorted().map { id -> (id: String, name: String) in
+            let full = library.pattern(id)?.name ?? id
+            let plain = full.components(separatedBy: " (").first?.trimmingCharacters(in: .whitespaces) ?? full
+            return (id, plain.isEmpty ? full : plain)
+        }
+        .sorted { $0.name < $1.name }
     }
 
     /// Sets what a session counts as (a pattern id, `notCounted`, or nil for
@@ -409,7 +414,10 @@ public final class AppModel {
     private func walkingHistory() -> [LedgerSet] {
         var steps: [Day: Double] = [:]
         for m in dailyMetrics(MetricName.steps) where m.value > 0 { steps[m.day] = max(steps[m.day] ?? 0, m.value) }
-        return ledger.walkingSets(steps: steps)
+        // The heart-rate weighting of each day's steps; the mean when two sources have one.
+        var weights: [Day: [Double]] = [:]
+        for m in dailyMetrics(MetricName.stepHRWeight) where m.value.isFinite && m.value > 0 { weights[m.day, default: []].append(m.value) }
+        return ledger.walkingSets(steps: steps, weights: weights.mapValues { $0.reduce(0, +) / Double($0.count) })
     }
 
     /// Statements about this set against the history: load jump, layoff, a tissue
